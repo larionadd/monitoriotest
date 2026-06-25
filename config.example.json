@@ -1,0 +1,17 @@
+{
+  "telegram_bot_token": "PUT_YOUR_TELEGRAM_BOT_TOKEN_HERE",
+  "database_path": "data/media_monitor.sqlite3",
+  "sources_path": "data/sources.csv",
+  "mini_app_url": "",
+  "mini_app_host": "127.0.0.1",
+  "mini_app_port": 8080,
+  "mini_app_static_path": "mini_app",
+  "poll_interval_seconds": 7200,
+  "source_timeout_seconds": 15,
+  "user_daily_limit": 100,
+  "admin_chat_ids": [],
+  "require_onboarding": false,
+  "trial_plan_id": "",
+  "trial_days": 7,
+  "alert_template": "📰 Нова згадка\n\nКлюч: {keyword}\nДжерело: {source}\nЗаголовок: {title}\nДата: {published_at}\n\n{url}"
+}

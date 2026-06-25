@@ -1,0 +1,16 @@
+name,url,type,rank,subscribers,country,language,notes
+TVN24 - najnowsze,https://tvn24.pl/najnowsze.xml,rss,1,,pl,pl,verified RSS; national news
+Polsat News - wszystkie,https://www.polsatnews.pl/rss/wszystkie.xml,rss,2,,pl,pl,verified RSS; national news
+RMF24 - Polska,https://www.rmf24.pl/fakty/polska/feed,rss,3,,pl,pl,verified RSS; Poland news
+RMF24 - Swiat,https://www.rmf24.pl/fakty/swiat/feed,rss,4,,pl,pl,verified RSS; world news
+Gazeta.pl Wiadomosci,https://wiadomosci.gazeta.pl/pub/rss/wiadomosci.htm,rss,5,,pl,pl,verified RSS; general news
+Rzeczpospolita,https://www.rp.pl/rss_main,rss,6,,pl,pl,verified with parser warning; test before production
+Fakt,https://www.fakt.pl/rss,rss,7,,pl,pl,verified RSS; mass-market news
+Notes From Poland,https://notesfrompoland.com/feed/,rss,8,,pl,en,verified RSS; English-language Poland news
+Polskie Newsy,https://t.me/s/plnewsy,telegram_paid,1,,pl,pl,verified public Telegram web-preview
+Insider PL,https://t.me/s/insider_polska,telegram_paid,2,117626,pl,pl,verified public Telegram web-preview; subscriber count from Telemetr snapshot
+Wiadomosci Polska,https://t.me/s/PolskaWiadomosci,telegram_paid,3,,pl,pl,verified public Telegram web-preview
+MONITOR STRATEGICZNY,https://t.me/s/monitor_strategiczny,telegram_paid,4,,pl,pl,verified public Telegram web-preview; editorial review recommended
+Polska Grupa Informacyjna,https://t.me/s/polska_grupa_informacyjna,telegram_paid,5,,pl,pl,verified public Telegram web-preview; editorial review recommended
+POLSKA SZTUKA WOJNY,https://t.me/s/sztuka_wojny,telegram_paid,6,,pl,pl,verified public Telegram web-preview; war/geopolitics; editorial review recommended
+inPoland.net.pl,https://t.me/s/inpoland_pl,telegram_paid,7,,pl,pl,verified public Telegram web-preview; migrant/local news

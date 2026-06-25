@@ -1,0 +1,19 @@
+[Unit]
+Description=Media Monitor Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=media-monitor
+Group=media-monitor
+WorkingDirectory=/opt/media-monitor-bot
+EnvironmentFile=/etc/media-monitor-bot/media-monitor-bot.env
+ExecStart=/opt/media-monitor-bot/.venv/bin/python -m media_monitor_bot.app --config /etc/media-monitor-bot/config.json
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/media-monitor-bot/bot.out.log
+StandardError=append:/var/log/media-monitor-bot/bot.err.log
+
+[Install]
+WantedBy=multi-user.target
