@@ -64,7 +64,7 @@ MAIN_MENU = {
     "keyboard": [
         [{"text": BTN_INFO}, {"text": BTN_CHECK}],
         [{"text": BTN_SOURCES}, {"text": BTN_REPORT}],
-        [{"text": BTN_FILTERS}, {"text": BTN_TEXT_MODE}],
+        [{"text": BTN_FILTERS}],
         [{"text": BTN_PLANS}, {"text": BTN_HELP}],
     ],
     "resize_keyboard": True,
@@ -121,6 +121,7 @@ SOURCE_MENU = {
 SETTINGS_MENU = {
     "keyboard": [
         [{"text": BTN_LANGUAGE}, {"text": BTN_COUNTRY}],
+        [{"text": BTN_TEXT_MODE}],
         [{"text": BTN_INFO}, {"text": BTN_BACK}],
     ],
     "resize_keyboard": True,
@@ -895,15 +896,19 @@ def send_country_choice(chat_id: int, db: Database, telegram: TelegramApi) -> No
 
 def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     settings = db.get_user_settings(chat_id)
+    monitoring = db.get_user_monitoring(chat_id)
+    text_mode = "повний текст новини" if monitoring.full_text_enabled else "заголовок + RSS-анонс"
     telegram.send_message(
         chat_id,
         (
             f"{locale_text(settings.language_code, 'settings')}:\n\n"
             f"{locale_text(settings.language_code, 'language')}: {escape(language_name(settings.language_code))}\n"
             f"{locale_text(settings.language_code, 'country')}: "
-            f"{escape(country_name(settings.country_code, settings.language_code))}\n\n"
+            f"{escape(country_name(settings.country_code, settings.language_code))}\n"
+            f"Режим тексту: {escape(text_mode)}\n\n"
             f"{locale_text(settings.language_code, 'change_language')}: {BTN_LANGUAGE}\n"
-            f"{locale_text(settings.language_code, 'change_country')}: {BTN_COUNTRY}"
+            f"{locale_text(settings.language_code, 'change_country')}: {BTN_COUNTRY}\n"
+            f"Змінити режим тексту: {BTN_TEXT_MODE}"
         ),
         reply_markup=SETTINGS_MENU,
     )
