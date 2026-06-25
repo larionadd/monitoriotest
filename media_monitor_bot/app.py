@@ -60,16 +60,67 @@ BTN_LANGUAGE = "🌐 Мова"
 BTN_COUNTRY = "🌍 Регіон"
 BTN_SETTINGS = "⚙️ Налаштування"
 
-MAIN_MENU = {
-    "keyboard": [
-        [{"text": BTN_INFO}, {"text": BTN_CHECK}],
-        [{"text": BTN_SOURCES}, {"text": BTN_REPORT}],
-        [{"text": BTN_FILTERS}],
-        [{"text": BTN_PLANS}, {"text": BTN_HELP}],
-    ],
-    "resize_keyboard": True,
-    "is_persistent": True,
+BUTTON_KEY_BY_DEFAULT_TEXT = {
+    BTN_ADD: "add",
+    BTN_REMOVE: "remove",
+    BTN_INFO: "info",
+    BTN_CHECK: "check",
+    BTN_SOURCES: "sources",
+    BTN_REPORT: "report",
+    BTN_FILTERS: "filters",
+    BTN_TEXT_MODE: "text_mode",
+    BTN_PLANS: "plans",
+    BTN_HELP: "help",
+    BTN_APP: "app",
+    BTN_SOURCE_LIST: "source_list",
+    BTN_TG_BLOCKS: "tg_blocks",
+    BTN_SOURCES_FILE: "sources_file",
+    BTN_SOURCE_ADD: "source_add",
+    BTN_TG_ADD: "tg_add",
+    BTN_SOURCE_DISABLE: "source_disable",
+    BTN_SOURCE_ENABLE: "source_enable",
+    BTN_SOURCE_REMOVE: "source_remove",
+    BTN_FULL_TEXT_ON: "full_text_on",
+    BTN_FULL_TEXT_OFF: "full_text_off",
+    BTN_STOP_ADD: "stop_add",
+    BTN_STOP_REMOVE: "stop_remove",
+    BTN_PLUS_ADD: "plus_add",
+    BTN_PLUS_REMOVE: "plus_remove",
+    BTN_BACK: "back",
+    BTN_LANGUAGE: "language",
+    BTN_COUNTRY: "country",
+    BTN_SETTINGS: "settings",
 }
+
+BUTTON_KEYS = tuple(BUTTON_KEY_BY_DEFAULT_TEXT.values())
+MAIN_MENU_ROWS = (
+    ("info", "check"),
+    ("sources", "report"),
+    ("filters",),
+    ("plans", "help"),
+)
+FILTER_MENU_ROWS = (
+    ("add", "remove"),
+    ("stop_add", "stop_remove"),
+    ("plus_add", "plus_remove"),
+    ("info", "back"),
+)
+TEXT_MODE_MENU_ROWS = (
+    ("full_text_on", "full_text_off"),
+    ("info", "back"),
+)
+SOURCE_MENU_ROWS = (
+    ("source_list", "tg_blocks"),
+    ("sources_file",),
+    ("source_add", "tg_add"),
+    ("source_disable", "source_enable"),
+    ("source_remove", "back"),
+)
+SETTINGS_MENU_ROWS = (
+    ("language", "country"),
+    ("text_mode",),
+    ("info", "back"),
+)
 
 MINI_APP_URL = ""
 REQUIRE_ONBOARDING = False
@@ -78,82 +129,59 @@ TRIAL_DAYS = 7
 
 
 def main_menu_for_chat(chat_id: int, db: Database) -> dict:
-    keyboard = [[dict(button) for button in row] for row in MAIN_MENU["keyboard"]]
+    language_code = db.get_user_settings(chat_id).language_code
+    keyboard = menu_keyboard(language_code, MAIN_MENU_ROWS)
     if MINI_APP_URL and (REQUIRE_ONBOARDING or db.get_active_plan(chat_id).id == "business"):
-        keyboard.insert(0, [{"text": BTN_APP, "web_app": {"url": MINI_APP_URL}}])
+        keyboard.insert(0, [{"text": button_label(language_code, "app"), "web_app": {"url": MINI_APP_URL}}])
     if REQUIRE_ONBOARDING:
-        keyboard.insert(-1, [{"text": BTN_SETTINGS}])
-    return {**MAIN_MENU, "keyboard": keyboard}
+        keyboard.insert(-1, [{"text": button_label(language_code, "settings")}])
+    return menu_markup(keyboard)
 
 
-FILTER_MENU = {
-    "keyboard": [
-        [{"text": BTN_ADD}, {"text": BTN_REMOVE}],
-        [{"text": BTN_STOP_ADD}, {"text": BTN_STOP_REMOVE}],
-        [{"text": BTN_PLUS_ADD}, {"text": BTN_PLUS_REMOVE}],
-        [{"text": BTN_INFO}, {"text": BTN_BACK}],
-    ],
-    "resize_keyboard": True,
-    "is_persistent": True,
-}
+def filter_menu_for_chat(chat_id: int, db: Database) -> dict:
+    return menu_markup(menu_keyboard(db.get_user_settings(chat_id).language_code, FILTER_MENU_ROWS))
 
-TEXT_MODE_MENU = {
-    "keyboard": [
-        [{"text": BTN_FULL_TEXT_ON}, {"text": BTN_FULL_TEXT_OFF}],
-        [{"text": BTN_INFO}, {"text": BTN_BACK}],
-    ],
-    "resize_keyboard": True,
-    "is_persistent": True,
-}
 
-SOURCE_MENU = {
-    "keyboard": [
-        [{"text": BTN_SOURCE_LIST}, {"text": BTN_TG_BLOCKS}],
-        [{"text": BTN_SOURCES_FILE}],
-        [{"text": BTN_SOURCE_ADD}, {"text": BTN_TG_ADD}],
-        [{"text": BTN_SOURCE_DISABLE}, {"text": BTN_SOURCE_ENABLE}],
-        [{"text": BTN_SOURCE_REMOVE}, {"text": BTN_BACK}],
-    ],
-    "resize_keyboard": True,
-    "is_persistent": True,
-}
+def text_mode_menu_for_chat(chat_id: int, db: Database) -> dict:
+    return menu_markup(menu_keyboard(db.get_user_settings(chat_id).language_code, TEXT_MODE_MENU_ROWS))
 
-SETTINGS_MENU = {
-    "keyboard": [
-        [{"text": BTN_LANGUAGE}, {"text": BTN_COUNTRY}],
-        [{"text": BTN_TEXT_MODE}],
-        [{"text": BTN_INFO}, {"text": BTN_BACK}],
-    ],
-    "resize_keyboard": True,
-    "is_persistent": True,
-}
 
-HELP = """Команди:
-/add ключова фраза - додати ключову фразу
-/remove ключова фраза - видалити ключову фразу
-/plans - показати тарифи
-/buy plan - оплатити тариф через Telegram Stars
-/fulltext on - увімкнути пошук у повному тексті новин
-/fulltext off - повернути швидкий пошук у заголовку та RSS-анонсі
-/fulltext status - показати поточний режим пошуку
-/rss list - показати RSS і Telegram-джерела
-/rss add URL - додати власне RSS-джерело
-/rss off номер - вимкнути стандартне RSS-джерело
-/rss on номер - увімкнути стандартне RSS-джерело
-/rss remove номер - видалити власне RSS-джерело
-/tg add @channel - додати власний публічний Telegram-канал
-/tgblocks - керувати платними Telegram-джерелами блоками по 50
-/addstopword слово - не показувати матеріали з цим словом
-/removestopword слово - видалити стоп-слово
-/addplusword слово - показувати тільки матеріали, де є це слово
-/removeplusword слово - видалити плюс-слово
-/info - показати мої налаштування
-/sources - показати кількість джерел
-/sourcesfile - отримати файл з усіма джерелами
-/check - перевірити джерела зараз
-/report - отримати CSV-звіт
-/help - допомога
-"""
+def source_menu_for_chat(chat_id: int, db: Database) -> dict:
+    return menu_markup(menu_keyboard(db.get_user_settings(chat_id).language_code, SOURCE_MENU_ROWS))
+
+
+def settings_menu_for_chat(chat_id: int, db: Database) -> dict:
+    return menu_markup(menu_keyboard(db.get_user_settings(chat_id).language_code, SETTINGS_MENU_ROWS))
+
+
+def menu_keyboard(language_code: str, rows: tuple[tuple[str, ...], ...]) -> list[list[dict]]:
+    return [[{"text": button_label(language_code, key)} for key in row] for row in rows]
+
+
+def menu_markup(keyboard: list[list[dict]]) -> dict:
+    return {
+        "keyboard": keyboard,
+        "resize_keyboard": True,
+        "is_persistent": True,
+    }
+
+
+def button_label(language_code: str, key: str) -> str:
+    return locale_text(language_code, f"button_{key}")
+
+
+def button_action(value: str) -> str | None:
+    needle = (value or "").strip().lower()
+    if not needle:
+        return None
+    default_action = BUTTON_KEY_BY_DEFAULT_TEXT.get(value.strip())
+    if default_action:
+        return default_action
+    for language_code in LANGUAGES:
+        for key in BUTTON_KEYS:
+            if needle == button_label(language_code, key).lower():
+                return key
+    return None
 
 PENDING_ACTIONS: dict[int, str] = {}
 MONITOR_LOCK = threading.Lock()
@@ -383,6 +411,7 @@ def handle_web_app_data(
     sources,
 ) -> None:
     db.touch_user(chat_id)
+    language_code = db.get_user_settings(chat_id).language_code
     if not REQUIRE_ONBOARDING and db.get_active_plan(chat_id).id != "business":
         telegram.send_message(
             chat_id,
@@ -405,20 +434,28 @@ def handle_web_app_data(
 
     if action == "add_keyword":
         if not value:
-            telegram.send_message(chat_id, "Вкажіть ключову фразу.", reply_markup=main_menu_for_chat(chat_id, db))
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_add_keyword"), reply_markup=main_menu_for_chat(chat_id, db))
             return
         if not can_add_keyword(chat_id, db, telegram):
             return
         added = db.add_keyword(chat_id, value)
-        telegram.send_message(chat_id, format_add_result("Ключову фразу", value, added), reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "keyword_label"), value, added),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "remove_keyword":
         if not value:
-            telegram.send_message(chat_id, "Вкажіть ключову фразу для видалення.", reply_markup=main_menu_for_chat(chat_id, db))
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_remove_keyword"), reply_markup=main_menu_for_chat(chat_id, db))
             return
         removed = db.remove_keyword(chat_id, value)
-        telegram.send_message(chat_id, format_remove_result("Ключову фразу", value, removed), reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "keyword_label"), value, removed),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "fulltext":
@@ -470,7 +507,9 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         send_language_choice(chat_id, db, telegram)
         return
 
-    if text == BTN_PLANS:
+    action = button_action(text)
+
+    if action == "plans":
         send_plans(chat_id, db, telegram)
         return
 
@@ -481,37 +520,37 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
     if text:
         message_payment = None
 
-    if text == BTN_ADD:
+    if action == "add":
         PENDING_ACTIONS[chat_id] = "add_keyword"
-        telegram.send_message(chat_id, "Надішліть ключову фразу одним повідомленням.", reply_markup=FILTER_MENU)
+        telegram.send_message(chat_id, locale_text(settings.language_code, "prompt_add_keyword"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_REMOVE:
+    if action == "remove":
         PENDING_ACTIONS[chat_id] = "remove_keyword"
-        telegram.send_message(chat_id, "Надішліть ключову фразу, яку потрібно видалити.", reply_markup=FILTER_MENU)
+        telegram.send_message(chat_id, locale_text(settings.language_code, "prompt_remove_keyword"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_INFO:
+    if action == "info":
         send_info(chat_id, db, telegram, sources)
         return
 
-    if text == BTN_CHECK:
+    if action == "check":
         run_manual_check(chat_id, db, telegram, monitor)
         return
 
-    if text == BTN_SOURCES:
+    if action == "sources":
         send_sources(chat_id, db, telegram, sources)
         return
 
-    if text == BTN_SOURCE_LIST:
+    if action == "source_list":
         send_sources(chat_id, db, telegram, sources)
         return
 
-    if text == BTN_SOURCES_FILE:
+    if action == "sources_file":
         send_sources_file(chat_id, db, telegram, sources)
         return
 
-    if text == BTN_TG_BLOCKS:
+    if action == "tg_blocks":
         send_tg_blocks(chat_id, db, telegram, sources)
         return
 
@@ -521,130 +560,130 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         set_tg_block(chat_id, block_number, action == "on", db, telegram, sources)
         return
 
-    if text == BTN_SOURCE_ADD:
+    if action == "source_add":
         PENDING_ACTIONS[chat_id] = "add_rss"
         telegram.send_message(
             chat_id,
-            "Надішліть URL RSS-стрічки. Наприклад:\nhttps://example.com/rss.xml",
-            reply_markup=SOURCE_MENU,
+            locale_text(settings.language_code, "prompt_add_rss"),
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_TG_ADD:
+    if action == "tg_add":
         PENDING_ACTIONS[chat_id] = "add_tg"
         telegram.send_message(
             chat_id,
-            "Надішліть username або URL публічного Telegram-каналу. Наприклад:\n@channel\nhttps://t.me/channel",
-            reply_markup=SOURCE_MENU,
+            locale_text(settings.language_code, "prompt_add_tg"),
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_SOURCE_DISABLE:
+    if action == "source_disable":
         PENDING_ACTIONS[chat_id] = "disable_rss"
         telegram.send_message(
             chat_id,
-            "Надішліть номер стандартного джерела, яке потрібно вимкнути.\n\n"
+            locale_text(settings.language_code, "prompt_disable_source") + "\n\n"
             + format_sources(chat_id, db, sources),
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_SOURCE_ENABLE:
+    if action == "source_enable":
         PENDING_ACTIONS[chat_id] = "enable_rss"
         telegram.send_message(
             chat_id,
-            "Надішліть номер стандартного джерела, яке потрібно увімкнути.\n\n"
+            locale_text(settings.language_code, "prompt_enable_source") + "\n\n"
             + format_sources(chat_id, db, sources),
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_SOURCE_REMOVE:
+    if action == "source_remove":
         PENDING_ACTIONS[chat_id] = "remove_rss"
         telegram.send_message(
             chat_id,
-            "Надішліть номер власного RSS, який потрібно видалити.\n\n"
+            locale_text(settings.language_code, "prompt_remove_source") + "\n\n"
             + format_sources(chat_id, db, sources),
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_REPORT:
+    if action == "report":
         send_report(chat_id, db, telegram)
         return
 
-    if text == BTN_FILTERS:
-        telegram.send_message(chat_id, "Налаштування фільтрів:", reply_markup=FILTER_MENU)
+    if action == "filters":
+        telegram.send_message(chat_id, locale_text(settings.language_code, "filters_title"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_TEXT_MODE:
+    if action == "text_mode":
         send_text_mode(chat_id, db, telegram)
         return
 
-    if text == BTN_SETTINGS:
+    if action == "settings":
         send_settings(chat_id, db, telegram)
         return
 
-    if text == BTN_FULL_TEXT_ON:
+    if action == "full_text_on":
         plan = db.get_active_plan(chat_id)
         if not plan.full_text:
             telegram.send_message(
                 chat_id,
-                "Пошук у повному тексті доступний у тарифах Pro та Business.",
+                locale_text(settings.language_code, "fulltext_unavailable"),
                 reply_markup=main_menu_for_chat(chat_id, db),
             )
             return
         db.set_full_text_enabled(chat_id, True)
         telegram.send_message(
             chat_id,
-            "Режим повного тексту увімкнено. Бот шукатиме ключі в заголовку, RSS-анонсі та тексті сторінки.",
-            reply_markup=TEXT_MODE_MENU,
+            locale_text(settings.language_code, "fulltext_enabled"),
+            reply_markup=text_mode_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_FULL_TEXT_OFF:
+    if action == "full_text_off":
         db.set_full_text_enabled(chat_id, False)
         telegram.send_message(
             chat_id,
-            "Швидкий режим увімкнено. Бот шукатиме ключі тільки в заголовку та RSS-анонсі.",
-            reply_markup=TEXT_MODE_MENU,
+            locale_text(settings.language_code, "fast_mode_enabled"),
+            reply_markup=text_mode_menu_for_chat(chat_id, db),
         )
         return
 
-    if text == BTN_HELP:
+    if action == "help":
         send_help(chat_id, db, telegram)
         return
 
-    if text == BTN_LANGUAGE:
+    if action == "language":
         send_language_choice(chat_id, db, telegram)
         return
 
-    if text == BTN_COUNTRY:
+    if action == "country":
         send_country_choice(chat_id, db, telegram)
         return
 
-    if text == BTN_BACK:
-        telegram.send_message(chat_id, "Головне меню:", reply_markup=main_menu_for_chat(chat_id, db))
+    if action == "back":
+        telegram.send_message(chat_id, locale_text(settings.language_code, "main_menu_title"), reply_markup=main_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_STOP_ADD:
+    if action == "stop_add":
         PENDING_ACTIONS[chat_id] = "add_stop_word"
-        telegram.send_message(chat_id, "Надішліть стоп-слово одним повідомленням.", reply_markup=FILTER_MENU)
+        telegram.send_message(chat_id, locale_text(settings.language_code, "prompt_add_stop_word"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_STOP_REMOVE:
+    if action == "stop_remove":
         PENDING_ACTIONS[chat_id] = "remove_stop_word"
-        telegram.send_message(chat_id, "Надішліть стоп-слово, яке потрібно видалити.", reply_markup=FILTER_MENU)
+        telegram.send_message(chat_id, locale_text(settings.language_code, "prompt_remove_stop_word"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_PLUS_ADD:
+    if action == "plus_add":
         PENDING_ACTIONS[chat_id] = "add_plus_word"
-        telegram.send_message(chat_id, "Надішліть плюс-слово одним повідомленням.", reply_markup=FILTER_MENU)
+        telegram.send_message(chat_id, locale_text(settings.language_code, "prompt_add_plus_word"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
-    if text == BTN_PLUS_REMOVE:
+    if action == "plus_remove":
         PENDING_ACTIONS[chat_id] = "remove_plus_word"
-        telegram.send_message(chat_id, "Надішліть плюс-слово, яке потрібно видалити.", reply_markup=FILTER_MENU)
+        telegram.send_message(chat_id, locale_text(settings.language_code, "prompt_remove_plus_word"), reply_markup=filter_menu_for_chat(chat_id, db))
         return
 
     pending = PENDING_ACTIONS.pop(chat_id, None)
@@ -654,13 +693,14 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
 
     telegram.send_message(
         chat_id,
-        "Оберіть дію в меню або скористайтеся командою /help.",
+        locale_text(settings.language_code, "choose_menu_action"),
         reply_markup=main_menu_for_chat(chat_id, db),
     )
 
 
 def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi, monitor: Monitor, sources) -> None:
     command, argument = split_command(text)
+    language_code = db.get_user_settings(chat_id).language_code
 
     if command in {"/start", "/help", "/menu"}:
         if command == "/start" and REQUIRE_ONBOARDING and not db.get_user_settings(chat_id).onboarding_completed:
@@ -706,21 +746,29 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
     if command == "/add":
         if not argument:
             PENDING_ACTIONS[chat_id] = "add_keyword"
-            telegram.send_message(chat_id, "Надішліть ключову фразу одним повідомленням.", reply_markup=main_menu_for_chat(chat_id, db))
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_add_keyword"), reply_markup=main_menu_for_chat(chat_id, db))
             return
         if not can_add_keyword(chat_id, db, telegram):
             return
         added = db.add_keyword(chat_id, argument)
-        telegram.send_message(chat_id, format_add_result("Ключову фразу", argument, added), reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "keyword_label"), argument, added),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
         return
 
     if command == "/remove":
         if not argument:
             PENDING_ACTIONS[chat_id] = "remove_keyword"
-            telegram.send_message(chat_id, "Надішліть ключову фразу, яку потрібно видалити.", reply_markup=main_menu_for_chat(chat_id, db))
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_remove_keyword"), reply_markup=main_menu_for_chat(chat_id, db))
             return
         removed = db.remove_keyword(chat_id, argument)
-        telegram.send_message(chat_id, format_remove_result("Ключову фразу", argument, removed), reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "keyword_label"), argument, removed),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
         return
 
     if command == "/fulltext":
@@ -742,37 +790,53 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
     if command == "/addstopword":
         if not argument:
             PENDING_ACTIONS[chat_id] = "add_stop_word"
-            telegram.send_message(chat_id, "Надішліть стоп-слово одним повідомленням.", reply_markup=FILTER_MENU)
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_add_stop_word"), reply_markup=filter_menu_for_chat(chat_id, db))
             return
         added = db.add_stop_word(chat_id, argument)
-        telegram.send_message(chat_id, format_add_result("Стоп-слово", argument, added), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "stop_word_label"), argument, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if command == "/removestopword":
         if not argument:
             PENDING_ACTIONS[chat_id] = "remove_stop_word"
-            telegram.send_message(chat_id, "Надішліть стоп-слово, яке потрібно видалити.", reply_markup=FILTER_MENU)
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_remove_stop_word"), reply_markup=filter_menu_for_chat(chat_id, db))
             return
         removed = db.remove_stop_word(chat_id, argument)
-        telegram.send_message(chat_id, format_remove_result("Стоп-слово", argument, removed), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "stop_word_label"), argument, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if command == "/addplusword":
         if not argument:
             PENDING_ACTIONS[chat_id] = "add_plus_word"
-            telegram.send_message(chat_id, "Надішліть плюс-слово одним повідомленням.", reply_markup=FILTER_MENU)
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_add_plus_word"), reply_markup=filter_menu_for_chat(chat_id, db))
             return
         added = db.add_plus_word(chat_id, argument)
-        telegram.send_message(chat_id, format_add_result("Плюс-слово", argument, added), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "plus_word_label"), argument, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if command == "/removeplusword":
         if not argument:
             PENDING_ACTIONS[chat_id] = "remove_plus_word"
-            telegram.send_message(chat_id, "Надішліть плюс-слово, яке потрібно видалити.", reply_markup=FILTER_MENU)
+            telegram.send_message(chat_id, locale_text(language_code, "prompt_remove_plus_word"), reply_markup=filter_menu_for_chat(chat_id, db))
             return
         removed = db.remove_plus_word(chat_id, argument)
-        telegram.send_message(chat_id, format_remove_result("Плюс-слово", argument, removed), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "plus_word_label"), argument, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if command in {"/info", "/list"}:
@@ -795,7 +859,7 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         send_report(chat_id, db, telegram)
         return
 
-    telegram.send_message(chat_id, "Невідома команда.\n\n" + HELP, reply_markup=main_menu_for_chat(chat_id, db))
+    telegram.send_message(chat_id, locale_text(language_code, "choose_menu_action"), reply_markup=main_menu_for_chat(chat_id, db))
 
 
 def handle_pending_value(
@@ -806,36 +870,61 @@ def handle_pending_value(
     telegram: TelegramApi,
     sources,
 ) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     if action == "add_keyword":
         if not can_add_keyword(chat_id, db, telegram):
             return
         added = db.add_keyword(chat_id, value)
-        telegram.send_message(chat_id, format_add_result("Ключову фразу", value, added), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "keyword_label"), value, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "remove_keyword":
         removed = db.remove_keyword(chat_id, value)
-        telegram.send_message(chat_id, format_remove_result("Ключову фразу", value, removed), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "keyword_label"), value, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "add_stop_word":
         added = db.add_stop_word(chat_id, value)
-        telegram.send_message(chat_id, format_add_result("Стоп-слово", value, added), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "stop_word_label"), value, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "remove_stop_word":
         removed = db.remove_stop_word(chat_id, value)
-        telegram.send_message(chat_id, format_remove_result("Стоп-слово", value, removed), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "stop_word_label"), value, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "add_plus_word":
         added = db.add_plus_word(chat_id, value)
-        telegram.send_message(chat_id, format_add_result("Плюс-слово", value, added), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "plus_word_label"), value, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "remove_plus_word":
         removed = db.remove_plus_word(chat_id, value)
-        telegram.send_message(chat_id, format_remove_result("Плюс-слово", value, removed), reply_markup=FILTER_MENU)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "plus_word_label"), value, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
         return
 
     if action == "add_rss":
@@ -866,9 +955,12 @@ def language_menu() -> dict:
     }
 
 
-def country_menu() -> dict:
+def country_menu(language_code: str) -> dict:
     return {
-        "keyboard": [[{"text": country.button}] for country in COUNTRIES.values()],
+        "keyboard": [
+            [{"text": country_name(country.code, language_code)}]
+            for country in COUNTRIES.values()
+        ],
         "resize_keyboard": True,
         "is_persistent": True,
     }
@@ -877,9 +969,12 @@ def country_menu() -> dict:
 def send_language_choice(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     settings = db.get_user_settings(chat_id)
     PENDING_ACTIONS[chat_id] = "set_language"
+    message = locale_text(settings.language_code, "choose_language")
+    if REQUIRE_ONBOARDING and not settings.onboarding_completed:
+        message = locale_text(settings.language_code, "welcome")
     telegram.send_message(
         chat_id,
-        locale_text(settings.language_code, "choose_language"),
+        message,
         reply_markup=language_menu(),
     )
 
@@ -890,14 +985,17 @@ def send_country_choice(chat_id: int, db: Database, telegram: TelegramApi) -> No
     telegram.send_message(
         chat_id,
         locale_text(settings.language_code, "choose_country"),
-        reply_markup=country_menu(),
+        reply_markup=country_menu(settings.language_code),
     )
 
 
 def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     settings = db.get_user_settings(chat_id)
     monitoring = db.get_user_monitoring(chat_id)
-    text_mode = "повний текст новини" if monitoring.full_text_enabled else "заголовок + RSS-анонс"
+    text_mode = locale_text(
+        settings.language_code,
+        "text_mode_full" if monitoring.full_text_enabled else "text_mode_fast",
+    )
     telegram.send_message(
         chat_id,
         (
@@ -905,12 +1003,12 @@ def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
             f"{locale_text(settings.language_code, 'language')}: {escape(language_name(settings.language_code))}\n"
             f"{locale_text(settings.language_code, 'country')}: "
             f"{escape(country_name(settings.country_code, settings.language_code))}\n"
-            f"Режим тексту: {escape(text_mode)}\n\n"
+            f"{locale_text(settings.language_code, 'text_mode_label')}: {escape(text_mode)}\n\n"
             f"{locale_text(settings.language_code, 'change_language')}: {BTN_LANGUAGE}\n"
             f"{locale_text(settings.language_code, 'change_country')}: {BTN_COUNTRY}\n"
-            f"Змінити режим тексту: {BTN_TEXT_MODE}"
+            f"{locale_text(settings.language_code, 'change_text_mode')}: {BTN_TEXT_MODE}"
         ),
-        reply_markup=SETTINGS_MENU,
+        reply_markup=settings_menu_for_chat(chat_id, db),
     )
 
 
@@ -925,7 +1023,7 @@ def handle_language_choice(chat_id: int, value: str, db: Database, telegram: Tel
     telegram.send_message(
         chat_id,
         locale_text(language_code, "language_saved", language=language_name(language_code)),
-        reply_markup=SETTINGS_MENU if db.get_user_settings(chat_id).onboarding_completed else main_menu_for_chat(chat_id, db),
+        reply_markup=settings_menu_for_chat(chat_id, db) if db.get_user_settings(chat_id).onboarding_completed else main_menu_for_chat(chat_id, db),
     )
     if REQUIRE_ONBOARDING and not db.get_user_settings(chat_id).onboarding_completed:
         send_country_choice(chat_id, db, telegram)
@@ -935,7 +1033,7 @@ def handle_country_choice(chat_id: int, value: str, db: Database, telegram: Tele
     country_code = country_from_button(value) or value.strip().lower()
     settings = db.get_user_settings(chat_id)
     if country_code not in COUNTRIES:
-        telegram.send_message(chat_id, locale_text(settings.language_code, "unknown_country"), reply_markup=country_menu())
+        telegram.send_message(chat_id, locale_text(settings.language_code, "unknown_country"), reply_markup=country_menu(settings.language_code))
         PENDING_ACTIONS[chat_id] = "set_country"
         return
     was_completed = settings.onboarding_completed
@@ -957,7 +1055,7 @@ def handle_country_choice(chat_id: int, value: str, db: Database, telegram: Tele
     telegram.send_message(
         chat_id,
         "\n\n".join(lines),
-        reply_markup=SETTINGS_MENU if was_completed else main_menu_for_chat(chat_id, db),
+        reply_markup=settings_menu_for_chat(chat_id, db) if was_completed else main_menu_for_chat(chat_id, db),
     )
 
 
@@ -974,28 +1072,29 @@ def activate_trial_if_needed(chat_id: int, db: Database) -> str:
 
 def handle_full_text_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi) -> None:
     value = argument.strip().lower()
+    language_code = db.get_user_settings(chat_id).language_code
     if value in {"on", "увімкнути", "вкл"}:
         plan = db.get_active_plan(chat_id)
         if not plan.full_text:
             telegram.send_message(
                 chat_id,
-                "Пошук у повному тексті доступний у тарифах Pro та Business.",
+                locale_text(language_code, "fulltext_unavailable"),
                 reply_markup=main_menu_for_chat(chat_id, db),
             )
             return
         db.set_full_text_enabled(chat_id, True)
         telegram.send_message(
             chat_id,
-            "Режим повного тексту увімкнено.",
-            reply_markup=TEXT_MODE_MENU,
+            locale_text(language_code, "fulltext_enabled"),
+            reply_markup=text_mode_menu_for_chat(chat_id, db),
         )
         return
     if value in {"off", "вимкнути", "викл"}:
         db.set_full_text_enabled(chat_id, False)
         telegram.send_message(
             chat_id,
-            "Швидкий режим RSS-анонсу увімкнено.",
-            reply_markup=TEXT_MODE_MENU,
+            locale_text(language_code, "fast_mode_enabled"),
+            reply_markup=text_mode_menu_for_chat(chat_id, db),
         )
         return
     send_text_mode(chat_id, db, telegram)
@@ -1163,7 +1262,7 @@ def handle_rss_command(chat_id: int, argument: str, db: Database, telegram: Tele
             telegram.send_message(
                 chat_id,
                 "Формат: /rss add https://example.com/rss.xml",
-                reply_markup=SOURCE_MENU,
+                reply_markup=source_menu_for_chat(chat_id, db),
             )
             return
         add_custom_rss(chat_id, rest.strip(), db, telegram)
@@ -1185,7 +1284,7 @@ def handle_rss_command(chat_id: int, argument: str, db: Database, telegram: Tele
         chat_id,
         "Невідома дія RSS.\n\n"
         "Доступно: /rss list, /rss add URL, /rss off номер, /rss on номер, /rss remove номер.",
-        reply_markup=SOURCE_MENU,
+        reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
@@ -1206,7 +1305,7 @@ def handle_tg_command(chat_id: int, argument: str, db: Database, telegram: Teleg
             telegram.send_message(
                 chat_id,
                 "Формат: /tg add @channel або /tg add https://t.me/channel",
-                reply_markup=SOURCE_MENU,
+                reply_markup=source_menu_for_chat(chat_id, db),
             )
             return
         add_custom_telegram(chat_id, rest.strip(), db, telegram)
@@ -1214,7 +1313,7 @@ def handle_tg_command(chat_id: int, argument: str, db: Database, telegram: Teleg
     telegram.send_message(
         chat_id,
         "Доступно: /tg add @channel, /tg blocks, /tg off 1, /tg on 1",
-        reply_markup=SOURCE_MENU,
+        reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
@@ -1243,7 +1342,7 @@ def send_tg_blocks(chat_id: int, db: Database, telegram: TelegramApi, sources) -
         telegram.send_message(
             chat_id,
             "Пакети Telegram-каналів доступні тільки у платних тарифах. Оновіть тариф через /plans.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
     telegram.send_message(
@@ -1267,7 +1366,7 @@ def set_tg_block(
         telegram.send_message(
             chat_id,
             "Пакети Telegram-каналів доступні тільки у платних тарифах. Оновіть тариф через /plans.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
     current_sources = country_sources(db.get_user_settings(chat_id).country_code, sources)
@@ -1384,7 +1483,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         telegram.send_message(
             chat_id,
             f"Ліміт власних RSS для тарифу {escape(plan.name)}: {plan.max_custom_sources}. Оновіть тариф через /plans.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1393,7 +1492,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         telegram.send_message(
             chat_id,
             "Надішліть коректний URL RSS-стрічки, який починається з http:// або https://.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1404,7 +1503,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         telegram.send_message(
             chat_id,
             "Не вдалося прочитати цю RSS-стрічку. Перевірте URL і спробуйте ще раз.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1412,7 +1511,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         telegram.send_message(
             chat_id,
             "RSS-стрічка відкрилася, але бот не знайшов у ній новин. Таке джерело не додано.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1421,7 +1520,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         chat_id,
         f"{'Власне RSS-джерело додано' if added else 'Таке RSS-джерело вже є'}: {escape(source.name)}\n{escape(source.url)}",
         disable_web_page_preview=True,
-        reply_markup=SOURCE_MENU,
+        reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
@@ -1432,7 +1531,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
         telegram.send_message(
             chat_id,
             f"Ліміт власних джерел для тарифу {escape(plan.name)}: {plan.max_custom_sources}. Оновіть тариф через /plans.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1441,7 +1540,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
         telegram.send_message(
             chat_id,
             "Надішліть username або URL публічного Telegram-каналу. Наприклад: @channel",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1452,7 +1551,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
         telegram.send_message(
             chat_id,
             "Не вдалося прочитати цей Telegram-канал. Перевірте, що канал публічний і доступний через t.me/s/.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1460,7 +1559,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
         telegram.send_message(
             chat_id,
             "Канал відкрився, але бот не знайшов доступних постів. Джерело не додано.",
-            reply_markup=SOURCE_MENU,
+            reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
 
@@ -1469,59 +1568,57 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
         chat_id,
         f"{'Telegram-канал додано' if added else 'Такий Telegram-канал уже є'}: {escape(source.name)}\n{escape(source.url)}",
         disable_web_page_preview=True,
-        reply_markup=SOURCE_MENU,
+        reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
 def disable_rss_by_number(chat_id: int, value: str, db: Database, telegram: TelegramApi, sources) -> None:
     row = find_source_row(chat_id, value, db, sources)
     if row is None:
-        telegram.send_message(chat_id, "Надішліть номер зі списку, @username або URL джерела.\n\n" + format_sources(chat_id, db, sources), reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Надішліть номер зі списку, @username або URL джерела.\n\n" + format_sources(chat_id, db, sources), reply_markup=source_menu_for_chat(chat_id, db))
         return
     if row["custom"]:
-        telegram.send_message(chat_id, "Власні джерела не вимикаються. Їх можна видалити через «🗑️ Видалити моє джерело».", reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Власні джерела не вимикаються. Їх можна видалити через «🗑️ Видалити моє джерело».", reply_markup=source_menu_for_chat(chat_id, db))
         return
     if not row["enabled"]:
-        telegram.send_message(chat_id, "Це джерело вже вимкнене.", reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Це джерело вже вимкнене.", reply_markup=source_menu_for_chat(chat_id, db))
         return
     db.disable_source(chat_id, row["source"].url)
-    telegram.send_message(chat_id, f"Джерело вимкнено: {escape(row['source'].name)}", reply_markup=SOURCE_MENU)
+    telegram.send_message(chat_id, f"Джерело вимкнено: {escape(row['source'].name)}", reply_markup=source_menu_for_chat(chat_id, db))
 
 
 def enable_rss_by_number(chat_id: int, value: str, db: Database, telegram: TelegramApi, sources) -> None:
     row = find_source_row(chat_id, value, db, sources)
     if row is None:
-        telegram.send_message(chat_id, "Надішліть номер зі списку, @username або URL джерела.\n\n" + format_sources(chat_id, db, sources), reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Надішліть номер зі списку, @username або URL джерела.\n\n" + format_sources(chat_id, db, sources), reply_markup=source_menu_for_chat(chat_id, db))
         return
     if row["custom"]:
-        telegram.send_message(chat_id, "Власні джерела вже активні. Якщо джерело не потрібне, видаліть його.", reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Власні джерела вже активні. Якщо джерело не потрібне, видаліть його.", reply_markup=source_menu_for_chat(chat_id, db))
         return
     if row["enabled"]:
-        telegram.send_message(chat_id, "Це джерело вже увімкнене.", reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Це джерело вже увімкнене.", reply_markup=source_menu_for_chat(chat_id, db))
         return
     db.enable_source(chat_id, row["source"].url)
-    telegram.send_message(chat_id, f"Джерело увімкнено: {escape(row['source'].name)}", reply_markup=SOURCE_MENU)
+    telegram.send_message(chat_id, f"Джерело увімкнено: {escape(row['source'].name)}", reply_markup=source_menu_for_chat(chat_id, db))
 
 
 def remove_custom_rss_by_number(chat_id: int, value: str, db: Database, telegram: TelegramApi, sources) -> None:
     row = find_source_row(chat_id, value, db, sources)
     if row is None:
-        telegram.send_message(chat_id, "Надішліть номер власного джерела зі списку, @username або URL.\n\n" + format_sources(chat_id, db, sources), reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Надішліть номер власного джерела зі списку, @username або URL.\n\n" + format_sources(chat_id, db, sources), reply_markup=source_menu_for_chat(chat_id, db))
         return
     if not row["custom"]:
-        telegram.send_message(chat_id, "Стандартні RSS не видаляються. Їх можна вимкнути.", reply_markup=SOURCE_MENU)
+        telegram.send_message(chat_id, "Стандартні RSS не видаляються. Їх можна вимкнути.", reply_markup=source_menu_for_chat(chat_id, db))
         return
     removed = db.remove_user_source(chat_id, row["source"].url)
-    telegram.send_message(chat_id, f"{'Власне джерело видалено' if removed else 'Джерело не знайдено'}: {escape(row['source'].name)}", reply_markup=SOURCE_MENU)
+    telegram.send_message(chat_id, f"{'Власне джерело видалено' if removed else 'Джерело не знайдено'}: {escape(row['source'].name)}", reply_markup=source_menu_for_chat(chat_id, db))
 
 
 def send_help(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     telegram.send_message(
         chat_id,
-        "Це бот моніторингу українських онлайн-медіа за ключовими словами.\n\n"
-        "Автоматичний моніторинг працює за тарифом: Free раз на годину, Basic/Pro кожні 30 хвилин, Business кожні 5 хвилин. "
-        "Додайте ключові фрази, і бот надсилатиме знайдені згадки.\n\n"
-        + HELP,
+        locale_text(language_code, "help_text"),
         disable_web_page_preview=True,
         reply_markup=main_menu_for_chat(chat_id, db),
     )
@@ -1531,41 +1628,49 @@ def send_info(chat_id: int, db: Database, telegram: TelegramApi, sources) -> Non
     monitoring = db.get_user_monitoring(chat_id)
     settings = db.get_user_settings(chat_id)
     plan = db.get_active_plan(chat_id)
-    text_mode = "повний текст новини" if monitoring.full_text_enabled else "заголовок + RSS-анонс"
+    language_code = settings.language_code
+    text_mode = locale_text(
+        language_code,
+        "text_mode_full" if monitoring.full_text_enabled else "text_mode_fast",
+    )
     active_sources = len(db.get_enabled_sources(chat_id, sources))
     telegram.send_message(
         chat_id,
-        "Мій моніторинг:\n\n"
-        f"{locale_text(settings.language_code, 'language')}: {escape(language_name(settings.language_code))}\n"
-        f"{locale_text(settings.language_code, 'country')}: {escape(country_name(settings.country_code, settings.language_code))}\n\n"
-        f"Ключові фрази: {format_terms(monitoring.keywords)}\n"
-        f"Стоп-слова: {format_terms(monitoring.stop_words)}\n"
-        f"Плюс-слова: {format_terms(monitoring.plus_words)}\n\n"
-        f"Режим пошуку: {text_mode}\n"
-        f"Активні джерела: {active_sources}\n"
-        f"Автоматична перевірка: {monitor_interval_text(plan.id)}.",
+        f"{locale_text(language_code, 'info_title')}:\n\n"
+        f"{locale_text(language_code, 'language')}: {escape(language_name(language_code))}\n"
+        f"{locale_text(language_code, 'country')}: {escape(country_name(settings.country_code, language_code))}\n\n"
+        f"{locale_text(language_code, 'keywords')}: {format_terms(language_code, monitoring.keywords)}\n"
+        f"{locale_text(language_code, 'stop_words')}: {format_terms(language_code, monitoring.stop_words)}\n"
+        f"{locale_text(language_code, 'plus_words')}: {format_terms(language_code, monitoring.plus_words)}\n\n"
+        f"{locale_text(language_code, 'search_mode')}: {escape(text_mode)}\n"
+        f"{locale_text(language_code, 'active_sources')}: {active_sources}\n"
+        f"{locale_text(language_code, 'auto_check')}: {monitor_interval_text(language_code, plan.id)}.",
         disable_web_page_preview=True,
         reply_markup=main_menu_for_chat(chat_id, db),
     )
 
 
-def monitor_interval_text(plan_id: str) -> str:
+def monitor_interval_text(language_code: str, plan_id: str) -> str:
     if plan_id == "business":
-        return "кожні 5 хвилин"
+        return locale_text(language_code, "interval_business")
     if plan_id in {"basic", "pro"}:
-        return "кожні 30 хвилин"
-    return "раз на годину"
+        return locale_text(language_code, "interval_paid")
+    return locale_text(language_code, "interval_free")
 
 
 def send_text_mode(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     monitoring = db.get_user_monitoring(chat_id)
-    current = "повний текст новини" if monitoring.full_text_enabled else "заголовок + RSS-анонс"
+    language_code = db.get_user_settings(chat_id).language_code
+    current = locale_text(
+        language_code,
+        "text_mode_full" if monitoring.full_text_enabled else "text_mode_fast",
+    )
     telegram.send_message(
         chat_id,
-        "Режим пошуку визначає, де бот шукає ваші ключові слова.\n\n"
-        f"Поточний режим: {current}\n\n"
-        "Повний текст точніший, але перевірка триває довше і залежить від доступності сайту.",
-        reply_markup=TEXT_MODE_MENU,
+        f"{locale_text(language_code, 'text_mode_intro')}\n\n"
+        f"{locale_text(language_code, 'current_mode')}: {escape(current)}\n\n"
+        f"{locale_text(language_code, 'text_mode_note')}",
+        reply_markup=text_mode_menu_for_chat(chat_id, db),
     )
 
 
@@ -1574,13 +1679,14 @@ def send_sources(chat_id: int, db: Database, telegram: TelegramApi, sources) -> 
         chat_id,
         format_sources(chat_id, db, sources),
         disable_web_page_preview=True,
-        reply_markup=SOURCE_MENU,
+        reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
 def send_sources_file(chat_id: int, db: Database, telegram: TelegramApi, sources) -> None:
     path = write_sources_table(chat_id, db, sources, Path("reports"))
-    telegram.send_document(chat_id, path, "Таблиця джерел: номери, TG-рейтинг, підписники і команди вимкнення")
+    language_code = db.get_user_settings(chat_id).language_code
+    telegram.send_document(chat_id, path, locale_text(language_code, "sources_file_caption"))
 
 
 def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -> Path:
@@ -1822,25 +1928,27 @@ def source_name_from_url(url: str) -> str:
 
 
 def run_manual_check(chat_id: int, db: Database, telegram: TelegramApi, monitor: Monitor) -> None:
-    telegram.send_message(chat_id, "Починаю ручну перевірку джерел.", reply_markup=main_menu_for_chat(chat_id, db))
+    language_code = db.get_user_settings(chat_id).language_code
+    telegram.send_message(chat_id, locale_text(language_code, "manual_check_start"), reply_markup=main_menu_for_chat(chat_id, db))
     sent = run_monitor_safely(monitor, {chat_id}, wait_seconds=MANUAL_CHECK_WAIT_SECONDS)
     if sent is None:
         telegram.send_message(
             chat_id,
-            "Фонова перевірка ще триває довше хвилини. Спробуйте /check трохи пізніше.",
+            locale_text(language_code, "manual_check_busy"),
             reply_markup=main_menu_for_chat(chat_id, db),
         )
         return
     telegram.send_message(
         chat_id,
-        f"Перевірку завершено. Нових сповіщень надіслано: {sent}",
+        locale_text(language_code, "manual_check_done", sent=sent),
         reply_markup=main_menu_for_chat(chat_id, db),
     )
 
 
 def send_report(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     path = write_csv_report(db, chat_id, Path("reports"))
-    telegram.send_document(chat_id, path, "CSV-звіт за знайденими згадками")
+    language_code = db.get_user_settings(chat_id).language_code
+    telegram.send_document(chat_id, path, locale_text(language_code, "report_caption"))
 
 
 def split_command(text: str) -> tuple[str, str]:
@@ -1849,19 +1957,19 @@ def split_command(text: str) -> tuple[str, str]:
     return command, rest.strip()
 
 
-def format_terms(values: tuple[str, ...]) -> str:
+def format_terms(language_code: str, values: tuple[str, ...]) -> str:
     if not values:
-        return "немає"
+        return locale_text(language_code, "empty_terms")
     return ", ".join(escape(value) for value in values)
 
 
-def format_add_result(label: str, value: str, added: bool) -> str:
-    status = "додано" if added else "вже є"
+def format_add_result(language_code: str, label: str, value: str, added: bool) -> str:
+    status = locale_text(language_code, "added" if added else "already_exists")
     return f"{label} {status}: {escape(value)}"
 
 
-def format_remove_result(label: str, value: str, removed: bool) -> str:
-    status = "видалено" if removed else "не знайдено"
+def format_remove_result(language_code: str, label: str, value: str, removed: bool) -> str:
+    status = locale_text(language_code, "removed" if removed else "not_found")
     return f"{label} {status}: {escape(value)}"
 
 

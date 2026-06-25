@@ -166,7 +166,7 @@ class Database:
                 )
             if "language_code" not in columns:
                 conn.execute(
-                    "ALTER TABLE users ADD COLUMN language_code TEXT NOT NULL DEFAULT 'uk'"
+                    "ALTER TABLE users ADD COLUMN language_code TEXT NOT NULL DEFAULT 'en'"
                 )
             if "country_code" not in columns:
                 conn.execute(
