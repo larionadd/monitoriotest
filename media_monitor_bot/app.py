@@ -62,7 +62,6 @@ BTN_SETTINGS = "⚙️ Налаштування"
 
 MAIN_MENU = {
     "keyboard": [
-        [{"text": BTN_ADD}, {"text": BTN_REMOVE}],
         [{"text": BTN_INFO}, {"text": BTN_CHECK}],
         [{"text": BTN_SOURCES}, {"text": BTN_REPORT}],
         [{"text": BTN_FILTERS}, {"text": BTN_TEXT_MODE}],
@@ -89,6 +88,7 @@ def main_menu_for_chat(chat_id: int, db: Database) -> dict:
 
 FILTER_MENU = {
     "keyboard": [
+        [{"text": BTN_ADD}, {"text": BTN_REMOVE}],
         [{"text": BTN_STOP_ADD}, {"text": BTN_STOP_REMOVE}],
         [{"text": BTN_PLUS_ADD}, {"text": BTN_PLUS_REMOVE}],
         [{"text": BTN_INFO}, {"text": BTN_BACK}],
@@ -482,12 +482,12 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
 
     if text == BTN_ADD:
         PENDING_ACTIONS[chat_id] = "add_keyword"
-        telegram.send_message(chat_id, "Надішліть ключову фразу одним повідомленням.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, "Надішліть ключову фразу одним повідомленням.", reply_markup=FILTER_MENU)
         return
 
     if text == BTN_REMOVE:
         PENDING_ACTIONS[chat_id] = "remove_keyword"
-        telegram.send_message(chat_id, "Надішліть ключову фразу, яку потрібно видалити.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, "Надішліть ключову фразу, яку потрібно видалити.", reply_markup=FILTER_MENU)
         return
 
     if text == BTN_INFO:
@@ -809,12 +809,12 @@ def handle_pending_value(
         if not can_add_keyword(chat_id, db, telegram):
             return
         added = db.add_keyword(chat_id, value)
-        telegram.send_message(chat_id, format_add_result("Ключову фразу", value, added), reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, format_add_result("Ключову фразу", value, added), reply_markup=FILTER_MENU)
         return
 
     if action == "remove_keyword":
         removed = db.remove_keyword(chat_id, value)
-        telegram.send_message(chat_id, format_remove_result("Ключову фразу", value, removed), reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, format_remove_result("Ключову фразу", value, removed), reply_markup=FILTER_MENU)
         return
 
     if action == "add_stop_word":
