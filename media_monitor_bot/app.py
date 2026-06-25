@@ -57,7 +57,7 @@ BTN_PLUS_ADD = "➕ Додати плюс-слово"
 BTN_PLUS_REMOVE = "➖ Видалити плюс-слово"
 BTN_BACK = "⬅️ Головне меню"
 BTN_LANGUAGE = "🌐 Мова"
-BTN_COUNTRY = "🌍 Країна"
+BTN_COUNTRY = "🌍 Регіон"
 BTN_SETTINGS = "⚙️ Налаштування"
 
 MAIN_MENU = {
@@ -83,7 +83,7 @@ def main_menu_for_chat(chat_id: int, db: Database) -> dict:
     if MINI_APP_URL and (REQUIRE_ONBOARDING or db.get_active_plan(chat_id).id == "business"):
         keyboard.insert(0, [{"text": BTN_APP, "web_app": {"url": MINI_APP_URL}}])
     if REQUIRE_ONBOARDING:
-        keyboard.insert(-1, [{"text": BTN_LANGUAGE}, {"text": BTN_COUNTRY}])
+        keyboard.insert(-1, [{"text": BTN_SETTINGS}])
     return {**MAIN_MENU, "keyboard": keyboard}
 
 
@@ -113,6 +113,15 @@ SOURCE_MENU = {
         [{"text": BTN_SOURCE_ADD}, {"text": BTN_TG_ADD}],
         [{"text": BTN_SOURCE_DISABLE}, {"text": BTN_SOURCE_ENABLE}],
         [{"text": BTN_SOURCE_REMOVE}, {"text": BTN_BACK}],
+    ],
+    "resize_keyboard": True,
+    "is_persistent": True,
+}
+
+SETTINGS_MENU = {
+    "keyboard": [
+        [{"text": BTN_LANGUAGE}, {"text": BTN_COUNTRY}],
+        [{"text": BTN_INFO}, {"text": BTN_BACK}],
     ],
     "resize_keyboard": True,
     "is_persistent": True,
@@ -357,8 +366,9 @@ def configure_bot_commands(telegram: TelegramApi) -> None:
     ]
     if REQUIRE_ONBOARDING:
         commands[9:9] = [
+            {"command": "settings", "description": "Налаштування мови та регіону"},
             {"command": "language", "description": "Змінити мову інтерфейсу"},
-            {"command": "country", "description": "Змінити країну моніторингу"},
+            {"command": "country", "description": "Змінити регіон моніторингу"},
         ]
     telegram.set_my_commands(commands)
 
@@ -570,6 +580,10 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         send_text_mode(chat_id, db, telegram)
         return
 
+    if text == BTN_SETTINGS:
+        send_settings(chat_id, db, telegram)
+        return
+
     if text == BTN_FULL_TEXT_ON:
         plan = db.get_active_plan(chat_id)
         if not plan.full_text:
@@ -666,6 +680,10 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
             handle_country_choice(chat_id, argument, db, telegram)
         else:
             send_country_choice(chat_id, db, telegram)
+        return
+
+    if command == "/settings":
+        send_settings(chat_id, db, telegram)
         return
 
     if command == "/plans":
@@ -875,6 +893,22 @@ def send_country_choice(chat_id: int, db: Database, telegram: TelegramApi) -> No
     )
 
 
+def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    settings = db.get_user_settings(chat_id)
+    telegram.send_message(
+        chat_id,
+        (
+            f"{locale_text(settings.language_code, 'settings')}:\n\n"
+            f"{locale_text(settings.language_code, 'language')}: {escape(language_name(settings.language_code))}\n"
+            f"{locale_text(settings.language_code, 'country')}: "
+            f"{escape(country_name(settings.country_code, settings.language_code))}\n\n"
+            f"{locale_text(settings.language_code, 'change_language')}: {BTN_LANGUAGE}\n"
+            f"{locale_text(settings.language_code, 'change_country')}: {BTN_COUNTRY}"
+        ),
+        reply_markup=SETTINGS_MENU,
+    )
+
+
 def handle_language_choice(chat_id: int, value: str, db: Database, telegram: TelegramApi) -> None:
     language_code = language_from_button(value)
     settings = db.get_user_settings(chat_id)
@@ -886,7 +920,7 @@ def handle_language_choice(chat_id: int, value: str, db: Database, telegram: Tel
     telegram.send_message(
         chat_id,
         locale_text(language_code, "language_saved", language=language_name(language_code)),
-        reply_markup=main_menu_for_chat(chat_id, db),
+        reply_markup=SETTINGS_MENU if db.get_user_settings(chat_id).onboarding_completed else main_menu_for_chat(chat_id, db),
     )
     if REQUIRE_ONBOARDING and not db.get_user_settings(chat_id).onboarding_completed:
         send_country_choice(chat_id, db, telegram)
@@ -899,6 +933,7 @@ def handle_country_choice(chat_id: int, value: str, db: Database, telegram: Tele
         telegram.send_message(chat_id, locale_text(settings.language_code, "unknown_country"), reply_markup=country_menu())
         PENDING_ACTIONS[chat_id] = "set_country"
         return
+    was_completed = settings.onboarding_completed
     db.set_country(chat_id, country_code)
     db.set_onboarding_completed(chat_id, True)
     updated = db.get_user_settings(chat_id)
@@ -908,12 +943,17 @@ def handle_country_choice(chat_id: int, value: str, db: Database, telegram: Tele
             "country_saved",
             country=country_name(updated.country_code, updated.language_code),
         ),
-        locale_text(updated.language_code, "onboarding_done"),
     ]
-    trial_message = activate_trial_if_needed(chat_id, db)
-    if trial_message:
-        lines.append(trial_message)
-    telegram.send_message(chat_id, "\n\n".join(lines), reply_markup=main_menu_for_chat(chat_id, db))
+    if not was_completed:
+        lines.append(locale_text(updated.language_code, "onboarding_done"))
+        trial_message = activate_trial_if_needed(chat_id, db)
+        if trial_message:
+            lines.append(trial_message)
+    telegram.send_message(
+        chat_id,
+        "\n\n".join(lines),
+        reply_markup=SETTINGS_MENU if was_completed else main_menu_for_chat(chat_id, db),
+    )
 
 
 def activate_trial_if_needed(chat_id: int, db: Database) -> str:
