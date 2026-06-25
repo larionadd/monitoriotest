@@ -1,5 +1,6 @@
 (function () {
   const tg = window.Telegram && window.Telegram.WebApp;
+  const apiBase = configuredApiBase();
   const state = {
     data: null,
     recent: [],
@@ -556,7 +557,7 @@
   }
 
   async function apiGet(path) {
-    const response = await fetch(path, {
+    const response = await fetch(apiUrl(path), {
       headers: {
         "X-Telegram-Init-Data": tg && tg.initData || ""
       }
@@ -565,6 +566,19 @@
       throw new Error(path + " " + response.status);
     }
     return response.json();
+  }
+
+  function configuredApiBase() {
+    const params = new URLSearchParams(window.location.search);
+    return normalizeApiBase(params.get("api") || window.MONITORIO_API_BASE || "");
+  }
+
+  function normalizeApiBase(value) {
+    return String(value || "").trim().replace(/\/+$/, "");
+  }
+
+  function apiUrl(path) {
+    return apiBase ? apiBase + path : path;
   }
 
   function renderState() {
