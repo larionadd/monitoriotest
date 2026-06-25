@@ -454,3 +454,123 @@ SCMP News,https://t.me/s/SCMPNews,telegram_paid,17,,gb,en
 Newsmax,https://t.me/s/newsmax,telegram_paid,18,,gb,en
 France 24 English,https://t.me/s/France24_en,telegram_paid,19,,gb,en
 PressTV,https://t.me/s/pressTV,telegram_paid,20,,gb,en
+RIA Novosti via Google News,https://news.google.com/rss/search?q=site:ria.ru&hl=ru&gl=RU&ceid=RU:ru,rss,1,,ru,ru
+TASS via Google News,https://news.google.com/rss/search?q=site:tass.ru&hl=ru&gl=RU&ceid=RU:ru,rss,2,,ru,ru
+Interfax via Google News,https://news.google.com/rss/search?q=site:interfax.ru&hl=ru&gl=RU&ceid=RU:ru,rss,3,,ru,ru
+Kommersant via Google News,https://news.google.com/rss/search?q=site:kommersant.ru&hl=ru&gl=RU&ceid=RU:ru,rss,4,,ru,ru
+RBC via Google News,https://news.google.com/rss/search?q=site:rbc.ru&hl=ru&gl=RU&ceid=RU:ru,rss,5,,ru,ru
+Vedomosti via Google News,https://news.google.com/rss/search?q=site:vedomosti.ru&hl=ru&gl=RU&ceid=RU:ru,rss,6,,ru,ru
+Lenta.ru via Google News,https://news.google.com/rss/search?q=site:lenta.ru&hl=ru&gl=RU&ceid=RU:ru,rss,7,,ru,ru
+Gazeta.ru via Google News,https://news.google.com/rss/search?q=site:gazeta.ru&hl=ru&gl=RU&ceid=RU:ru,rss,8,,ru,ru
+Izvestia via Google News,https://news.google.com/rss/search?q=site:iz.ru&hl=ru&gl=RU&ceid=RU:ru,rss,9,,ru,ru
+Fontanka via Google News,https://news.google.com/rss/search?q=site:fontanka.ru&hl=ru&gl=RU&ceid=RU:ru,rss,10,,ru,ru
+Forbes Russia via Google News,https://news.google.com/rss/search?q=site:forbes.ru&hl=ru&gl=RU&ceid=RU:ru,rss,11,,ru,ru
+CNews via Google News,https://news.google.com/rss/search?q=site:cnews.ru&hl=ru&gl=RU&ceid=RU:ru,rss,12,,ru,ru
+VC.ru via Google News,https://news.google.com/rss/search?q=site:vc.ru&hl=ru&gl=RU&ceid=RU:ru,rss,13,,ru,ru
+Habr via Google News,https://news.google.com/rss/search?q=site:habr.com&hl=ru&gl=RU&ceid=RU:ru,rss,14,,ru,ru
+3DNews via Google News,https://news.google.com/rss/search?q=site:3dnews.ru&hl=ru&gl=RU&ceid=RU:ru,rss,15,,ru,ru
+Sports.ru via Google News,https://news.google.com/rss/search?q=site:sports.ru&hl=ru&gl=RU&ceid=RU:ru,rss,16,,ru,ru
+Championat via Google News,https://news.google.com/rss/search?q=site:championat.com&hl=ru&gl=RU&ceid=RU:ru,rss,17,,ru,ru
+Argumenty i Fakty via Google News,https://news.google.com/rss/search?q=site:aif.ru&hl=ru&gl=RU&ceid=RU:ru,rss,18,,ru,ru
+MK via Google News,https://news.google.com/rss/search?q=site:mk.ru&hl=ru&gl=RU&ceid=RU:ru,rss,19,,ru,ru
+Meduza via Google News,https://news.google.com/rss/search?q=site:meduza.io&hl=ru&gl=RU&ceid=RU:ru,rss,20,,ru,ru
+RIA Novosti,https://t.me/s/rian_ru,telegram_paid,1,,ru,ru
+TASS,https://t.me/s/tass_agency,telegram_paid,2,,ru,ru
+Kommersant,https://t.me/s/kommersant,telegram_paid,3,,ru,ru
+RBC,https://t.me/s/rbc_news,telegram_paid,4,,ru,ru
+Lenta.ru,https://t.me/s/lentachold,telegram_paid,5,,ru,ru
+Gazeta.ru,https://t.me/s/gazetaru,telegram_paid,6,,ru,ru
+Izvestia,https://t.me/s/izvestia,telegram_paid,7,,ru,ru
+Mash,https://t.me/s/breakingmash,telegram_paid,8,,ru,ru
+Baza,https://t.me/s/bazabazon,telegram_paid,9,,ru,ru
+Readovka,https://t.me/s/readovkanews,telegram_paid,10,,ru,ru
+SHOT,https://t.me/s/shot_shot,telegram_paid,11,,ru,ru
+Meduza,https://t.me/s/meduzalive,telegram_paid,12,,ru,ru
+BBC Russian,https://t.me/s/bbcrussian,telegram_paid,13,,ru,ru
+Forbes Russia,https://t.me/s/forbesrussia,telegram_paid,14,,ru,ru
+Vedomosti,https://t.me/s/vedomosti,telegram_paid,15,,ru,ru
+Fontanka,https://t.me/s/fontankaspb,telegram_paid,16,,ru,ru
+VC.ru,https://t.me/s/vcnews,telegram_paid,17,,ru,ru
+Habr,https://t.me/s/habr_com,telegram_paid,18,,ru,ru
+Ostorozhno Novosti,https://t.me/s/ostorozhno_novosti,telegram_paid,19,,ru,ru
+Ateo Breaking,https://t.me/s/AteoBreaking,telegram_paid,20,,ru,ru
+Tengrinews,https://tengrinews.kz/news.rss,rss,1,,kz,ru
+Informburo via Google News,https://news.google.com/rss/search?q=site:informburo.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,2,,kz,ru
+Zakon.kz via Google News,https://news.google.com/rss/search?q=site:zakon.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,3,,kz,ru
+Kazinform RU,https://www.inform.kz/rss/rus.xml,rss,4,,kz,ru
+Nur.kz,https://www.nur.kz/rss/all.rss,rss,5,,kz,ru
+Vlast.kz via Google News,https://news.google.com/rss/search?q=site:vlast.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,6,,kz,ru
+Orda.kz via Google News,https://news.google.com/rss/search?q=site:orda.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,7,,kz,ru
+Kursiv,https://kz.kursiv.media/feed/,rss,8,,kz,ru
+Kapital.kz via Google News,https://news.google.com/rss/search?q=site:kapital.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,9,,kz,ru
+Forbes Kazakhstan via Google News,https://news.google.com/rss/search?q=site:forbes.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,10,,kz,ru
+KazTAG via Google News,https://news.google.com/rss/search?q=site:kaztag.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,11,,kz,ru
+Liter.kz via Google News,https://news.google.com/rss/search?q=site:liter.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,12,,kz,ru
+Sputnik Kazakhstan,https://ru.sputnik.kz/export/rss2/archive/index.xml,rss,13,,kz,ru
+Azattyq,https://rus.azattyq.org/api/,rss,14,,kz,ru
+Khabar24 via Google News,https://news.google.com/rss/search?q=site:24.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,15,,kz,ru
+Baq.kz via Google News,https://news.google.com/rss/search?q=site:baq.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,16,,kz,ru
+Inbusiness,https://inbusiness.kz/ru/rss,rss,17,,kz,ru
+NewTimes,https://newtimes.kz/rss,rss,18,,kz,ru
+Kazpravda via Google News,https://news.google.com/rss/search?q=site:kazpravda.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,19,,kz,ru
+The Steppe via Google News,https://news.google.com/rss/search?q=site:the-steppe.com&hl=ru&gl=KZ&ceid=KZ:ru,rss,20,,kz,ru
+Tengrinews,https://t.me/s/tengrinews,telegram_paid,1,,kz,ru
+Informburo,https://t.me/s/informburo_kz,telegram_paid,2,,kz,ru
+Kazinform,https://t.me/s/kazinform_news,telegram_paid,3,,kz,ru
+Vlast.kz,https://t.me/s/vlastkz,telegram_paid,4,,kz,ru
+Orda.kz,https://t.me/s/orda_kz,telegram_paid,5,,kz,ru
+Sputnik Kazakhstan,https://t.me/s/sputnikKZ,telegram_paid,6,,kz,ru
+Baq.kz,https://t.me/s/baq_kz,telegram_paid,7,,kz,ru
+The Steppe,https://t.me/s/the_steppe,telegram_paid,8,,kz,ru
+Atameken Business,https://t.me/s/atamekenbusiness,telegram_paid,9,,kz,ru
+KTK,https://t.me/s/ktknews,telegram_paid,10,,kz,ru
+Astanovka98,https://t.me/s/astanovka98,telegram_paid,11,,kz,ru
+ZTB Qazaqstan,https://t.me/s/ztb_qaz,telegram_paid,12,,kz,ru
+Qumash,https://t.me/s/qumash_kz,telegram_paid,13,,kz,ru
+Ulysmedia,https://t.me/s/ulysmediatg,telegram_paid,14,,kz,ru
+Elmedia,https://t.me/s/elmedia_kz,telegram_paid,15,,kz,ru
+Aqorda,https://t.me/s/aqorda_resmi,telegram_paid,16,,kz,ru
+MVD Kazakhstan,https://t.me/s/POLICE_of_KZ,telegram_paid,17,,kz,ru
+TJD Kazakhstan,https://t.me/s/qr_tjm,telegram_paid,18,,kz,ru
+Tengri Astana,https://t.me/s/tengriastana,telegram_paid,19,,kz,ru
+Tengri Almaty,https://t.me/s/tengrialmaty,telegram_paid,20,,kz,ru
+Gazeta.uz via Google News,https://news.google.com/rss/search?q=site:gazeta.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,1,,uz,ru
+Kun.uz RU,https://kun.uz/ru/news/rss,rss,2,,uz,ru
+Daryo via Google News,https://news.google.com/rss/search?q=site:daryo.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,3,,uz,ru
+Podrobno.uz,https://podrobno.uz/rss/,rss,4,,uz,ru
+Spot.uz RU,https://www.spot.uz/ru/rss/,rss,5,,uz,ru
+UzDaily via Google News,https://news.google.com/rss/search?q=site:uzdaily.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,6,,uz,ru
+Nuz.uz via Google News,https://news.google.com/rss/search?q=site:nuz.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,7,,uz,ru
+Anhor.uz,https://anhor.uz/feed/,rss,8,,uz,ru
+Nova24,https://nova24.uz/feed/,rss,9,,uz,ru
+Upl.uz,https://upl.uz/rss.xml,rss,10,,uz,ru
+Sputnik Uzbekistan,https://uz.sputniknews.ru/export/rss2/archive/index.xml,rss,11,,uz,ru
+Review.uz,https://review.uz/ru/rss,rss,12,,uz,ru
+UzReport via Google News,https://news.google.com/rss/search?q=site:uzreport.news&hl=ru&gl=UZ&ceid=UZ:ru,rss,13,,uz,ru
+Yuz.uz via Google News,https://news.google.com/rss/search?q=site:yuz.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,14,,uz,ru
+Xabar.uz via Google News,https://news.google.com/rss/search?q=site:xabar.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,15,,uz,ru
+Repost.uz via Google News,https://news.google.com/rss/search?q=site:repost.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,16,,uz,ru
+Fergana via Google News,https://news.google.com/rss/search?q=site:fergana.agency&hl=ru&gl=UZ&ceid=UZ:ru,rss,17,,uz,ru
+Qalampir via Google News,https://news.google.com/rss/search?q=site:qalampir.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,18,,uz,ru
+Zamin via Google News,https://news.google.com/rss/search?q=site:zamin.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,19,,uz,ru
+Central Asia News,https://centralasia.media/rss,rss,20,,uz,ru
+Gazeta.uz,https://t.me/s/gazetauz,telegram_paid,1,,uz,ru
+Kun.uz,https://t.me/s/kunuzofficial,telegram_paid,2,,uz,ru
+Daryo,https://t.me/s/daryo,telegram_paid,3,,uz,ru
+Anhor.uz,https://t.me/s/anhoruz,telegram_paid,4,,uz,ru
+Nova24,https://t.me/s/nova24uz,telegram_paid,5,,uz,ru
+Sputnik Uzbekistan,https://t.me/s/sputnikuzbekistan,telegram_paid,6,,uz,ru
+Review.uz,https://t.me/s/reviewuz,telegram_paid,7,,uz,ru
+UzReport,https://t.me/s/uzreport,telegram_paid,8,,uz,ru
+Repost.uz,https://t.me/s/repostuz,telegram_paid,9,,uz,ru
+Fergana,https://t.me/s/fergananews,telegram_paid,10,,uz,ru
+Qalampir,https://t.me/s/qalampir,telegram_paid,11,,uz,ru
+Zamin,https://t.me/s/zaminuz,telegram_paid,12,,uz,ru
+UzNews,https://t.me/s/uznews,telegram_paid,13,,uz,ru
+Afisha.uz,https://t.me/s/afishauz,telegram_paid,14,,uz,ru
+Kursiv Uzbekistan,https://t.me/s/kursivuz,telegram_paid,15,,uz,ru
+UZA,https://t.me/s/uza_uz,telegram_paid,16,,uz,ru
+Press Secretary UZ,https://t.me/s/pressuzb,telegram_paid,17,,uz,ru
+MFA Uzbekistan,https://t.me/s/uzbekmfa,telegram_paid,18,,uz,ru
+MVD Uzbekistan,https://t.me/s/iivuz,telegram_paid,19,,uz,ru
+Potrebitel.uz,https://t.me/s/potrebitel_uz,telegram_paid,20,,uz,ru

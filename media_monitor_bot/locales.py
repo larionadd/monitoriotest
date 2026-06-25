@@ -29,6 +29,7 @@ LANGUAGES: dict[str, Language] = {
     "es": Language("es", "Español", "Español"),
     "it": Language("it", "Italiano", "Italiano"),
     "be": Language("be", "Беларуская", "Беларуская"),
+    "ru": Language("ru", "Русский", "Русский"),
 }
 
 COUNTRIES: dict[str, Country] = {
@@ -43,6 +44,7 @@ COUNTRIES: dict[str, Country] = {
             "es": "Ucrania",
             "it": "Ucraina",
             "be": "Украіна",
+            "ru": "Украина",
         },
     ),
     "pl": Country(
@@ -56,6 +58,7 @@ COUNTRIES: dict[str, Country] = {
             "es": "Polonia",
             "it": "Polonia",
             "be": "Польшча",
+            "ru": "Польша",
         },
     ),
     "gb": Country(
@@ -69,6 +72,7 @@ COUNTRIES: dict[str, Country] = {
             "es": "Reino Unido",
             "it": "Regno Unito",
             "be": "Вялікая Брытанія",
+            "ru": "Великобритания",
         },
     ),
     "de": Country(
@@ -82,6 +86,7 @@ COUNTRIES: dict[str, Country] = {
             "es": "Alemania",
             "it": "Germania",
             "be": "Германія",
+            "ru": "Германия",
         },
     ),
     "es": Country(
@@ -95,6 +100,7 @@ COUNTRIES: dict[str, Country] = {
             "es": "España",
             "it": "Spagna",
             "be": "Іспанія",
+            "ru": "Испания",
         },
     ),
     "it": Country(
@@ -108,6 +114,7 @@ COUNTRIES: dict[str, Country] = {
             "es": "Italia",
             "it": "Italia",
             "be": "Італія",
+            "ru": "Италия",
         },
     ),
     "by": Country(
@@ -121,6 +128,49 @@ COUNTRIES: dict[str, Country] = {
             "es": "Bielorrusia",
             "it": "Bielorussia",
             "be": "Беларусь",
+            "ru": "Беларусь",
+        },
+    ),
+    "ru": Country(
+        "ru",
+        "Russia",
+        {
+            "en": "Russia",
+            "uk": "Росія",
+            "pl": "Rosja",
+            "de": "Russland",
+            "es": "Rusia",
+            "it": "Russia",
+            "be": "Расія",
+            "ru": "Россия",
+        },
+    ),
+    "kz": Country(
+        "kz",
+        "Kazakhstan",
+        {
+            "en": "Kazakhstan",
+            "uk": "Казахстан",
+            "pl": "Kazachstan",
+            "de": "Kasachstan",
+            "es": "Kazajistán",
+            "it": "Kazakistan",
+            "be": "Казахстан",
+            "ru": "Казахстан",
+        },
+    ),
+    "uz": Country(
+        "uz",
+        "Uzbekistan",
+        {
+            "en": "Uzbekistan",
+            "uk": "Узбекистан",
+            "pl": "Uzbekistan",
+            "de": "Usbekistan",
+            "es": "Uzbekistán",
+            "it": "Uzbekistan",
+            "be": "Узбекістан",
+            "ru": "Узбекистан",
         },
     ),
 }
@@ -132,7 +182,7 @@ LANGUAGE_FLAGS: dict[str, str] = {
     "de": "🇩🇪",
     "es": "🇪🇸",
     "it": "🇮🇹",
-    "be": "⬜️🟥⬜️",
+    "be": "🇧🇾",
 }
 
 COUNTRY_FLAGS: dict[str, str] = {
@@ -142,7 +192,9 @@ COUNTRY_FLAGS: dict[str, str] = {
     "de": "🇩🇪",
     "es": "🇪🇸",
     "it": "🇮🇹",
-    "by": "⬜️🟥⬜️",
+    "by": "🇧🇾",
+    "kz": "🇰🇿",
+    "uz": "🇺🇿",
 }
 
 
@@ -1291,6 +1343,252 @@ for language_code, messages in EXTRA_MESSAGES.items():
     MESSAGES.setdefault(language_code, {}).update(messages)
 
 
+RU_MESSAGES = dict(MESSAGES[DEFAULT_LANGUAGE])
+RU_MESSAGES.update(
+    {
+        "welcome": (
+            "👋 Добро пожаловать в Monitorio.\n\n"
+            "Я отслеживаю онлайн-медиа и публичные Telegram-каналы по вашим ключевым словам.\n\n"
+            "Что можно делать:\n"
+            "🔎 отслеживать упоминания брендов, людей, компаний, тем или доменов;\n"
+            "📰 мониторить RSS/новостные сайты и публичные Telegram-каналы;\n"
+            "🌍 выбирать регион мониторинга и менять его позже;\n"
+            "🧾 искать в заголовках/RSS-анонсах или в полном тексте новости;\n"
+            "🚫 использовать стоп-слова и обязательные слова для более точных результатов;\n"
+            "📄 скачивать CSV-отчеты и списки источников.\n\n"
+            "Сначала выберите язык интерфейса."
+        ),
+        "choose_language": "Выберите язык интерфейса.",
+        "language_saved": "Язык интерфейса сохранен: {language}.",
+        "choose_country": "Выберите регион для автоматического мониторинга.",
+        "country_saved": "Регион мониторинга сохранен: {country}.",
+        "onboarding_done": "Настройка завершена. Добавьте ключевые слова, и бот начнет мониторить источники выбранного региона.",
+        "trial_started": "Тестовый доступ активирован на {days} дней: {plan}.",
+        "settings": "Настройки",
+        "language": "Язык",
+        "country": "Регион мониторинга",
+        "text_mode_label": "Режим текста",
+        "text_mode_full": "полный текст новости",
+        "text_mode_fast": "заголовок + RSS-анонс",
+        "change_language": "Изменить язык",
+        "change_country": "Изменить регион",
+        "change_text_mode": "Изменить режим текста",
+        "unknown_language": "Неизвестный язык. Выберите вариант кнопкой.",
+        "unknown_country": "Неизвестный регион. Выберите вариант кнопкой.",
+        "alert_template": "📰 Новое упоминание\n\nКлюч: {keyword}\nИсточник: {source}\nЗаголовок: {title}\nДата: {published_at}\n\n{url}",
+        "button_add": "➕ Добавить ключ",
+        "button_remove": "➖ Удалить ключ",
+        "button_info": "📋 Мой мониторинг",
+        "button_check": "🔎 Проверить сейчас",
+        "button_sources": "📰 Источники",
+        "button_report": "📄 Отчет",
+        "button_filters": "⚙️ Фильтры",
+        "button_text_mode": "🧾 Режим текста",
+        "button_plans": "💳 Тарифы",
+        "button_help": "ℹ️ Помощь",
+        "button_app": "📱 Кабинет",
+        "button_source_list": "📋 Список источников",
+        "button_tg_blocks": "📦 TG-пакеты",
+        "button_sources_file": "📎 Файл источников",
+        "button_source_add": "➕ Добавить RSS",
+        "button_tg_add": "➕ Добавить TG",
+        "button_source_disable": "⛔ Отключить источник",
+        "button_source_enable": "✅ Включить источник",
+        "button_source_remove": "🗑️ Удалить мой источник",
+        "button_full_text_on": "✅ Полный текст",
+        "button_full_text_off": "⚡ RSS-анонс",
+        "button_stop_add": "🚫 Добавить стоп-слово",
+        "button_stop_remove": "✅ Удалить стоп-слово",
+        "button_plus_add": "➕ Добавить обязательное слово",
+        "button_plus_remove": "➖ Удалить обязательное слово",
+        "button_back": "⬅️ Главное меню",
+        "button_language": "🌐 Язык",
+        "button_country": "🌍 Регион",
+        "button_settings": "⚙️ Настройки",
+        "button_monitoring_mode": "🔁 Режим мониторинга",
+        "button_auto_monitoring_on": "✅ Автоматически",
+        "button_auto_monitoring_off": "✋ Ручной режим",
+        "help_text": (
+            "ℹ️ <b>Справка Monitorio</b>\n\n"
+            "Monitorio отслеживает упоминания в онлайн-медиа, RSS-лентах и публичных Telegram-каналах.\n\n"
+            "🚀 <b>Быстрый старт</b>\n"
+            "1. Откройте ⚙️ Настройки и выберите язык, регион и режим текста.\n"
+            "2. Откройте ⚙️ Фильтры и добавьте ключевые слова.\n"
+            "3. Нажмите 🔎 Проверить сейчас или дождитесь автоматического мониторинга.\n\n"
+            "🌍 <b>Логика региона</b>\n"
+            "Ключ привязывается к региону, который был выбран в момент добавления ключа. Если потом сменить регион, старые ключи останутся привязаны к прежнему региону. Чтобы мониторить другую страну, сначала смените регион, затем добавьте ключ там.\n\n"
+            "🔎 <b>Как работает поиск</b>\n"
+            "• Бот отправляет результат, если найден любой активный ключ.\n"
+            "• Регистр букв не имеет значения.\n"
+            "• Фраза из нескольких слов ищется как фраза.\n"
+            "• Одно слово ищется как отдельное слово, а не как случайная часть другого слова.\n"
+            "• Скрытые ссылки под текстом в Telegram/RSS тоже проверяются, поэтому домен в скрытой гиперссылке может дать срабатывание.\n\n"
+            "🧾 <b>Режим текста</b>\n"
+            "• Быстрый режим: заголовок, RSS-анонс, текст Telegram-поста и скрытые ссылки.\n"
+            "• Полный текст: бот дополнительно открывает страницу новости и проверяет текст статьи. Доступно в тарифах Pro и Business и зависит от доступности сайта.\n\n"
+            "⚙️ <b>Логика фильтров</b>\n"
+            "• Ключи работают по логике OR: достаточно совпадения с любым ключом.\n"
+            "• Стоп-слова блокируют результат, если найдено хотя бы одно стоп-слово.\n"
+            "• Обязательные слова работают как дополнительное условие: если они добавлены, результат отправляется только когда найдено хотя бы одно обязательное слово.\n\n"
+            "📰 <b>Источники</b>\n"
+            "В разделе 📰 Источники можно смотреть, отключать, включать или добавлять источники. Платные Telegram-каналы управляются пакетами по 50. Через 📎 Файл источников можно получить CSV-таблицу с номерами источников.\n\n"
+            "⏱ <b>Автоматические проверки</b>\n"
+            "Free: раз в час. Basic/Pro: каждые 30 минут. Business: каждые 5 минут. Публичные Telegram-каналы проверяются только за последние 24 часа.\n\n"
+            "⌨️ <b>Полезные команды</b>\n"
+            "/add ключ - добавить ключ\n"
+            "/remove ключ - удалить ключ\n"
+            "/settings - язык, регион и режим текста\n"
+            "/monitoring auto|manual - переключить автоматический/ручной режим\n"
+            "/rss list - показать RSS и Telegram-источники\n"
+            "/rss add URL - добавить свой RSS-источник\n"
+            "/tg add @channel - добавить публичный Telegram-канал\n"
+            "/tgblocks - управлять TG-пакетами\n"
+            "/sourcesfile - получить CSV-таблицу источников\n"
+            "/check - проверить сейчас\n"
+            "/report - получить CSV-отчет"
+        ),
+        "filters_title": "Настройки фильтров:",
+        "main_menu_title": "Главное меню:",
+        "choose_menu_action": "Выберите действие в меню или используйте /help.",
+        "prompt_add_keyword": "Отправьте ключевую фразу одним сообщением.",
+        "prompt_remove_keyword": "Отправьте ключевую фразу, которую нужно удалить.",
+        "prompt_add_stop_word": "Отправьте стоп-слово одним сообщением.",
+        "prompt_remove_stop_word": "Отправьте стоп-слово, которое нужно удалить.",
+        "prompt_add_plus_word": "Отправьте обязательное слово одним сообщением.",
+        "prompt_remove_plus_word": "Отправьте обязательное слово, которое нужно удалить.",
+        "prompt_add_rss": "Отправьте URL RSS-ленты. Например:\nhttps://example.com/rss.xml",
+        "prompt_add_tg": "Отправьте username или URL публичного Telegram-канала. Например:\n@channel\nhttps://t.me/channel",
+        "prompt_disable_source": "Отправьте номер, @username или URL источника, который нужно отключить.",
+        "prompt_enable_source": "Отправьте номер, @username или URL источника, который нужно включить.",
+        "prompt_remove_source": "Отправьте номер, @username или URL своего источника, который нужно удалить.",
+        "keyword_label": "Ключ",
+        "stop_word_label": "Стоп-слово",
+        "plus_word_label": "Обязательное слово",
+        "added": "добавлено",
+        "already_exists": "уже существует",
+        "removed": "удалено",
+        "not_found": "не найдено",
+        "empty_terms": "нет",
+        "fulltext_unavailable": "Поиск по полному тексту доступен в тарифах Pro и Business.",
+        "fulltext_enabled": "Режим полного текста включен. Бот будет искать в заголовке, RSS-анонсе и тексте страницы новости.",
+        "fast_mode_enabled": "Быстрый режим включен. Бот будет искать только в заголовке и RSS-анонсе.",
+        "info_title": "Мой мониторинг",
+        "keywords": "Ключи",
+        "stop_words": "Стоп-слова",
+        "plus_words": "Обязательные слова",
+        "search_mode": "Режим поиска",
+        "monitoring_mode_label": "Режим мониторинга",
+        "active_sources": "Активные источники",
+        "auto_check": "Автоматическая проверка",
+        "auto_check_off": "выключена",
+        "monitoring_mode_auto": "автоматический",
+        "monitoring_mode_manual": "ручной",
+        "change_monitoring_mode": "Изменить режим мониторинга",
+        "interval_business": "каждые 5 минут",
+        "interval_paid": "каждые 30 минут",
+        "interval_free": "раз в час",
+        "monitoring_mode_intro": "Режим мониторинга определяет, проверяет ли бот источники автоматически или только после ручного запуска.",
+        "monitoring_mode_note": "Ручной режим останавливает плановые уведомления. Кнопка «Проверить сейчас» и команда /check работают в любой момент.",
+        "auto_monitoring_enabled": "Автоматический мониторинг включен. Бот будет проверять источники по интервалу вашего тарифа.",
+        "manual_monitoring_enabled": "Ручной режим включен. Плановые проверки остановлены; используйте «Проверить сейчас» или /check.",
+        "text_mode_intro": "Режим поиска определяет, где бот ищет ваши ключевые слова.",
+        "current_mode": "Текущий режим",
+        "text_mode_note": "Полный текст точнее, но проверка занимает больше времени и зависит от доступности сайта.",
+        "manual_check_start": "Начинаю ручную проверку источников.",
+        "manual_check_busy": "Фоновая проверка еще идет дольше минуты. Попробуйте /check немного позже.",
+        "manual_check_done": "Проверка завершена. Новых уведомлений отправлено: {sent}",
+        "sources_file_caption": "Таблица источников: номера, TG-рейтинг, подписчики и команды отключения",
+        "report_caption": "CSV-отчет с найденными упоминаниями",
+        "mini_app_business_only": "Кабинет доступен только в тарифе Business. Обновите тариф через /plans.",
+        "mini_app_bad_data": "Mini App отправил некорректные данные.",
+        "mini_app_unknown_action": "Неизвестное действие Mini App.",
+        "mini_app_action_failed": "Не удалось выполнить действие Mini App. Попробуйте еще раз.",
+        "message_failed": "Не удалось обработать сообщение. Попробуйте еще раз.",
+        "fulltext_status": "Поиск по полному тексту: {status}.",
+        "status_enabled": "включен",
+        "status_disabled": "выключен",
+        "plans_title": "Тарифы в Telegram Stars:",
+        "current_plan": "Текущий тариф",
+        "expires_at": "Действует до",
+        "no_expiry": "нет",
+        "payment_command": "Оплата",
+        "plan_activation_note": "После оплаты тариф активируется автоматически на 30 дней.",
+        "choose_paid_plan": "Выберите платный тариф: /buy basic, /buy pro или /buy business.",
+        "invoice_title": "Тариф {plan} на {days} дней",
+        "invoice_price_label": "{plan} / {days} дней",
+        "unknown_plan_checkout": "Неизвестный тариф. Попробуйте начать оплату заново.",
+        "payment_unknown_plan": "Оплата получена, но тариф не распознан. Свяжитесь с администратором.",
+        "payment_success": "Оплата получена. Тариф {plan} {status} до {expires}.",
+        "payment_status_activated": "активирован",
+        "payment_status_already": "уже был активирован",
+        "admin_only": "Эта команда доступна только администратору.",
+        "grant_format": "Формат: /grant chat_id pro 30",
+        "grant_plan_format": "Формат: /grant chat_id basic|pro|business 30",
+        "grant_success": "Тариф {plan} выдан пользователю {chat_id} до {expires}.",
+        "users_count": "Пользователей в базе: {total}",
+        "users_shown": "Показаны последние активные пользователи: {shown}",
+        "users_empty": "Пользователей пока нет.",
+        "users_plan_line": "   тариф: {plan}; ключи: {keywords}; свои источники: {sources}",
+        "users_last_seen": "   последняя активность: {last_seen}",
+        "users_expires": "   действует до: {expires}",
+        "keyword_limit": "Лимит ключей для тарифа {plan}: {limit}. Обновите тариф через /plans.",
+        "custom_rss_limit": "Лимит своих RSS для тарифа {plan}: {limit}. Обновите тариф через /plans.",
+        "custom_source_limit": "Лимит своих источников для тарифа {plan}: {limit}. Обновите тариф через /plans.",
+        "rss_add_format": "Формат: /rss add https://example.com/rss.xml",
+        "rss_unknown_action": "Неизвестное действие RSS.\n\nДоступно: /rss list, /rss add URL, /rss off номер, /rss on номер, /rss remove номер.",
+        "tg_add_format": "Формат: /tg add @channel или /tg add https://t.me/channel",
+        "tg_available": "Доступно: /tg add @channel, /tg blocks, /tg off 1, /tg on 1",
+        "tgblocks_available": "Доступно: /tgblocks, /tgblocks off 1, /tgblocks on 1",
+        "paid_tg_only": "Пакеты Telegram-каналов доступны только в платных тарифах. Обновите тариф через /plans.",
+        "tg_block_number_prompt": "Отправьте номер пакета: 1, 2, 3... или откройте /tgblocks.",
+        "tg_block_updated": "TG-пакет {block} {status}. Изменено источников: {changed}.",
+        "paid_tg_empty": "Платные Telegram-источники пока не добавлены.",
+        "paid_tg_title": "Платные Telegram-пакеты:",
+        "active_word": "активно",
+        "tg_blocks_total": "Всего: {active}/{total} активно.",
+        "tg_blocks_hint": "Кнопки ниже отключают или включают весь пакет.",
+        "tg_blocks_commands": "Команды: /tgblocks off 1, /tgblocks on 1.",
+        "top_block_first": "Топ 50 ({start}-{end})",
+        "top_block": "Топ {end} ({start}-{end})",
+        "invalid_rss_url": "Отправьте корректный RSS URL, начинающийся с http:// или https://.",
+        "rss_read_failed": "Не удалось прочитать эту RSS-ленту. Проверьте URL и попробуйте еще раз.",
+        "rss_empty": "RSS-лента открылась, но бот не нашел в ней новости. Источник не добавлен.",
+        "custom_rss_added": "Свой RSS-источник добавлен",
+        "custom_rss_exists": "Такой RSS-источник уже существует",
+        "invalid_tg_url": "Отправьте username или URL публичного Telegram-канала. Пример: @channel",
+        "tg_read_failed": "Не удалось прочитать этот Telegram-канал. Проверьте, что он публичный и доступен через t.me/s/.",
+        "tg_empty": "Канал открылся, но бот не нашел доступные посты. Источник не добавлен.",
+        "custom_tg_added": "Telegram-канал добавлен",
+        "custom_tg_exists": "Такой Telegram-канал уже существует",
+        "source_lookup_prompt": "Отправьте номер из списка, @username или URL источника.",
+        "custom_sources_not_disabled": "Свои источники нельзя отключать. Удалите их кнопкой удаления своего источника.",
+        "source_already_disabled": "Этот источник уже отключен.",
+        "source_disabled": "Источник отключен: {source}",
+        "custom_sources_already_active": "Свои источники уже активны. Удалите источник, если он больше не нужен.",
+        "source_already_enabled": "Этот источник уже включен.",
+        "source_enabled": "Источник включен: {source}",
+        "custom_source_lookup_prompt": "Отправьте номер, @username или URL своего источника из списка.",
+        "standard_sources_not_removed": "Стандартные RSS-источники нельзя удалить. Их можно отключить.",
+        "custom_source_removed": "Свой источник удален",
+        "source_not_found": "Источник не найден",
+        "sources_title": "Источники: {active} активных из {total}",
+        "source_kind_custom": "свой",
+        "source_kind_standard": "стандартный",
+        "paid_tg_summary": "Платные Telegram-каналы: {active}/{total} активны.",
+        "paid_tg_manage_hint": "Управляйте ими блоками по 50 через кнопку TG-пакеты или /tgblocks.",
+        "rss_commands_hint": "Команды: /rss off номер, /rss on номер, /rss add URL, /rss remove номер",
+        "default_source_name": "Мой источник",
+        "plan_free_description": "1 ключ, стандартные RSS, без платной базы TG-каналов, 15 уведомлений в день, мониторинг раз в час",
+        "plan_basic_description": "10 ключей, 3 своих RSS/TG источника, платная база TG-каналов и TG-пакеты, 100 уведомлений в день, мониторинг каждые 30 минут",
+        "plan_pro_description": "50 ключей, 15 своих RSS/TG источников, платная база TG-каналов и TG-пакеты, полный текст, 500 уведомлений в день, мониторинг каждые 30 минут",
+        "plan_business_description": "безлимитные ключи, безлимитные RSS/TG источники, платная база TG-каналов и TG-пакеты, полный текст, безлимитные уведомления, мониторинг каждые 5 минут",
+        "plan_paid_template": "{name}: {stars} Stars / {days} дней. {description}",
+        "plan_free_template": "{name}: {description}",
+    }
+)
+MESSAGES["ru"] = RU_MESSAGES
+
+
 def language_name(code: str) -> str:
     return LANGUAGES.get(normalize_language(code), LANGUAGES[DEFAULT_LANGUAGE]).name
 
@@ -1324,6 +1622,12 @@ def normalize_country(value: str | None) -> str:
         code = "gb"
     if code == "belarus":
         code = "by"
+    if code == "russia":
+        code = "ru"
+    if code == "kazakhstan":
+        code = "kz"
+    if code == "uzbekistan":
+        code = "uz"
     return code if code in COUNTRIES else DEFAULT_COUNTRY
 
 
