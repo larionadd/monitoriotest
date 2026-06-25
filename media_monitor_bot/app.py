@@ -61,6 +61,9 @@ BTN_BACK = "⬅️ Головне меню"
 BTN_LANGUAGE = "🌐 Мова"
 BTN_COUNTRY = "🌍 Регіон"
 BTN_SETTINGS = "⚙️ Налаштування"
+BTN_MONITORING_MODE = "🔁 Режим моніторингу"
+BTN_AUTO_MONITORING_ON = "✅ Автоматично"
+BTN_AUTO_MONITORING_OFF = "✋ Ручний режим"
 
 BUTTON_KEY_BY_DEFAULT_TEXT = {
     BTN_ADD: "add",
@@ -92,6 +95,9 @@ BUTTON_KEY_BY_DEFAULT_TEXT = {
     BTN_LANGUAGE: "language",
     BTN_COUNTRY: "country",
     BTN_SETTINGS: "settings",
+    BTN_MONITORING_MODE: "monitoring_mode",
+    BTN_AUTO_MONITORING_ON: "auto_monitoring_on",
+    BTN_AUTO_MONITORING_OFF: "auto_monitoring_off",
 }
 
 BUTTON_KEYS = tuple(BUTTON_KEY_BY_DEFAULT_TEXT.values())
@@ -120,7 +126,11 @@ SOURCE_MENU_ROWS = (
 )
 SETTINGS_MENU_ROWS = (
     ("language", "country"),
-    ("text_mode",),
+    ("text_mode", "monitoring_mode"),
+    ("info", "back"),
+)
+MONITORING_MODE_MENU_ROWS = (
+    ("auto_monitoring_on", "auto_monitoring_off"),
     ("info", "back"),
 )
 
@@ -154,6 +164,10 @@ def source_menu_for_chat(chat_id: int, db: Database) -> dict:
 
 def settings_menu_for_chat(chat_id: int, db: Database) -> dict:
     return menu_markup(menu_keyboard(db.get_user_settings(chat_id).language_code, SETTINGS_MENU_ROWS))
+
+
+def monitoring_mode_menu_for_chat(chat_id: int, db: Database) -> dict:
+    return menu_markup(menu_keyboard(db.get_user_settings(chat_id).language_code, MONITORING_MODE_MENU_ROWS))
 
 
 def menu_keyboard(language_code: str, rows: tuple[tuple[str, ...], ...]) -> list[list[dict]]:
@@ -341,6 +355,8 @@ def due_monitoring_chat_ids(monitor: Monitor, last_checked_at: dict[int, float])
     due_chat_ids: set[int] = set()
     has_business = False
     for user in monitor.db.iter_monitoring_users():
+        if not user.auto_monitoring_enabled:
+            continue
         plan = monitor.db.get_active_plan(user.chat_id)
         interval = PLAN_MONITOR_INTERVAL_SECONDS.get(plan.id, 3600)
         if plan.id == "business":
@@ -387,6 +403,7 @@ def configure_bot_commands(telegram: TelegramApi) -> None:
         {"command": "plans", "description": "Show plans"},
         {"command": "buy", "description": "Buy a plan"},
         {"command": "fulltext", "description": "Manage full-text search"},
+        {"command": "monitoring", "description": "Manual or automatic monitoring"},
         {"command": "rss", "description": "Manage sources"},
         {"command": "tg", "description": "Add a Telegram channel"},
         {"command": "tgblocks", "description": "Manage TG packages"},
@@ -624,6 +641,10 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         send_text_mode(chat_id, db, telegram)
         return
 
+    if action == "monitoring_mode":
+        send_monitoring_mode(chat_id, db, telegram)
+        return
+
     if action == "settings":
         send_settings(chat_id, db, telegram)
         return
@@ -651,6 +672,24 @@ def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi,
             chat_id,
             locale_text(settings.language_code, "fast_mode_enabled"),
             reply_markup=text_mode_menu_for_chat(chat_id, db),
+        )
+        return
+
+    if action == "auto_monitoring_on":
+        db.set_auto_monitoring_enabled(chat_id, True)
+        telegram.send_message(
+            chat_id,
+            locale_text(settings.language_code, "auto_monitoring_enabled"),
+            reply_markup=monitoring_mode_menu_for_chat(chat_id, db),
+        )
+        return
+
+    if action == "auto_monitoring_off":
+        db.set_auto_monitoring_enabled(chat_id, False)
+        telegram.send_message(
+            chat_id,
+            locale_text(settings.language_code, "manual_monitoring_enabled"),
+            reply_markup=monitoring_mode_menu_for_chat(chat_id, db),
         )
         return
 
@@ -777,6 +816,10 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
 
     if command == "/fulltext":
         handle_full_text_command(chat_id, argument, db, telegram)
+        return
+
+    if command == "/monitoring":
+        handle_monitoring_mode_command(chat_id, argument, db, telegram)
         return
 
     if command == "/rss":
@@ -1000,6 +1043,7 @@ def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
         settings.language_code,
         "text_mode_full" if monitoring.full_text_enabled else "text_mode_fast",
     )
+    monitoring_mode = auto_monitoring_text(settings.language_code, monitoring.auto_monitoring_enabled)
     telegram.send_message(
         chat_id,
         (
@@ -1007,10 +1051,12 @@ def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
             f"{locale_text(settings.language_code, 'language')}: {escape(language_name(settings.language_code))}\n"
             f"{locale_text(settings.language_code, 'country')}: "
             f"{escape(country_name(settings.country_code, settings.language_code))}\n"
-            f"{locale_text(settings.language_code, 'text_mode_label')}: {escape(text_mode)}\n\n"
+            f"{locale_text(settings.language_code, 'text_mode_label')}: {escape(text_mode)}\n"
+            f"{locale_text(settings.language_code, 'monitoring_mode_label')}: {escape(monitoring_mode)}\n\n"
             f"{locale_text(settings.language_code, 'change_language')}: {button_label(settings.language_code, 'language')}\n"
             f"{locale_text(settings.language_code, 'change_country')}: {button_label(settings.language_code, 'country')}\n"
-            f"{locale_text(settings.language_code, 'change_text_mode')}: {button_label(settings.language_code, 'text_mode')}"
+            f"{locale_text(settings.language_code, 'change_text_mode')}: {button_label(settings.language_code, 'text_mode')}\n"
+            f"{locale_text(settings.language_code, 'change_monitoring_mode')}: {button_label(settings.language_code, 'monitoring_mode')}"
         ),
         reply_markup=settings_menu_for_chat(chat_id, db),
     )
@@ -1102,6 +1148,28 @@ def handle_full_text_command(chat_id: int, argument: str, db: Database, telegram
         )
         return
     send_text_mode(chat_id, db, telegram)
+
+
+def handle_monitoring_mode_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi) -> None:
+    value = argument.strip().lower()
+    language_code = db.get_user_settings(chat_id).language_code
+    if value in {"auto", "automatic", "on"}:
+        db.set_auto_monitoring_enabled(chat_id, True)
+        telegram.send_message(
+            chat_id,
+            locale_text(language_code, "auto_monitoring_enabled"),
+            reply_markup=monitoring_mode_menu_for_chat(chat_id, db),
+        )
+        return
+    if value in {"manual", "off"}:
+        db.set_auto_monitoring_enabled(chat_id, False)
+        telegram.send_message(
+            chat_id,
+            locale_text(language_code, "manual_monitoring_enabled"),
+            reply_markup=monitoring_mode_menu_for_chat(chat_id, db),
+        )
+        return
+    send_monitoring_mode(chat_id, db, telegram)
 
 
 def send_plans(chat_id: int, db: Database, telegram: TelegramApi) -> None:
@@ -1709,6 +1777,7 @@ def send_info(chat_id: int, db: Database, telegram: TelegramApi, sources) -> Non
         language_code,
         "text_mode_full" if monitoring.full_text_enabled else "text_mode_fast",
     )
+    monitoring_mode = auto_monitoring_text(language_code, monitoring.auto_monitoring_enabled)
     keyword_countries = {keyword.country_code for keyword in monitoring.keywords}
     active_sources = len(db.get_enabled_sources(chat_id, sources, keyword_countries or None))
     telegram.send_message(
@@ -1720,8 +1789,10 @@ def send_info(chat_id: int, db: Database, telegram: TelegramApi, sources) -> Non
         f"{locale_text(language_code, 'stop_words')}: {format_terms(language_code, monitoring.stop_words)}\n"
         f"{locale_text(language_code, 'plus_words')}: {format_terms(language_code, monitoring.plus_words)}\n\n"
         f"{locale_text(language_code, 'search_mode')}: {escape(text_mode)}\n"
+        f"{locale_text(language_code, 'monitoring_mode_label')}: {escape(monitoring_mode)}\n"
         f"{locale_text(language_code, 'active_sources')}: {active_sources}\n"
-        f"{locale_text(language_code, 'auto_check')}: {monitor_interval_text(language_code, plan.id)}.",
+        f"{locale_text(language_code, 'auto_check')}: "
+        f"{monitor_interval_text(language_code, plan.id) if monitoring.auto_monitoring_enabled else locale_text(language_code, 'auto_check_off')}.",
         disable_web_page_preview=True,
         reply_markup=main_menu_for_chat(chat_id, db),
     )
@@ -1733,6 +1804,26 @@ def monitor_interval_text(language_code: str, plan_id: str) -> str:
     if plan_id in {"basic", "pro"}:
         return locale_text(language_code, "interval_paid")
     return locale_text(language_code, "interval_free")
+
+
+def auto_monitoring_text(language_code: str, enabled: bool) -> str:
+    return locale_text(
+        language_code,
+        "monitoring_mode_auto" if enabled else "monitoring_mode_manual",
+    )
+
+
+def send_monitoring_mode(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    monitoring = db.get_user_monitoring(chat_id)
+    language_code = db.get_user_settings(chat_id).language_code
+    current = auto_monitoring_text(language_code, monitoring.auto_monitoring_enabled)
+    telegram.send_message(
+        chat_id,
+        f"{locale_text(language_code, 'monitoring_mode_intro')}\n\n"
+        f"{locale_text(language_code, 'current_mode')}: {escape(current)}\n\n"
+        f"{locale_text(language_code, 'monitoring_mode_note')}",
+        reply_markup=monitoring_mode_menu_for_chat(chat_id, db),
+    )
 
 
 def send_text_mode(chat_id: int, db: Database, telegram: TelegramApi) -> None:

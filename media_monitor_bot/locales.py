@@ -404,6 +404,9 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "button_language": "🌐 Language",
         "button_country": "🌍 Region",
         "button_settings": "⚙️ Settings",
+        "button_monitoring_mode": "🔁 Monitoring mode",
+        "button_auto_monitoring_on": "✅ Automatic",
+        "button_auto_monitoring_off": "✋ Manual mode",
         "help_text": (
             "ℹ️ <b>Monitorio help</b>\n\n"
             "Monitorio tracks mentions in online media, RSS feeds, and public Telegram channels.\n\n"
@@ -434,6 +437,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
             "/add keyword - add a keyword\n"
             "/remove keyword - remove a keyword\n"
             "/settings - language, region, and text mode\n"
+            "/monitoring auto|manual - switch automatic/manual mode\n"
             "/rss list - show RSS and Telegram sources\n"
             "/rss add URL - add your RSS source\n"
             "/tg add @channel - add a public Telegram channel\n"
@@ -472,11 +476,20 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "stop_words": "Stop words",
         "plus_words": "Required words",
         "search_mode": "Search mode",
+        "monitoring_mode_label": "Monitoring mode",
         "active_sources": "Active sources",
         "auto_check": "Automatic check",
+        "auto_check_off": "off",
+        "monitoring_mode_auto": "automatic",
+        "monitoring_mode_manual": "manual",
+        "change_monitoring_mode": "Change monitoring mode",
         "interval_business": "every 5 minutes",
         "interval_paid": "every 30 minutes",
         "interval_free": "once per hour",
+        "monitoring_mode_intro": "Monitoring mode defines whether the bot checks sources automatically or only when you start a manual check.",
+        "monitoring_mode_note": "Manual mode stops scheduled alerts. You can still use Check now or /check at any time.",
+        "auto_monitoring_enabled": "Automatic monitoring is enabled. The bot will check sources according to your plan.",
+        "manual_monitoring_enabled": "Manual mode is enabled. Scheduled checks are paused; use Check now or /check when needed.",
         "text_mode_intro": "Search mode defines where the bot looks for your keywords.",
         "current_mode": "Current mode",
         "text_mode_note": "Full text is more precise, but checks take longer and depend on site availability.",
@@ -601,6 +614,9 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "button_language": "🌐 Мова",
         "button_country": "🌍 Регіон",
         "button_settings": "⚙️ Налаштування",
+        "button_monitoring_mode": "🔁 Режим моніторингу",
+        "button_auto_monitoring_on": "✅ Автоматично",
+        "button_auto_monitoring_off": "✋ Ручний режим",
         "help_text": (
             "ℹ️ <b>Довідка Monitorio</b>\n\n"
             "Monitorio відстежує згадки в онлайн-медіа, RSS-стрічках і публічних Telegram-каналах.\n\n"
@@ -631,6 +647,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
             "/add ключ - додати ключ\n"
             "/remove ключ - видалити ключ\n"
             "/settings - мова, регіон і режим тексту\n"
+            "/monitoring auto|manual - перемкнути автоматичний/ручний режим\n"
             "/rss list - показати RSS і Telegram-джерела\n"
             "/rss add URL - додати власне RSS-джерело\n"
             "/tg add @channel - додати публічний Telegram-канал\n"
@@ -669,11 +686,20 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "stop_words": "Стоп-слова",
         "plus_words": "Плюс-слова",
         "search_mode": "Режим пошуку",
+        "monitoring_mode_label": "Режим моніторингу",
         "active_sources": "Активні джерела",
         "auto_check": "Автоматична перевірка",
+        "auto_check_off": "вимкнено",
+        "monitoring_mode_auto": "автоматичний",
+        "monitoring_mode_manual": "ручний",
+        "change_monitoring_mode": "Змінити режим моніторингу",
         "interval_business": "кожні 5 хвилин",
         "interval_paid": "кожні 30 хвилин",
         "interval_free": "раз на годину",
+        "monitoring_mode_intro": "Режим моніторингу визначає, чи бот перевіряє джерела автоматично, чи тільки після ручного запуску.",
+        "monitoring_mode_note": "Ручний режим зупиняє планові сповіщення. Кнопка «Перевірити зараз» і команда /check працюють у будь-який момент.",
+        "auto_monitoring_enabled": "Автоматичний моніторинг увімкнено. Бот перевірятиме джерела за інтервалом вашого тарифу.",
+        "manual_monitoring_enabled": "Ручний режим увімкнено. Планові перевірки зупинені; використовуйте «Перевірити зараз» або /check.",
         "text_mode_intro": "Режим пошуку визначає, де бот шукає ваші ключові слова.",
         "current_mode": "Поточний режим",
         "text_mode_note": "Повний текст точніший, але перевірка триває довше і залежить від доступності сайту.",
@@ -789,6 +815,9 @@ EXTRA_MESSAGES["pl"].update(
         "button_plans": "💳 Plany",
         "button_help": "ℹ️ Pomoc",
         "button_settings": "⚙️ Ustawienia",
+        "button_monitoring_mode": "🔁 Tryb monitoringu",
+        "button_auto_monitoring_on": "✅ Automatycznie",
+        "button_auto_monitoring_off": "✋ Tryb ręczny",
         "button_back": "⬅️ Menu główne",
         "help_text": (
             "ℹ️ <b>Pomoc Monitorio</b>\n\n"
@@ -820,6 +849,7 @@ EXTRA_MESSAGES["pl"].update(
             "/add keyword - dodaj słowo kluczowe\n"
             "/remove keyword - usuń słowo kluczowe\n"
             "/settings - język, region i tryb tekstu\n"
+            "/monitoring auto|manual - przełącz tryb automatyczny/ręczny\n"
             "/rss list - pokaż źródła RSS i Telegram\n"
             "/rss add URL - dodaj własne RSS\n"
             "/tg add @channel - dodaj publiczny kanał Telegram\n"
@@ -853,8 +883,17 @@ EXTRA_MESSAGES["pl"].update(
         "stop_words": "Stop-słowa",
         "plus_words": "Wymagane słowa",
         "search_mode": "Tryb wyszukiwania",
+        "monitoring_mode_label": "Tryb monitoringu",
         "active_sources": "Aktywne źródła",
         "auto_check": "Automatyczne sprawdzanie",
+        "auto_check_off": "wyłączone",
+        "monitoring_mode_auto": "automatyczny",
+        "monitoring_mode_manual": "ręczny",
+        "change_monitoring_mode": "Zmień tryb monitoringu",
+        "monitoring_mode_intro": "Tryb monitoringu określa, czy bot sprawdza źródła automatycznie, czy tylko po ręcznym uruchomieniu.",
+        "monitoring_mode_note": "Tryb ręczny zatrzymuje zaplanowane alerty. Nadal możesz używać Sprawdź teraz albo /check.",
+        "auto_monitoring_enabled": "Automatyczny monitoring jest włączony. Bot będzie sprawdzać źródła zgodnie z Twoim planem.",
+        "manual_monitoring_enabled": "Tryb ręczny jest włączony. Zaplanowane sprawdzanie jest wstrzymane; używaj Sprawdź teraz albo /check.",
         "manual_check_start": "Rozpoczynam ręczne sprawdzanie źródeł.",
         "manual_check_done": "Sprawdzanie zakończone. Wysłane nowe powiadomienia: {sent}",
     }
@@ -873,6 +912,9 @@ EXTRA_MESSAGES["de"].update(
         "button_plans": "💳 Tarife",
         "button_help": "ℹ️ Hilfe",
         "button_settings": "⚙️ Einstellungen",
+        "button_monitoring_mode": "🔁 Monitoringmodus",
+        "button_auto_monitoring_on": "✅ Automatisch",
+        "button_auto_monitoring_off": "✋ Manueller Modus",
         "button_back": "⬅️ Hauptmenü",
         "help_text": (
             "ℹ️ <b>Monitorio-Hilfe</b>\n\n"
@@ -904,6 +946,7 @@ EXTRA_MESSAGES["de"].update(
             "/add keyword - Keyword hinzufügen\n"
             "/remove keyword - Keyword entfernen\n"
             "/settings - Sprache, Region und Textmodus\n"
+            "/monitoring auto|manual - automatisch/manuell umschalten\n"
             "/rss list - RSS- und Telegram-Quellen anzeigen\n"
             "/rss add URL - eigene RSS-Quelle hinzufügen\n"
             "/tg add @channel - öffentlichen Telegram-Kanal hinzufügen\n"
@@ -937,8 +980,17 @@ EXTRA_MESSAGES["de"].update(
         "stop_words": "Stoppwörter",
         "plus_words": "Pflichtwörter",
         "search_mode": "Suchmodus",
+        "monitoring_mode_label": "Monitoringmodus",
         "active_sources": "Aktive Quellen",
         "auto_check": "Automatische Prüfung",
+        "auto_check_off": "aus",
+        "monitoring_mode_auto": "automatisch",
+        "monitoring_mode_manual": "manuell",
+        "change_monitoring_mode": "Monitoringmodus ändern",
+        "monitoring_mode_intro": "Der Monitoringmodus legt fest, ob der Bot Quellen automatisch prüft oder nur nach manuellem Start.",
+        "monitoring_mode_note": "Der manuelle Modus stoppt geplante Alerts. Jetzt prüfen und /check funktionieren weiterhin.",
+        "auto_monitoring_enabled": "Automatisches Monitoring ist aktiviert. Der Bot prüft Quellen gemäß deinem Tarif.",
+        "manual_monitoring_enabled": "Manueller Modus ist aktiviert. Geplante Prüfungen sind pausiert; nutze Jetzt prüfen oder /check.",
         "manual_check_start": "Manuelle Quellenprüfung wird gestartet.",
         "manual_check_done": "Prüfung abgeschlossen. Neue Benachrichtigungen gesendet: {sent}",
     }
@@ -957,6 +1009,9 @@ EXTRA_MESSAGES["es"].update(
         "button_plans": "💳 Planes",
         "button_help": "ℹ️ Ayuda",
         "button_settings": "⚙️ Configuración",
+        "button_monitoring_mode": "🔁 Modo de monitoreo",
+        "button_auto_monitoring_on": "✅ Automático",
+        "button_auto_monitoring_off": "✋ Modo manual",
         "button_back": "⬅️ Menú principal",
         "help_text": (
             "ℹ️ <b>Ayuda de Monitorio</b>\n\n"
@@ -988,6 +1043,7 @@ EXTRA_MESSAGES["es"].update(
             "/add keyword - añadir palabra clave\n"
             "/remove keyword - eliminar palabra clave\n"
             "/settings - idioma, región y modo de texto\n"
+            "/monitoring auto|manual - cambiar modo automático/manual\n"
             "/rss list - mostrar fuentes RSS y Telegram\n"
             "/rss add URL - añadir tu RSS\n"
             "/tg add @channel - añadir canal público de Telegram\n"
@@ -1021,8 +1077,17 @@ EXTRA_MESSAGES["es"].update(
         "stop_words": "Palabras excluidas",
         "plus_words": "Palabras obligatorias",
         "search_mode": "Modo de búsqueda",
+        "monitoring_mode_label": "Modo de monitoreo",
         "active_sources": "Fuentes activas",
         "auto_check": "Comprobación automática",
+        "auto_check_off": "desactivada",
+        "monitoring_mode_auto": "automático",
+        "monitoring_mode_manual": "manual",
+        "change_monitoring_mode": "Cambiar modo de monitoreo",
+        "monitoring_mode_intro": "El modo de monitoreo define si el bot revisa fuentes automáticamente o solo cuando inicias una comprobación manual.",
+        "monitoring_mode_note": "El modo manual detiene las alertas programadas. Puedes usar Comprobar ahora o /check en cualquier momento.",
+        "auto_monitoring_enabled": "El monitoreo automático está activado. El bot revisará fuentes según tu plan.",
+        "manual_monitoring_enabled": "El modo manual está activado. Las comprobaciones programadas están pausadas; usa Comprobar ahora o /check.",
         "manual_check_start": "Inicio la comprobación manual de fuentes.",
         "manual_check_done": "Comprobación completada. Nuevas notificaciones enviadas: {sent}",
     }
@@ -1041,6 +1106,9 @@ EXTRA_MESSAGES["it"].update(
         "button_plans": "💳 Piani",
         "button_help": "ℹ️ Aiuto",
         "button_settings": "⚙️ Impostazioni",
+        "button_monitoring_mode": "🔁 Modalità monitoraggio",
+        "button_auto_monitoring_on": "✅ Automatico",
+        "button_auto_monitoring_off": "✋ Modalità manuale",
         "button_back": "⬅️ Menu principale",
         "help_text": (
             "ℹ️ <b>Guida Monitorio</b>\n\n"
@@ -1072,6 +1140,7 @@ EXTRA_MESSAGES["it"].update(
             "/add keyword - aggiungi parola chiave\n"
             "/remove keyword - rimuovi parola chiave\n"
             "/settings - lingua, regione e modalità testo\n"
+            "/monitoring auto|manual - cambia modalità automatica/manuale\n"
             "/rss list - mostra fonti RSS e Telegram\n"
             "/rss add URL - aggiungi il tuo RSS\n"
             "/tg add @channel - aggiungi canale Telegram pubblico\n"
@@ -1105,8 +1174,17 @@ EXTRA_MESSAGES["it"].update(
         "stop_words": "Parole escluse",
         "plus_words": "Parole obbligatorie",
         "search_mode": "Modalità di ricerca",
+        "monitoring_mode_label": "Modalità monitoraggio",
         "active_sources": "Fonti attive",
         "auto_check": "Controllo automatico",
+        "auto_check_off": "disattivato",
+        "monitoring_mode_auto": "automatico",
+        "monitoring_mode_manual": "manuale",
+        "change_monitoring_mode": "Cambia modalità monitoraggio",
+        "monitoring_mode_intro": "La modalità monitoraggio decide se il bot controlla le fonti automaticamente o solo dopo un controllo manuale.",
+        "monitoring_mode_note": "La modalità manuale ferma gli avvisi programmati. Puoi comunque usare Controlla ora o /check.",
+        "auto_monitoring_enabled": "Il monitoraggio automatico è attivo. Il bot controllerà le fonti secondo il tuo piano.",
+        "manual_monitoring_enabled": "La modalità manuale è attiva. I controlli programmati sono in pausa; usa Controlla ora o /check.",
         "manual_check_start": "Avvio il controllo manuale delle fonti.",
         "manual_check_done": "Controllo completato. Nuove notifiche inviate: {sent}",
     }
@@ -1125,6 +1203,9 @@ EXTRA_MESSAGES["be"].update(
         "button_plans": "💳 Тарыфы",
         "button_help": "ℹ️ Дапамога",
         "button_settings": "⚙️ Налады",
+        "button_monitoring_mode": "🔁 Рэжым маніторынгу",
+        "button_auto_monitoring_on": "✅ Аўтаматычна",
+        "button_auto_monitoring_off": "✋ Ручны рэжым",
         "button_back": "⬅️ Галоўнае меню",
         "help_text": (
             "ℹ️ <b>Даведка Monitorio</b>\n\n"
@@ -1156,6 +1237,7 @@ EXTRA_MESSAGES["be"].update(
             "/add keyword - дадаць ключ\n"
             "/remove keyword - выдаліць ключ\n"
             "/settings - мова, рэгіён і рэжым тэксту\n"
+            "/monitoring auto|manual - пераключыць аўтаматычны/ручны рэжым\n"
             "/rss list - паказаць RSS і Telegram-крыніцы\n"
             "/rss add URL - дадаць сваю RSS-крыніцу\n"
             "/tg add @channel - дадаць публічны Telegram-канал\n"
@@ -1189,8 +1271,17 @@ EXTRA_MESSAGES["be"].update(
         "stop_words": "Стоп-словы",
         "plus_words": "Абавязковыя словы",
         "search_mode": "Рэжым пошуку",
+        "monitoring_mode_label": "Рэжым маніторынгу",
         "active_sources": "Актыўныя крыніцы",
         "auto_check": "Аўтаматычная праверка",
+        "auto_check_off": "выключана",
+        "monitoring_mode_auto": "аўтаматычны",
+        "monitoring_mode_manual": "ручны",
+        "change_monitoring_mode": "Змяніць рэжым маніторынгу",
+        "monitoring_mode_intro": "Рэжым маніторынгу вызначае, ці бот правярае крыніцы аўтаматычна, ці толькі пасля ручнога запуску.",
+        "monitoring_mode_note": "Ручны рэжым спыняе планавыя апавяшчэнні. Кнопка Праверыць зараз і /check працуюць у любы момант.",
+        "auto_monitoring_enabled": "Аўтаматычны маніторынг уключаны. Бот будзе правяраць крыніцы паводле вашага тарыфу.",
+        "manual_monitoring_enabled": "Ручны рэжым уключаны. Планавыя праверкі спынены; выкарыстоўвайце Праверыць зараз або /check.",
         "manual_check_start": "Пачынаю ручную праверку крыніц.",
         "manual_check_done": "Праверка завершана. Новых апавяшчэнняў адпраўлена: {sent}",
     }

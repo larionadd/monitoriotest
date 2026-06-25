@@ -28,6 +28,7 @@ class UserMonitoring:
     language_code: str
     country_code: str
     onboarding_completed: bool
+    auto_monitoring_enabled: bool
     keywords: tuple[KeywordTerm, ...]
     stop_words: tuple[str, ...]
     plus_words: tuple[str, ...]
@@ -42,6 +43,7 @@ class UserSettings:
     language_code: str
     country_code: str
     onboarding_completed: bool
+    auto_monitoring_enabled: bool
 
 
 class Database:
@@ -182,6 +184,10 @@ class Database:
                 conn.execute(
                     "ALTER TABLE users ADD COLUMN onboarding_completed INTEGER NOT NULL DEFAULT 1"
                 )
+            if "auto_monitoring_enabled" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN auto_monitoring_enabled INTEGER NOT NULL DEFAULT 1"
+                )
             user_source_columns = {
                 row["name"]
                 for row in conn.execute("PRAGMA table_info(user_sources)")
@@ -254,9 +260,10 @@ class Database:
                     last_seen_at,
                     language_code,
                     country_code,
-                    onboarding_completed
+                    onboarding_completed,
+                    auto_monitoring_enabled
                 )
-                VALUES(?, ?, ?, ?, ?, ?)
+                VALUES(?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(chat_id) DO UPDATE SET last_seen_at = excluded.last_seen_at
                 """,
                 (
@@ -266,6 +273,7 @@ class Database:
                     DEFAULT_LANGUAGE,
                     DEFAULT_COUNTRY,
                     1 if onboarding_completed_default else 0,
+                    1,
                 ),
             )
 
@@ -273,7 +281,11 @@ class Database:
         self.touch_user(chat_id)
         with self.connect() as conn:
             row = conn.execute(
-                "SELECT language_code, country_code, onboarding_completed FROM users WHERE chat_id = ?",
+                """
+                SELECT language_code, country_code, onboarding_completed, auto_monitoring_enabled
+                FROM users
+                WHERE chat_id = ?
+                """,
                 (chat_id,),
             ).fetchone()
         return UserSettings(
@@ -281,6 +293,7 @@ class Database:
             language_code=normalize_language(row["language_code"] if row else DEFAULT_LANGUAGE),
             country_code=normalize_country(row["country_code"] if row else DEFAULT_COUNTRY),
             onboarding_completed=bool(row["onboarding_completed"]) if row else True,
+            auto_monitoring_enabled=bool(row["auto_monitoring_enabled"]) if row else True,
         )
 
     def set_language(self, chat_id: int, language_code: str) -> None:
@@ -305,6 +318,14 @@ class Database:
             conn.execute(
                 "UPDATE users SET onboarding_completed = ? WHERE chat_id = ?",
                 (1 if completed else 0, chat_id),
+            )
+
+    def set_auto_monitoring_enabled(self, chat_id: int, enabled: bool) -> None:
+        self.touch_user(chat_id)
+        with self.connect() as conn:
+            conn.execute(
+                "UPDATE users SET auto_monitoring_enabled = ? WHERE chat_id = ?",
+                (1 if enabled else 0, chat_id),
             )
 
     def add_keyword(self, chat_id: int, phrase: str, country_code: str | None = None) -> bool:
@@ -551,13 +572,23 @@ class Database:
     def get_user_monitoring(self, chat_id: int) -> UserMonitoring:
         with self.connect() as conn:
             row = conn.execute(
-                "SELECT full_text_enabled, language_code, country_code, onboarding_completed FROM users WHERE chat_id = ?",
+                """
+                SELECT
+                    full_text_enabled,
+                    language_code,
+                    country_code,
+                    onboarding_completed,
+                    auto_monitoring_enabled
+                FROM users
+                WHERE chat_id = ?
+                """,
                 (chat_id,),
             ).fetchone()
             full_text_enabled = bool(row["full_text_enabled"]) if row else False
             language_code = normalize_language(row["language_code"] if row else DEFAULT_LANGUAGE)
             country_code = normalize_country(row["country_code"] if row else DEFAULT_COUNTRY)
             onboarding_completed = bool(row["onboarding_completed"]) if row else True
+            auto_monitoring_enabled = bool(row["auto_monitoring_enabled"]) if row else True
             keywords = tuple(
                 KeywordTerm(row["phrase"], normalize_country(row["country_code"]))
                 for row in conn.execute(
@@ -606,6 +637,7 @@ class Database:
             language_code,
             country_code,
             onboarding_completed,
+            auto_monitoring_enabled,
             keywords,
             stop_words,
             plus_words,
