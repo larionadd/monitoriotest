@@ -18,8 +18,10 @@ from .db import Database, normalize_url, source_allowed_for_plan
 from .locales import (
     COUNTRIES,
     LANGUAGES,
+    country_button_text,
     country_from_button,
     country_name,
+    language_button_text,
     language_from_button,
     language_name,
     text as locale_text,
@@ -951,7 +953,7 @@ def handle_pending_value(
 
 def language_menu() -> dict:
     return {
-        "keyboard": [[{"text": language.button}] for language in LANGUAGES.values()],
+        "keyboard": [[{"text": language_button_text(language.code)}] for language in LANGUAGES.values()],
         "resize_keyboard": True,
         "is_persistent": True,
     }
@@ -960,7 +962,7 @@ def language_menu() -> dict:
 def country_menu(language_code: str) -> dict:
     return {
         "keyboard": [
-            [{"text": country_name(country.code, language_code)}]
+            [{"text": country_button_text(country.code, language_code)}]
             for country in COUNTRIES.values()
         ],
         "resize_keyboard": True,
@@ -1006,9 +1008,9 @@ def send_settings(chat_id: int, db: Database, telegram: TelegramApi) -> None:
             f"{locale_text(settings.language_code, 'country')}: "
             f"{escape(country_name(settings.country_code, settings.language_code))}\n"
             f"{locale_text(settings.language_code, 'text_mode_label')}: {escape(text_mode)}\n\n"
-            f"{locale_text(settings.language_code, 'change_language')}: {BTN_LANGUAGE}\n"
-            f"{locale_text(settings.language_code, 'change_country')}: {BTN_COUNTRY}\n"
-            f"{locale_text(settings.language_code, 'change_text_mode')}: {BTN_TEXT_MODE}"
+            f"{locale_text(settings.language_code, 'change_language')}: {button_label(settings.language_code, 'language')}\n"
+            f"{locale_text(settings.language_code, 'change_country')}: {button_label(settings.language_code, 'country')}\n"
+            f"{locale_text(settings.language_code, 'change_text_mode')}: {button_label(settings.language_code, 'text_mode')}"
         ),
         reply_markup=settings_menu_for_chat(chat_id, db),
     )

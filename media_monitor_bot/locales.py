@@ -125,6 +125,26 @@ COUNTRIES: dict[str, Country] = {
     ),
 }
 
+LANGUAGE_FLAGS: dict[str, str] = {
+    "en": "🇬🇧",
+    "uk": "🇺🇦",
+    "pl": "🇵🇱",
+    "de": "🇩🇪",
+    "es": "🇪🇸",
+    "it": "🇮🇹",
+    "be": "⬜️🟥⬜️",
+}
+
+COUNTRY_FLAGS: dict[str, str] = {
+    "ua": "🇺🇦",
+    "pl": "🇵🇱",
+    "gb": "🇬🇧",
+    "de": "🇩🇪",
+    "es": "🇪🇸",
+    "it": "🇮🇹",
+    "by": "⬜️🟥⬜️",
+}
+
 
 MESSAGES: dict[str, dict[str, str]] = {
     "en": {
@@ -955,10 +975,22 @@ def language_name(code: str) -> str:
     return LANGUAGES.get(normalize_language(code), LANGUAGES[DEFAULT_LANGUAGE]).name
 
 
+def language_button_text(code: str) -> str:
+    language = LANGUAGES.get(normalize_language(code), LANGUAGES[DEFAULT_LANGUAGE])
+    flag = LANGUAGE_FLAGS.get(language.code, "")
+    return f"{flag} {language.button}".strip()
+
+
 def country_name(code: str, language_code: str) -> str:
     country = COUNTRIES.get(normalize_country(code), COUNTRIES[DEFAULT_COUNTRY])
     language = normalize_language(language_code)
     return country.name_by_language.get(language) or country.name_by_language[DEFAULT_LANGUAGE]
+
+
+def country_button_text(code: str, language_code: str) -> str:
+    country_code = normalize_country(code)
+    flag = COUNTRY_FLAGS.get(country_code, "")
+    return f"{flag} {country_name(country_code, language_code)}".strip()
 
 
 def normalize_language(value: str | None) -> str:
@@ -978,7 +1010,13 @@ def normalize_country(value: str | None) -> str:
 def language_from_button(value: str) -> str | None:
     needle = value.strip().lower()
     for language in LANGUAGES.values():
-        if needle in {language.code, language.button.lower(), language.name.lower()}:
+        names = {
+            language.code,
+            language.button.lower(),
+            language.name.lower(),
+            language_button_text(language.code).lower(),
+        }
+        if needle in names:
             return language.code
     return None
 
@@ -989,6 +1027,7 @@ def country_from_button(value: str) -> str | None:
         names = {
             country.code,
             country.button.lower(),
+            *(country_button_text(country.code, language_code).lower() for language_code in LANGUAGES),
             *(name.lower() for name in country.name_by_language.values()),
         }
         if needle in names:
