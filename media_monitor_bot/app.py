@@ -377,27 +377,27 @@ def configure_mini_app(config, telegram: TelegramApi) -> None:
 
 def configure_bot_commands(telegram: TelegramApi) -> None:
     commands = [
-            {"command": "start", "description": "Запустити бота і показати меню"},
-            {"command": "add", "description": "Додати ключову фразу"},
-            {"command": "remove", "description": "Видалити ключову фразу"},
-            {"command": "plans", "description": "Показати тарифи"},
-            {"command": "buy", "description": "Оплатити тариф"},
-            {"command": "fulltext", "description": "Керувати пошуком у повному тексті"},
-            {"command": "rss", "description": "Керувати джерелами"},
-            {"command": "tg", "description": "Додати Telegram-канал"},
-            {"command": "tgblocks", "description": "Керувати TG-пакетами"},
-            {"command": "info", "description": "Показати мої налаштування"},
-            {"command": "sources", "description": "Показати джерела"},
-            {"command": "sourcesfile", "description": "Файл з усіма джерелами"},
-            {"command": "check", "description": "Перевірити зараз"},
-            {"command": "report", "description": "Отримати CSV-звіт"},
-            {"command": "help", "description": "Допомога"},
+        {"command": "start", "description": "Start the bot and show the menu"},
+        {"command": "add", "description": "Add a keyword"},
+        {"command": "remove", "description": "Remove a keyword"},
+        {"command": "plans", "description": "Show plans"},
+        {"command": "buy", "description": "Buy a plan"},
+        {"command": "fulltext", "description": "Manage full-text search"},
+        {"command": "rss", "description": "Manage sources"},
+        {"command": "tg", "description": "Add a Telegram channel"},
+        {"command": "tgblocks", "description": "Manage TG packages"},
+        {"command": "info", "description": "Show my monitoring"},
+        {"command": "sources", "description": "Show sources"},
+        {"command": "sourcesfile", "description": "Receive the source file"},
+        {"command": "check", "description": "Check now"},
+        {"command": "report", "description": "Receive CSV report"},
+        {"command": "help", "description": "Help"},
     ]
     if REQUIRE_ONBOARDING:
         commands[9:9] = [
-            {"command": "settings", "description": "Налаштування мови та регіону"},
-            {"command": "language", "description": "Змінити мову інтерфейсу"},
-            {"command": "country", "description": "Змінити регіон моніторингу"},
+            {"command": "settings", "description": "Language, region, and text mode"},
+            {"command": "language", "description": "Change interface language"},
+            {"command": "country", "description": "Change monitoring region"},
         ]
     telegram.set_my_commands(commands)
 
