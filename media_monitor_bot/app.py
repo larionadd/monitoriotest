@@ -1709,13 +1709,14 @@ def send_info(chat_id: int, db: Database, telegram: TelegramApi, sources) -> Non
         language_code,
         "text_mode_full" if monitoring.full_text_enabled else "text_mode_fast",
     )
-    active_sources = len(db.get_enabled_sources(chat_id, sources))
+    keyword_countries = {keyword.country_code for keyword in monitoring.keywords}
+    active_sources = len(db.get_enabled_sources(chat_id, sources, keyword_countries or None))
     telegram.send_message(
         chat_id,
         f"{locale_text(language_code, 'info_title')}:\n\n"
         f"{locale_text(language_code, 'language')}: {escape(language_name(language_code))}\n"
         f"{locale_text(language_code, 'country')}: {escape(country_name(settings.country_code, language_code))}\n\n"
-        f"{locale_text(language_code, 'keywords')}: {format_terms(language_code, monitoring.keywords)}\n"
+        f"{locale_text(language_code, 'keywords')}: {format_keywords(language_code, monitoring.keywords)}\n"
         f"{locale_text(language_code, 'stop_words')}: {format_terms(language_code, monitoring.stop_words)}\n"
         f"{locale_text(language_code, 'plus_words')}: {format_terms(language_code, monitoring.plus_words)}\n\n"
         f"{locale_text(language_code, 'search_mode')}: {escape(text_mode)}\n"
@@ -2039,6 +2040,15 @@ def format_terms(language_code: str, values: tuple[str, ...]) -> str:
     if not values:
         return locale_text(language_code, "empty_terms")
     return ", ".join(escape(value) for value in values)
+
+
+def format_keywords(language_code: str, values) -> str:
+    if not values:
+        return locale_text(language_code, "empty_terms")
+    return ", ".join(
+        f"{escape(value.phrase)} ({escape(country_name(value.country_code, language_code))})"
+        for value in values
+    )
 
 
 def format_add_result(language_code: str, label: str, value: str, added: bool) -> str:

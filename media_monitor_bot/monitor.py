@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 
 from .config import Config, Source
 from .db import Database
-from .locales import template_text
+from .locales import normalize_country, template_text
 from .matching import allowed_by_filters, contains_phrase
 from .telegram_api import TelegramApi, escape
 
@@ -89,7 +89,14 @@ class Monitor:
                     base_text = article.text
                     if has_stop_word(base_text, user.stop_words):
                         continue
-                    keywords = user.keywords[: plan.max_keywords]
+                    source_country = normalize_country(source.country)
+                    keywords = [
+                        keyword.phrase
+                        for keyword in user.keywords
+                        if keyword.country_code == source_country
+                    ][: plan.max_keywords]
+                    if not keywords:
+                        continue
                     remaining_keywords: list[str] = []
                     base_plus_ok = has_required_plus_word(base_text, user.plus_words)
                     for keyword in keywords:
@@ -120,7 +127,8 @@ class Monitor:
     def _source_users(self, users) -> dict[str, tuple[Source, list]]:
         source_users: dict[str, tuple[Source, list]] = {}
         for user in users:
-            for source in self.db.get_enabled_sources(user.chat_id, self.sources):
+            keyword_countries = {keyword.country_code for keyword in user.keywords}
+            for source in self.db.get_enabled_sources(user.chat_id, self.sources, keyword_countries):
                 if source.url not in source_users:
                     source_users[source.url] = (source, [])
                 source_users[source.url][1].append(user)

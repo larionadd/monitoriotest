@@ -17,12 +17,18 @@ def utcnow() -> str:
 
 
 @dataclass(frozen=True)
+class KeywordTerm:
+    phrase: str
+    country_code: str
+
+
+@dataclass(frozen=True)
 class UserMonitoring:
     chat_id: int
     language_code: str
     country_code: str
     onboarding_completed: bool
-    keywords: tuple[str, ...]
+    keywords: tuple[KeywordTerm, ...]
     stop_words: tuple[str, ...]
     plus_words: tuple[str, ...]
     full_text_enabled: bool
@@ -184,6 +190,58 @@ class Database:
                 conn.execute(
                     "ALTER TABLE user_sources ADD COLUMN country_code TEXT NOT NULL DEFAULT 'ua'"
                 )
+            keyword_columns = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(keywords)")
+            }
+            if "country_code" not in keyword_columns or not self._keywords_unique_has_country(conn):
+                self._rebuild_keywords_table(conn)
+
+    def _keywords_unique_has_country(self, conn: sqlite3.Connection) -> bool:
+        for index in conn.execute("PRAGMA index_list(keywords)"):
+            if not index["unique"]:
+                continue
+            columns = [
+                row["name"]
+                for row in conn.execute(f"PRAGMA index_info({index['name']})")
+            ]
+            if columns == ["chat_id", "phrase", "country_code"]:
+                return True
+        return False
+
+    def _rebuild_keywords_table(self, conn: sqlite3.Connection) -> None:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS keywords_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id INTEGER NOT NULL,
+                phrase TEXT NOT NULL,
+                country_code TEXT NOT NULL DEFAULT 'ua',
+                created_at TEXT NOT NULL,
+                UNIQUE(chat_id, phrase, country_code),
+                FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
+            )
+            """
+        )
+        keyword_columns = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(keywords)")
+        }
+        country_expr = (
+            "COALESCE(NULLIF(k.country_code, ''), NULLIF(u.country_code, ''), 'ua')"
+            if "country_code" in keyword_columns
+            else "COALESCE(NULLIF(u.country_code, ''), 'ua')"
+        )
+        conn.execute(
+            f"""
+            INSERT OR IGNORE INTO keywords_new(chat_id, phrase, country_code, created_at)
+            SELECT k.chat_id, k.phrase, {country_expr}, k.created_at
+            FROM keywords k
+            LEFT JOIN users u ON u.chat_id = k.chat_id
+            """
+        )
+        conn.execute("DROP TABLE keywords")
+        conn.execute("ALTER TABLE keywords_new RENAME TO keywords")
 
     def touch_user(self, chat_id: int, onboarding_completed_default: bool = True) -> None:
         now = utcnow()
@@ -249,8 +307,21 @@ class Database:
                 (1 if completed else 0, chat_id),
             )
 
-    def add_keyword(self, chat_id: int, phrase: str) -> bool:
-        return self._add_term("keywords", chat_id, phrase)
+    def add_keyword(self, chat_id: int, phrase: str, country_code: str | None = None) -> bool:
+        term = normalize_term(phrase)
+        if not term:
+            return False
+        self.touch_user(chat_id)
+        country = normalize_country(country_code or self.get_user_settings(chat_id).country_code)
+        with self.connect() as conn:
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO keywords(chat_id, phrase, country_code, created_at)
+                VALUES(?, ?, ?, ?)
+                """,
+                (chat_id, term, country, utcnow()),
+            )
+            return cur.rowcount > 0
 
     def set_full_text_enabled(self, chat_id: int, enabled: bool) -> None:
         self.touch_user(chat_id)
@@ -488,9 +559,10 @@ class Database:
             country_code = normalize_country(row["country_code"] if row else DEFAULT_COUNTRY)
             onboarding_completed = bool(row["onboarding_completed"]) if row else True
             keywords = tuple(
-                row["phrase"]
+                KeywordTerm(row["phrase"], normalize_country(row["country_code"]))
                 for row in conn.execute(
-                    "SELECT phrase FROM keywords WHERE chat_id = ? ORDER BY phrase", (chat_id,)
+                    "SELECT phrase, country_code FROM keywords WHERE chat_id = ? ORDER BY country_code, phrase",
+                    (chat_id,),
                 )
             )
             stop_words = tuple(
@@ -542,21 +614,31 @@ class Database:
             custom_sources,
         )
 
-    def get_enabled_sources(self, chat_id: int, default_sources: list[Source]) -> list[Source]:
+    def get_enabled_sources(
+        self,
+        chat_id: int,
+        default_sources: list[Source],
+        country_codes: Iterable[str] | None = None,
+    ) -> list[Source]:
         monitoring = self.get_user_monitoring(chat_id)
         plan = self.get_active_plan(chat_id)
         disabled = set(monitoring.disabled_source_urls)
+        countries = (
+            {normalize_country(country) for country in country_codes}
+            if country_codes
+            else {monitoring.country_code}
+        )
         sources = [
             source
             for source in default_sources
             if normalize_url(source.url) not in disabled
             and source_allowed_for_plan(source, plan.id)
-            and normalize_country(source.country) == monitoring.country_code
+            and normalize_country(source.country) in countries
         ]
         sources.extend(
             source
             for source in monitoring.custom_sources[: plan.max_custom_sources]
-            if normalize_country(source.country) == monitoring.country_code
+            if normalize_country(source.country) in countries
         )
         return dedupe_sources(sources)
 

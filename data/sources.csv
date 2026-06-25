@@ -414,3 +414,43 @@ Pul Pervogo,https://t.me/s/pul_1,telegram_paid,17,248000,by,be
 MLYN.by,https://t.me/s/mlynby,telegram_paid,18,19300,by,be
 Charter97,https://t.me/s/charter97_org,telegram_paid,19,29500,by,be
 Mediazona Belarus,https://t.me/s/mediazona_by,telegram_paid,20,4770,by,be
+BBC News,https://feeds.bbci.co.uk/news/rss.xml,rss,1,,gb,en
+BBC UK,https://feeds.bbci.co.uk/news/uk/rss.xml,rss,2,,gb,en
+Sky News,https://feeds.skynews.com/feeds/rss/home.xml,rss,3,,gb,en
+The Guardian UK,https://www.theguardian.com/uk/rss,rss,4,,gb,en
+The Guardian World,https://www.theguardian.com/world/rss,rss,5,,gb,en
+The Independent UK,https://www.independent.co.uk/news/uk/rss,rss,6,,gb,en
+Daily Mail News,https://www.dailymail.co.uk/news/index.rss,rss,7,,gb,en
+Mirror News,https://www.mirror.co.uk/news/?service=rss,rss,8,,gb,en
+Metro News,https://metro.co.uk/news/feed/,rss,9,,gb,en
+Evening Standard,https://www.standard.co.uk/rss,rss,10,,gb,en
+The Sun News,https://www.thesun.co.uk/news/feed/,rss,11,,gb,en
+Express News,https://www.express.co.uk/posts/rss/1/news,rss,12,,gb,en
+Financial Times UK,https://www.ft.com/rss/uk,rss,13,,gb,en
+The Economist,https://www.economist.com/latest/rss.xml,rss,14,,gb,en
+Reuters UK via Google News,https://news.google.com/rss/search?q=site:reuters.com/world/uk&hl=en-GB&gl=GB&ceid=GB:en,rss,15,,gb,en
+The Times via Google News,https://news.google.com/rss/search?q=site:thetimes.co.uk&hl=en-GB&gl=GB&ceid=GB:en,rss,16,,gb,en
+The Telegraph via Google News,https://news.google.com/rss/search?q=site:telegraph.co.uk&hl=en-GB&gl=GB&ceid=GB:en,rss,17,,gb,en
+ITV News via Google News,https://news.google.com/rss/search?q=site:itv.com/news&hl=en-GB&gl=GB&ceid=GB:en,rss,18,,gb,en
+GB News via Google News,https://news.google.com/rss/search?q=site:gbnews.com&hl=en-GB&gl=GB&ceid=GB:en,rss,19,,gb,en
+PA Media via Google News,https://news.google.com/rss/search?q=site:pa.media&hl=en-GB&gl=GB&ceid=GB:en,rss,20,,gb,en
+World News,https://t.me/s/worldnews,telegram_paid,1,,gb,en
+Euronews,https://t.me/s/euronews,telegram_paid,2,,gb,en
+Insider Paper,https://t.me/s/insiderpaper,telegram_paid,3,,gb,en
+Disclose.tv,https://t.me/s/disclosetv,telegram_paid,4,,gb,en
+Middle East Spectator,https://t.me/s/Middle_East_Spectator,telegram_paid,5,,gb,en
+DD Geopolitics,https://t.me/s/DDGeopolitics,telegram_paid,6,,gb,en
+The Islander,https://t.me/s/TheIslanderNews,telegram_paid,7,,gb,en
+InfoDefense English,https://t.me/s/infodefENGLAND,telegram_paid,8,,gb,en
+SGT News Network,https://t.me/s/SGTnewsNetwork,telegram_paid,9,,gb,en
+Epoch Times,https://t.me/s/EpochTimes,telegram_paid,10,,gb,en
+Breaking911,https://t.me/s/Breaking911,telegram_paid,11,,gb,en
+Police Frequency,https://t.me/s/police_frequency,telegram_paid,12,,gb,en
+TRT World,https://t.me/s/trtworld,telegram_paid,13,,gb,en
+The Cradle,https://t.me/s/TheCradleMedia,telegram_paid,14,,gb,en
+Watcher.Guru,https://t.me/s/WatcherGuru,telegram_paid,15,,gb,en
+Financial Juice,https://t.me/s/financialjuice,telegram_paid,16,,gb,en
+SCMP News,https://t.me/s/SCMPNews,telegram_paid,17,,gb,en
+Newsmax,https://t.me/s/newsmax,telegram_paid,18,,gb,en
+France 24 English,https://t.me/s/France24_en,telegram_paid,19,,gb,en
+PressTV,https://t.me/s/pressTV,telegram_paid,20,,gb,en
