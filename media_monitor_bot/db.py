@@ -770,6 +770,29 @@ class Database:
                 )
             )
 
+    def recent_matches(self, chat_id: int, limit: int = 30) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT
+                        m.sent_at,
+                        m.keyword,
+                        a.source,
+                        a.title,
+                        a.published_at,
+                        a.url,
+                        a.summary
+                    FROM matches m
+                    JOIN articles a ON a.url = m.url
+                    WHERE m.chat_id = ?
+                    ORDER BY m.sent_at DESC
+                    LIMIT ?
+                    """,
+                    (chat_id, limit),
+                )
+            )
+
 
 def normalize_term(value: str) -> str:
     return " ".join(value.strip().lower().split())

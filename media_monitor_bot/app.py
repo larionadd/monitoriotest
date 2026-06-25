@@ -244,9 +244,9 @@ def main(argv: list[str] | None = None) -> int:
     db = Database(config.database_path)
     db.migrate()
     telegram = TelegramApi(config.telegram_bot_token)
-    configure_mini_app(config, telegram)
-    configure_bot_commands(telegram)
     sources = load_sources(config.sources_path)
+    configure_mini_app(config, telegram, db, sources)
+    configure_bot_commands(telegram)
     monitor = Monitor(config, db, telegram, sources)
 
     if args.once:
@@ -380,7 +380,7 @@ def run_monitor_safely(
         MONITOR_LOCK.release()
 
 
-def configure_mini_app(config, telegram: TelegramApi) -> None:
+def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> None:
     global MINI_APP_URL
     MINI_APP_URL = config.mini_app_url
     if not config.mini_app_url:
@@ -390,7 +390,15 @@ def configure_mini_app(config, telegram: TelegramApi) -> None:
     except Exception:
         logging.exception("Не вдалося скинути глобальну Telegram menu button для Mini App")
     try:
-        start_static_server(config.mini_app_host, config.mini_app_port, config.mini_app_static_path)
+        start_static_server(
+            config.mini_app_host,
+            config.mini_app_port,
+            config.mini_app_static_path,
+            bot_token=config.telegram_bot_token,
+            db=db,
+            sources=sources,
+            require_business=not config.require_onboarding,
+        )
     except Exception:
         logging.exception("Не вдалося запустити Mini App server")
 
@@ -453,6 +461,11 @@ def handle_web_app_data(
         handle_country_choice(chat_id, country_code, db, telegram)
         return
 
+    if action == "set_language":
+        language = str(payload.get("language") or value).strip()
+        handle_language_choice(chat_id, language, db, telegram)
+        return
+
     if action == "add_keyword":
         if not value:
             telegram.send_message(chat_id, locale_text(language_code, "prompt_add_keyword"), reply_markup=main_menu_for_chat(chat_id, db))
@@ -479,6 +492,42 @@ def handle_web_app_data(
         )
         return
 
+    if action == "add_stop_word":
+        added = db.add_stop_word(chat_id, value)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "stop_word_label"), value, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
+        return
+
+    if action == "remove_stop_word":
+        removed = db.remove_stop_word(chat_id, value)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "stop_word_label"), value, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
+        return
+
+    if action == "add_plus_word":
+        added = db.add_plus_word(chat_id, value)
+        telegram.send_message(
+            chat_id,
+            format_add_result(language_code, locale_text(language_code, "plus_word_label"), value, added),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
+        return
+
+    if action == "remove_plus_word":
+        removed = db.remove_plus_word(chat_id, value)
+        telegram.send_message(
+            chat_id,
+            format_remove_result(language_code, locale_text(language_code, "plus_word_label"), value, removed),
+            reply_markup=filter_menu_for_chat(chat_id, db),
+        )
+        return
+
     if action == "fulltext":
         enabled = bool(payload.get("enabled"))
         plan = db.get_active_plan(chat_id)
@@ -490,10 +539,28 @@ def handle_web_app_data(
         telegram.send_message(chat_id, locale_text(language_code, "fulltext_status", status=status), reply_markup=main_menu_for_chat(chat_id, db))
         return
 
+    if action == "auto_monitoring":
+        enabled = bool(payload.get("enabled"))
+        db.set_auto_monitoring_enabled(chat_id, enabled)
+        telegram.send_message(
+            chat_id,
+            locale_text(language_code, "auto_monitoring_enabled" if enabled else "manual_monitoring_enabled"),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
+        return
+
     if action == "tg_block":
         block_number = parse_block_number(str(payload.get("block") or ""))
         enabled = bool(payload.get("enabled"))
         set_tg_block(chat_id, block_number, enabled, db, telegram, sources)
+        return
+
+    if action == "add_rss":
+        add_custom_rss(chat_id, value, db, telegram)
+        return
+
+    if action == "add_tg":
+        add_custom_telegram(chat_id, value, db, telegram)
         return
 
     if action == "sources_file":
@@ -506,6 +573,10 @@ def handle_web_app_data(
 
     if action == "plans":
         send_plans(chat_id, db, telegram)
+        return
+
+    if action == "report":
+        send_report(chat_id, db, telegram)
         return
 
     telegram.send_message(chat_id, locale_text(language_code, "mini_app_unknown_action"), reply_markup=main_menu_for_chat(chat_id, db))
