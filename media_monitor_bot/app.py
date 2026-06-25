@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlparse
 
-from .billing import PLANS, paid_plans, plan_by_id, plan_text
+from .billing import PLANS, Plan, paid_plans, plan_by_id
 from .config import Source, load_config
 from .db import Database, normalize_url, source_allowed_for_plan
 from .locales import (
@@ -290,9 +290,10 @@ def run_bot_loop(
                     handle_web_app_data(int(chat_id), message["web_app_data"], db, telegram, monitor, sources)
                 except Exception:
                     logging.exception("Не вдалося обробити Mini App дію від %s", chat_id)
+                    language_code = db.get_user_settings(int(chat_id)).language_code
                     telegram.send_message(
                         int(chat_id),
-                        "Не вдалося виконати дію з Mini App. Спробуйте ще раз.",
+                        locale_text(language_code, "mini_app_action_failed"),
                         reply_markup=main_menu_for_chat(chat_id, db),
                     )
                 continue
@@ -302,9 +303,10 @@ def run_bot_loop(
                 handle_message(int(chat_id), text, db, telegram, monitor, sources)
             except Exception:
                 logging.exception("Не вдалося обробити повідомлення від %s", chat_id)
+                language_code = db.get_user_settings(int(chat_id)).language_code
                 telegram.send_message(
                     int(chat_id),
-                    "Не вдалося обробити повідомлення. Спробуйте ще раз.",
+                    locale_text(language_code, "message_failed"),
                     reply_markup=main_menu_for_chat(chat_id, db),
                 )
 
@@ -415,14 +417,14 @@ def handle_web_app_data(
     if not REQUIRE_ONBOARDING and db.get_active_plan(chat_id).id != "business":
         telegram.send_message(
             chat_id,
-            "Кабінет доступний тільки у тарифі Business. Оновіть тариф через /plans.",
+            locale_text(language_code, "mini_app_business_only"),
             reply_markup=main_menu_for_chat(chat_id, db),
         )
         return
     try:
         payload = json.loads(web_app_data.get("data") or "{}")
     except json.JSONDecodeError:
-        telegram.send_message(chat_id, "Mini App надіслав некоректні дані.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "mini_app_bad_data"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     action = str(payload.get("action") or "").strip()
     value = str(payload.get("value") or "").strip()
@@ -462,11 +464,11 @@ def handle_web_app_data(
         enabled = bool(payload.get("enabled"))
         plan = db.get_active_plan(chat_id)
         if enabled and not plan.full_text:
-            telegram.send_message(chat_id, "Пошук у повному тексті доступний у тарифах Pro та Business.", reply_markup=main_menu_for_chat(chat_id, db))
+            telegram.send_message(chat_id, locale_text(language_code, "fulltext_unavailable"), reply_markup=main_menu_for_chat(chat_id, db))
             return
         db.set_full_text_enabled(chat_id, enabled)
-        status = "увімкнено" if enabled else "вимкнено"
-        telegram.send_message(chat_id, f"Пошук у повному тексті {status}.", reply_markup=main_menu_for_chat(chat_id, db))
+        status = locale_text(language_code, "status_enabled" if enabled else "status_disabled")
+        telegram.send_message(chat_id, locale_text(language_code, "fulltext_status", status=status), reply_markup=main_menu_for_chat(chat_id, db))
         return
 
     if action == "tg_block":
@@ -487,7 +489,7 @@ def handle_web_app_data(
         send_plans(chat_id, db, telegram)
         return
 
-    telegram.send_message(chat_id, "Невідома дія Mini App.", reply_markup=main_menu_for_chat(chat_id, db))
+    telegram.send_message(chat_id, locale_text(language_code, "mini_app_unknown_action"), reply_markup=main_menu_for_chat(chat_id, db))
 
 
 def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi, monitor: Monitor, sources) -> None:
@@ -1101,22 +1103,23 @@ def handle_full_text_command(chat_id: int, argument: str, db: Database, telegram
 
 
 def send_plans(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     plan = db.get_active_plan(chat_id)
     subscription = db.get_subscription(chat_id)
-    expires = subscription["expires_at"] if subscription and plan.id != "free" else "немає"
+    expires = subscription["expires_at"] if subscription and plan.id != "free" else locale_text(language_code, "no_expiry")
     lines = [
-        "Тарифи Telegram Stars:",
+        locale_text(language_code, "plans_title"),
         "",
-        f"Поточний тариф: {plan.name}",
-        f"Діє до: {expires}",
+        f"{locale_text(language_code, 'current_plan')}: {plan.name}",
+        f"{locale_text(language_code, 'expires_at')}: {expires}",
         "",
-        plan_text(PLANS["free"]),
+        plan_text_localized(language_code, PLANS["free"]),
     ]
     for paid in paid_plans():
-        lines.append(plan_text(paid))
-        lines.append(f"Оплата: /buy {paid.id}")
+        lines.append(plan_text_localized(language_code, paid))
+        lines.append(f"{locale_text(language_code, 'payment_command')}: /buy {paid.id}")
     lines.append("")
-    lines.append("Після оплати тариф активується автоматично на 30 днів.")
+    lines.append(locale_text(language_code, "plan_activation_note"))
     telegram.send_message(
         chat_id,
         "\n".join(escape(line) for line in lines),
@@ -1125,18 +1128,37 @@ def send_plans(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     )
 
 
+def plan_description(language_code: str, plan: Plan) -> str:
+    return locale_text(language_code, f"plan_{plan.id}_description")
+
+
+def plan_text_localized(language_code: str, plan: Plan) -> str:
+    description = plan_description(language_code, plan)
+    if plan.id == "free":
+        return locale_text(language_code, "plan_free_template", name=plan.name, description=description)
+    return locale_text(
+        language_code,
+        "plan_paid_template",
+        name=plan.name,
+        stars=plan.stars,
+        days=plan.days,
+        description=description,
+    )
+
+
 def send_plan_invoice(chat_id: int, plan_id: str, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     plan = plan_by_id(plan_id.strip())
     if plan.id == "free":
-        telegram.send_message(chat_id, "Оберіть платний тариф: /buy basic, /buy pro або /buy business.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "choose_paid_plan"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     payload = f"plan:{plan.id}:{chat_id}:{int(time.time())}"
     telegram.send_invoice(
         chat_id=chat_id,
-        title=f"Тариф {plan.name} на {plan.days} днів",
-        description=plan.description,
+        title=locale_text(language_code, "invoice_title", plan=plan.name, days=plan.days),
+        description=plan_description(language_code, plan),
         payload=payload,
-        prices=[{"label": f"{plan.name} / {plan.days} днів", "amount": plan.stars}],
+        prices=[{"label": locale_text(language_code, "invoice_price_label", plan=plan.name, days=plan.days), "amount": plan.stars}],
     )
 
 
@@ -1148,18 +1170,19 @@ def handle_pre_checkout_query(query: dict, telegram: TelegramApi) -> None:
         telegram.answer_pre_checkout_query(
             str(query["id"]),
             False,
-            "Невідомий тариф. Спробуйте оформити оплату ще раз.",
+            locale_text("en", "unknown_plan_checkout"),
         )
         return
     telegram.answer_pre_checkout_query(str(query["id"]), True)
 
 
 def handle_successful_payment(chat_id: int, payment: dict, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     payload = str(payment.get("invoice_payload") or "")
     plan_id = parse_plan_payload(payload)
     plan = plan_by_id(plan_id or "")
     if plan.id == "free":
-        telegram.send_message(chat_id, "Оплату отримано, але тариф не розпізнано. Напишіть адміністратору.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "payment_unknown_plan"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     recorded = db.record_payment(
         chat_id=chat_id,
@@ -1171,10 +1194,10 @@ def handle_successful_payment(chat_id: int, payment: dict, db: Database, telegra
         provider_payment_charge_id=payment.get("provider_payment_charge_id"),
     )
     expires = db.activate_plan(chat_id, plan.id)
-    status = "активовано" if recorded else "вже було активовано"
+    status = locale_text(language_code, "payment_status_activated" if recorded else "payment_status_already")
     telegram.send_message(
         chat_id,
-        f"Оплату отримано. Тариф {escape(plan.name)} {status} до {escape(expires)}.",
+        locale_text(language_code, "payment_success", plan=escape(plan.name), status=escape(status), expires=escape(expires)),
         reply_markup=main_menu_for_chat(chat_id, db),
     )
 
@@ -1187,40 +1210,46 @@ def parse_plan_payload(payload: str) -> str | None:
 
 
 def handle_grant_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     if chat_id not in ADMIN_CHAT_IDS:
-        telegram.send_message(chat_id, "Ця команда доступна тільки адміністратору.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "admin_only"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     target_raw, _, rest = argument.strip().partition(" ")
     plan_raw, _, days_raw = rest.strip().partition(" ")
     try:
         target_chat_id = int(target_raw)
     except ValueError:
-        telegram.send_message(chat_id, "Формат: /grant chat_id pro 30", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "grant_format"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     plan = plan_by_id(plan_raw)
     if plan.id == "free":
-        telegram.send_message(chat_id, "Формат: /grant chat_id basic|pro|business 30", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "grant_plan_format"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     try:
         days = int(days_raw) if days_raw else plan.days
     except ValueError:
         days = plan.days
     expires = db.activate_plan(target_chat_id, plan.id, days)
-    telegram.send_message(chat_id, f"Видано {plan.name} для {target_chat_id} до {expires}.", reply_markup=main_menu_for_chat(chat_id, db))
+    telegram.send_message(
+        chat_id,
+        locale_text(language_code, "grant_success", plan=plan.name, chat_id=target_chat_id, expires=expires),
+        reply_markup=main_menu_for_chat(chat_id, db),
+    )
 
 
 def send_users(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     if chat_id not in ADMIN_CHAT_IDS:
-        telegram.send_message(chat_id, "Ця команда доступна тільки адміністратору.", reply_markup=main_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "admin_only"), reply_markup=main_menu_for_chat(chat_id, db))
         return
     total = db.user_count()
     users = db.list_users(limit=30)
-    lines = [f"Користувачів у базі: {total}"]
+    lines = [locale_text(language_code, "users_count", total=total)]
     if len(users) < total:
-        lines.append(f"Показано останніх активних: {len(users)}")
+        lines.append(locale_text(language_code, "users_shown", shown=len(users)))
     lines.append("")
     if not users:
-        lines.append("Користувачів ще немає.")
+        lines.append(locale_text(language_code, "users_empty"))
     for index, row in enumerate(users, start=1):
         user_chat_id = int(row["chat_id"])
         plan = db.get_active_plan(user_chat_id)
@@ -1228,9 +1257,15 @@ def send_users(chat_id: int, db: Database, telegram: TelegramApi) -> None:
         lines.extend(
             [
                 f"{index}. ID: <code>{user_chat_id}</code>",
-                f"   тариф: {escape(plan.name)}; ключів: {row['keyword_count']}; власних джерел: {row['custom_source_count']}",
-                f"   остання активність: {escape(row['last_seen_at'])}",
-                f"   діє до: {escape(expires)}",
+                locale_text(
+                    language_code,
+                    "users_plan_line",
+                    plan=escape(plan.name),
+                    keywords=row["keyword_count"],
+                    sources=row["custom_source_count"],
+                ),
+                locale_text(language_code, "users_last_seen", last_seen=escape(row["last_seen_at"])),
+                locale_text(language_code, "users_expires", expires=escape(expires)),
             ]
         )
     telegram.send_message(chat_id, "\n".join(lines), reply_markup=main_menu_for_chat(chat_id, db))
@@ -1240,9 +1275,10 @@ def can_add_keyword(chat_id: int, db: Database, telegram: TelegramApi) -> bool:
     plan = db.get_active_plan(chat_id)
     current = len(db.get_user_monitoring(chat_id).keywords)
     if current >= plan.max_keywords:
+        language_code = db.get_user_settings(chat_id).language_code
         telegram.send_message(
             chat_id,
-            f"Ліміт ключів для тарифу {escape(plan.name)}: {plan.max_keywords}. Оновіть тариф через /plans.",
+            locale_text(language_code, "keyword_limit", plan=escape(plan.name), limit=plan.max_keywords),
             reply_markup=main_menu_for_chat(chat_id, db),
         )
         return False
@@ -1252,6 +1288,7 @@ def can_add_keyword(chat_id: int, db: Database, telegram: TelegramApi) -> bool:
 def handle_rss_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi, sources) -> None:
     action, _, rest = argument.strip().partition(" ")
     action = action.lower()
+    language_code = db.get_user_settings(chat_id).language_code
 
     if action in {"", "list", "список"}:
         send_sources(chat_id, db, telegram, sources)
@@ -1261,7 +1298,7 @@ def handle_rss_command(chat_id: int, argument: str, db: Database, telegram: Tele
         if not rest.strip():
             telegram.send_message(
                 chat_id,
-                "Формат: /rss add https://example.com/rss.xml",
+                locale_text(language_code, "rss_add_format"),
                 reply_markup=source_menu_for_chat(chat_id, db),
             )
             return
@@ -1282,8 +1319,7 @@ def handle_rss_command(chat_id: int, argument: str, db: Database, telegram: Tele
 
     telegram.send_message(
         chat_id,
-        "Невідома дія RSS.\n\n"
-        "Доступно: /rss list, /rss add URL, /rss off номер, /rss on номер, /rss remove номер.",
+        locale_text(language_code, "rss_unknown_action"),
         reply_markup=source_menu_for_chat(chat_id, db),
     )
 
@@ -1291,6 +1327,7 @@ def handle_rss_command(chat_id: int, argument: str, db: Database, telegram: Tele
 def handle_tg_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi, sources) -> None:
     action, _, rest = argument.strip().partition(" ")
     action = action.lower()
+    language_code = db.get_user_settings(chat_id).language_code
     if action in {"", "blocks", "list"}:
         send_tg_blocks(chat_id, db, telegram, sources)
         return
@@ -1304,7 +1341,7 @@ def handle_tg_command(chat_id: int, argument: str, db: Database, telegram: Teleg
         if not rest.strip():
             telegram.send_message(
                 chat_id,
-                "Формат: /tg add @channel або /tg add https://t.me/channel",
+                locale_text(language_code, "tg_add_format"),
                 reply_markup=source_menu_for_chat(chat_id, db),
             )
             return
@@ -1312,7 +1349,7 @@ def handle_tg_command(chat_id: int, argument: str, db: Database, telegram: Teleg
         return
     telegram.send_message(
         chat_id,
-        "Доступно: /tg add @channel, /tg blocks, /tg off 1, /tg on 1",
+        locale_text(language_code, "tg_available"),
         reply_markup=source_menu_for_chat(chat_id, db),
     )
 
@@ -1320,6 +1357,7 @@ def handle_tg_command(chat_id: int, argument: str, db: Database, telegram: Teleg
 def handle_tg_blocks_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi, sources) -> None:
     action, _, rest = argument.strip().partition(" ")
     action = action.lower()
+    language_code = db.get_user_settings(chat_id).language_code
     if action in {"", "list", "status"}:
         send_tg_blocks(chat_id, db, telegram, sources)
         return
@@ -1331,17 +1369,18 @@ def handle_tg_blocks_command(chat_id: int, argument: str, db: Database, telegram
         return
     telegram.send_message(
         chat_id,
-        "Доступно: /tgblocks, /tgblocks off 1, /tgblocks on 1",
-        reply_markup=tg_blocks_menu(country_sources(db.get_user_settings(chat_id).country_code, sources)),
+        locale_text(language_code, "tgblocks_available"),
+        reply_markup=tg_blocks_menu(chat_id, db, country_sources(db.get_user_settings(chat_id).country_code, sources)),
     )
 
 
 def send_tg_blocks(chat_id: int, db: Database, telegram: TelegramApi, sources) -> None:
     plan = db.get_active_plan(chat_id)
+    language_code = db.get_user_settings(chat_id).language_code
     if plan.id == "free":
         telegram.send_message(
             chat_id,
-            "Пакети Telegram-каналів доступні тільки у платних тарифах. Оновіть тариф через /plans.",
+            locale_text(language_code, "paid_tg_only"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1349,7 +1388,7 @@ def send_tg_blocks(chat_id: int, db: Database, telegram: TelegramApi, sources) -
         chat_id,
         format_tg_blocks(chat_id, db, sources),
         disable_web_page_preview=True,
-        reply_markup=tg_blocks_menu(country_sources(db.get_user_settings(chat_id).country_code, sources)),
+        reply_markup=tg_blocks_menu(chat_id, db, country_sources(db.get_user_settings(chat_id).country_code, sources)),
     )
 
 
@@ -1362,10 +1401,11 @@ def set_tg_block(
     sources,
 ) -> None:
     plan = db.get_active_plan(chat_id)
+    language_code = db.get_user_settings(chat_id).language_code
     if plan.id == "free":
         telegram.send_message(
             chat_id,
-            "Пакети Telegram-каналів доступні тільки у платних тарифах. Оновіть тариф через /plans.",
+            locale_text(language_code, "paid_tg_only"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1374,30 +1414,31 @@ def set_tg_block(
     if block_number < 1 or block_number > len(blocks):
         telegram.send_message(
             chat_id,
-            "Надішліть номер пакета: 1, 2, 3... або відкрийте /tgblocks.",
-            reply_markup=tg_blocks_menu(current_sources),
+            locale_text(language_code, "tg_block_number_prompt"),
+            reply_markup=tg_blocks_menu(chat_id, db, current_sources),
         )
         return
     block = blocks[block_number - 1]
     urls = [source.url for source in block]
     changed = db.enable_sources(chat_id, urls) if enabled else db.disable_sources(chat_id, urls)
-    action = "увімкнено" if enabled else "вимкнено"
+    action = locale_text(language_code, "status_enabled" if enabled else "status_disabled")
     telegram.send_message(
         chat_id,
-        f"TG-пакет {tg_block_title(block_number, block)} {action}. Змінено джерел: {changed}.\n\n"
+        locale_text(language_code, "tg_block_updated", block=tg_block_title(language_code, block_number, block), status=action, changed=changed) + "\n\n"
         + format_tg_blocks(chat_id, db, sources),
         disable_web_page_preview=True,
-        reply_markup=tg_blocks_menu(current_sources),
+        reply_markup=tg_blocks_menu(chat_id, db, current_sources),
     )
 
 
 def format_tg_blocks(chat_id: int, db: Database, sources) -> str:
+    language_code = db.get_user_settings(chat_id).language_code
     monitoring = db.get_user_monitoring(chat_id)
     disabled = set(monitoring.disabled_source_urls)
     blocks = tg_source_blocks(country_sources(db.get_user_settings(chat_id).country_code, sources))
     if not blocks:
-        return "Платні Telegram-джерела ще не додані."
-    lines = ["Платні Telegram-пакети:", ""]
+        return locale_text(language_code, "paid_tg_empty")
+    lines = [locale_text(language_code, "paid_tg_title"), ""]
     total_active = 0
     total_sources = 0
     for index, block in enumerate(blocks, start=1):
@@ -1410,24 +1451,28 @@ def format_tg_blocks(chat_id: int, db: Database, sources) -> str:
             status = "⛔"
         else:
             status = "◐"
-        lines.append(f"{index}. {status} {tg_block_title(index, block)}: {active}/{len(block)} активні")
+        lines.append(
+            f"{index}. {status} {tg_block_title(language_code, index, block)}: "
+            f"{active}/{len(block)} {locale_text(language_code, 'active_word')}"
+        )
     lines.extend(
         [
             "",
-            f"Разом: {total_active}/{total_sources} активні.",
-            "Кнопки нижче вимикають або вмикають весь пакет.",
-            "Команди: /tgblocks off 1, /tgblocks on 1.",
+            locale_text(language_code, "tg_blocks_total", active=total_active, total=total_sources),
+            locale_text(language_code, "tg_blocks_hint"),
+            locale_text(language_code, "tg_blocks_commands"),
         ]
     )
     return "\n".join(lines)
 
 
-def tg_blocks_menu(sources) -> dict:
+def tg_blocks_menu(chat_id: int, db: Database, sources) -> dict:
+    language_code = db.get_user_settings(chat_id).language_code
     rows = []
     for index, block in enumerate(tg_source_blocks(sources), start=1):
         label = tg_block_range(index, block)
         rows.append([{"text": f"⛔ TG {label}"}, {"text": f"✅ TG {label}"}])
-    rows.append([{"text": BTN_SOURCE_LIST}, {"text": BTN_BACK}])
+    rows.append([{"text": button_label(language_code, "source_list")}, {"text": button_label(language_code, "back")}])
     return {"keyboard": rows, "resize_keyboard": True, "is_persistent": True}
 
 
@@ -1443,12 +1488,12 @@ def country_sources(country_code: str, sources) -> list[Source]:
     return [source for source in sources if source.country == country_code]
 
 
-def tg_block_title(block_number: int, block: list[Source]) -> str:
+def tg_block_title(language_code: str, block_number: int, block: list[Source]) -> str:
     start = (block_number - 1) * TG_BLOCK_SIZE + 1
     end = start + len(block) - 1
     if block_number == 1:
-        return f"Топ 50 ({start}-{end})"
-    return f"Топ {end} ({start}-{end})"
+        return locale_text(language_code, "top_block_first", start=start, end=end)
+    return locale_text(language_code, "top_block", start=start, end=end)
 
 
 def tg_block_range(block_number: int, block: list[Source]) -> str:
@@ -1477,12 +1522,13 @@ def parse_block_number(value: str) -> int:
 
 
 def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     plan = db.get_active_plan(chat_id)
     custom_count = len(db.get_user_monitoring(chat_id).custom_sources)
     if custom_count >= plan.max_custom_sources:
         telegram.send_message(
             chat_id,
-            f"Ліміт власних RSS для тарифу {escape(plan.name)}: {plan.max_custom_sources}. Оновіть тариф через /plans.",
+            locale_text(language_code, "custom_rss_limit", plan=escape(plan.name), limit=plan.max_custom_sources),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1491,7 +1537,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
     if not valid_http_url(url):
         telegram.send_message(
             chat_id,
-            "Надішліть коректний URL RSS-стрічки, який починається з http:// або https://.",
+            locale_text(language_code, "invalid_rss_url"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1502,7 +1548,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
     except Exception:
         telegram.send_message(
             chat_id,
-            "Не вдалося прочитати цю RSS-стрічку. Перевірте URL і спробуйте ще раз.",
+            locale_text(language_code, "rss_read_failed"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1510,7 +1556,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
     if not articles:
         telegram.send_message(
             chat_id,
-            "RSS-стрічка відкрилася, але бот не знайшов у ній новин. Таке джерело не додано.",
+            locale_text(language_code, "rss_empty"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1518,19 +1564,20 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
     added = db.add_user_source(chat_id, source)
     telegram.send_message(
         chat_id,
-        f"{'Власне RSS-джерело додано' if added else 'Таке RSS-джерело вже є'}: {escape(source.name)}\n{escape(source.url)}",
+        f"{locale_text(language_code, 'custom_rss_added' if added else 'custom_rss_exists')}: {escape(source.name)}\n{escape(source.url)}",
         disable_web_page_preview=True,
         reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
 def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     plan = db.get_active_plan(chat_id)
     custom_count = len(db.get_user_monitoring(chat_id).custom_sources)
     if custom_count >= plan.max_custom_sources:
         telegram.send_message(
             chat_id,
-            f"Ліміт власних джерел для тарифу {escape(plan.name)}: {plan.max_custom_sources}. Оновіть тариф через /plans.",
+            locale_text(language_code, "custom_source_limit", plan=escape(plan.name), limit=plan.max_custom_sources),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1539,7 +1586,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
     if not url:
         telegram.send_message(
             chat_id,
-            "Надішліть username або URL публічного Telegram-каналу. Наприклад: @channel",
+            locale_text(language_code, "invalid_tg_url"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1550,7 +1597,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
     except Exception:
         telegram.send_message(
             chat_id,
-            "Не вдалося прочитати цей Telegram-канал. Перевірте, що канал публічний і доступний через t.me/s/.",
+            locale_text(language_code, "tg_read_failed"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1558,7 +1605,7 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
     if not articles:
         telegram.send_message(
             chat_id,
-            "Канал відкрився, але бот не знайшов доступних постів. Джерело не додано.",
+            locale_text(language_code, "tg_empty"),
             reply_markup=source_menu_for_chat(chat_id, db),
         )
         return
@@ -1566,52 +1613,79 @@ def add_custom_telegram(chat_id: int, value: str, db: Database, telegram: Telegr
     added = db.add_user_source(chat_id, source)
     telegram.send_message(
         chat_id,
-        f"{'Telegram-канал додано' if added else 'Такий Telegram-канал уже є'}: {escape(source.name)}\n{escape(source.url)}",
+        f"{locale_text(language_code, 'custom_tg_added' if added else 'custom_tg_exists')}: {escape(source.name)}\n{escape(source.url)}",
         disable_web_page_preview=True,
         reply_markup=source_menu_for_chat(chat_id, db),
     )
 
 
 def disable_rss_by_number(chat_id: int, value: str, db: Database, telegram: TelegramApi, sources) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     row = find_source_row(chat_id, value, db, sources)
     if row is None:
-        telegram.send_message(chat_id, "Надішліть номер зі списку, @username або URL джерела.\n\n" + format_sources(chat_id, db, sources), reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            locale_text(language_code, "source_lookup_prompt") + "\n\n" + format_sources(chat_id, db, sources),
+            reply_markup=source_menu_for_chat(chat_id, db),
+        )
         return
     if row["custom"]:
-        telegram.send_message(chat_id, "Власні джерела не вимикаються. Їх можна видалити через «🗑️ Видалити моє джерело».", reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "custom_sources_not_disabled"), reply_markup=source_menu_for_chat(chat_id, db))
         return
     if not row["enabled"]:
-        telegram.send_message(chat_id, "Це джерело вже вимкнене.", reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "source_already_disabled"), reply_markup=source_menu_for_chat(chat_id, db))
         return
     db.disable_source(chat_id, row["source"].url)
-    telegram.send_message(chat_id, f"Джерело вимкнено: {escape(row['source'].name)}", reply_markup=source_menu_for_chat(chat_id, db))
+    telegram.send_message(
+        chat_id,
+        locale_text(language_code, "source_disabled", source=escape(row["source"].name)),
+        reply_markup=source_menu_for_chat(chat_id, db),
+    )
 
 
 def enable_rss_by_number(chat_id: int, value: str, db: Database, telegram: TelegramApi, sources) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     row = find_source_row(chat_id, value, db, sources)
     if row is None:
-        telegram.send_message(chat_id, "Надішліть номер зі списку, @username або URL джерела.\n\n" + format_sources(chat_id, db, sources), reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            locale_text(language_code, "source_lookup_prompt") + "\n\n" + format_sources(chat_id, db, sources),
+            reply_markup=source_menu_for_chat(chat_id, db),
+        )
         return
     if row["custom"]:
-        telegram.send_message(chat_id, "Власні джерела вже активні. Якщо джерело не потрібне, видаліть його.", reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "custom_sources_already_active"), reply_markup=source_menu_for_chat(chat_id, db))
         return
     if row["enabled"]:
-        telegram.send_message(chat_id, "Це джерело вже увімкнене.", reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "source_already_enabled"), reply_markup=source_menu_for_chat(chat_id, db))
         return
     db.enable_source(chat_id, row["source"].url)
-    telegram.send_message(chat_id, f"Джерело увімкнено: {escape(row['source'].name)}", reply_markup=source_menu_for_chat(chat_id, db))
+    telegram.send_message(
+        chat_id,
+        locale_text(language_code, "source_enabled", source=escape(row["source"].name)),
+        reply_markup=source_menu_for_chat(chat_id, db),
+    )
 
 
 def remove_custom_rss_by_number(chat_id: int, value: str, db: Database, telegram: TelegramApi, sources) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
     row = find_source_row(chat_id, value, db, sources)
     if row is None:
-        telegram.send_message(chat_id, "Надішліть номер власного джерела зі списку, @username або URL.\n\n" + format_sources(chat_id, db, sources), reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(
+            chat_id,
+            locale_text(language_code, "custom_source_lookup_prompt") + "\n\n" + format_sources(chat_id, db, sources),
+            reply_markup=source_menu_for_chat(chat_id, db),
+        )
         return
     if not row["custom"]:
-        telegram.send_message(chat_id, "Стандартні RSS не видаляються. Їх можна вимкнути.", reply_markup=source_menu_for_chat(chat_id, db))
+        telegram.send_message(chat_id, locale_text(language_code, "standard_sources_not_removed"), reply_markup=source_menu_for_chat(chat_id, db))
         return
     removed = db.remove_user_source(chat_id, row["source"].url)
-    telegram.send_message(chat_id, f"{'Власне джерело видалено' if removed else 'Джерело не знайдено'}: {escape(row['source'].name)}", reply_markup=source_menu_for_chat(chat_id, db))
+    telegram.send_message(
+        chat_id,
+        f"{locale_text(language_code, 'custom_source_removed' if removed else 'source_not_found')}: {escape(row['source'].name)}",
+        reply_markup=source_menu_for_chat(chat_id, db),
+    )
 
 
 def send_help(chat_id: int, db: Database, telegram: TelegramApi) -> None:
@@ -1690,6 +1764,7 @@ def send_sources_file(chat_id: int, db: Database, telegram: TelegramApi, sources
 
 
 def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -> Path:
+    language_code = db.get_user_settings(chat_id).language_code
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"media-monitor-sources-{chat_id}.csv"
     rows = source_rows(chat_id, db, sources)
@@ -1699,20 +1774,20 @@ def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -
         writer = csv.writer(fh)
         writer.writerow(
             [
-                "номер_у_списку",
-                "tg_топ",
-                "tg_пакет",
-                "статус",
-                "доступ",
-                "країна",
-                "мова",
-                "тип",
-                "назва",
+                "list_number",
+                "tg_rank",
+                "tg_package",
+                "status",
+                "access",
+                "country",
+                "language",
+                "type",
+                "name",
                 "username",
-                "підписники",
+                "subscribers",
                 "url",
-                "команда_вимкнути",
-                "команда_увімкнути",
+                "disable_command",
+                "enable_command",
             ]
         )
         for row in rows:
@@ -1727,8 +1802,8 @@ def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -
                     visible_number,
                     tg_rank,
                     tg_block,
-                    "увімкнено" if row["enabled"] else "вимкнено",
-                    "власне" if row["custom"] else "стандартне",
+                    locale_text(language_code, "status_enabled" if row["enabled"] else "status_disabled"),
+                    locale_text(language_code, "source_kind_custom" if row["custom"] else "source_kind_standard"),
                     source.country,
                     source.language,
                     source.type,
@@ -1742,7 +1817,7 @@ def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -
             )
         if disabled_rows:
             writer.writerow([])
-            writer.writerow(["Вимкнені джерела"])
+            writer.writerow(["Disabled sources"])
             for row in disabled_rows:
                 writer.writerow([row["source"].name, row["source"].url])
     return path
@@ -1766,17 +1841,18 @@ def tg_block_label_for_rank(rank: int | None) -> str:
 
 
 def format_sources(chat_id: int, db: Database, sources) -> str:
+    language_code = db.get_user_settings(chat_id).language_code
     rows = source_rows(chat_id, db, sources)
     active_count = sum(1 for row in rows if row["enabled"])
     paid_tg_rows = [row for row in rows if row["source"].type == "telegram_paid"]
     visible_rows = [row for row in rows if row["source"].type != "telegram_paid"]
     lines = [
-        f"Джерела: {active_count} активних із {len(rows)}",
+        locale_text(language_code, "sources_title", active=active_count, total=len(rows)),
         "",
     ]
     for display_number, row in enumerate(visible_rows, start=1):
         status = "✅" if row["enabled"] else "⛔"
-        kind = "власне" if row["custom"] else "стандартне"
+        kind = locale_text(language_code, "source_kind_custom" if row["custom"] else "source_kind_standard")
         source = row["source"]
         lines.append(f"{display_number}. {status} {escape(source.name)} ({kind}, {escape(source.type)})")
         lines.append(f"   {escape(source.url)}")
@@ -1785,12 +1861,12 @@ def format_sources(chat_id: int, db: Database, sources) -> str:
         lines.extend(
             [
                 "",
-                f"Платні Telegram-канали: {paid_active}/{len(paid_tg_rows)} активні.",
-                "Керуйте ними блоками по 50 через кнопку «TG-пакети» або команду /tgblocks.",
+                locale_text(language_code, "paid_tg_summary", active=paid_active, total=len(paid_tg_rows)),
+                locale_text(language_code, "paid_tg_manage_hint"),
             ]
         )
     lines.append("")
-    lines.append("Команди: /rss off номер, /rss on номер, /rss add URL, /rss remove номер")
+    lines.append(locale_text(language_code, "rss_commands_hint"))
     return "\n".join(lines)
 
 
@@ -1924,7 +2000,7 @@ def source_name_from_url(url: str) -> str:
             return f"Telegram @{parts[1]}"
         if parts:
             return f"Telegram @{parts[0]}"
-    return parsed.netloc or "Моє джерело"
+    return parsed.netloc or "My source"
 
 
 def run_manual_check(chat_id: int, db: Database, telegram: TelegramApi, monitor: Monitor) -> None:
