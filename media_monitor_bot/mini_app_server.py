@@ -309,6 +309,8 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
         plan = db.get_active_plan(chat_id)
         if len(db.get_user_monitoring(chat_id).custom_sources) >= plan.max_custom_sources:
             return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business)}
+        if not valid_http_url(value):
+            return {"ok": False, "error": "invalid_rss_url", "state": api_state(chat_id, db, sources, require_business)}
         db.add_user_source(
             chat_id,
             Source(source_name_from_value(value), value, "rss", country=settings.country_code),
@@ -318,6 +320,8 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
         if len(db.get_user_monitoring(chat_id).custom_sources) >= plan.max_custom_sources:
             return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business)}
         url = telegram_source_url(value)
+        if not valid_http_url(url) or "t.me/s/" not in url:
+            return {"ok": False, "error": "invalid_tg_url", "state": api_state(chat_id, db, sources, require_business)}
         db.add_user_source(
             chat_id,
             Source(source_name_from_value(value), url, "telegram", country=settings.country_code),
@@ -415,3 +419,8 @@ def source_name_from_value(value: str) -> str:
     if parsed.netloc:
         return parsed.netloc.removeprefix("www.")
     return raw[:60] or "My source"
+
+
+def valid_http_url(value: str) -> bool:
+    parsed = urlparse(value.strip())
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
