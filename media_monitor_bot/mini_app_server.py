@@ -23,6 +23,7 @@ from .locales import (
     normalize_country,
     normalize_language,
 )
+from .rss_discovery import RssDiscoveryError, discover_rss_feed
 
 log = logging.getLogger(__name__)
 
@@ -312,11 +313,13 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
         plan = db.get_active_plan(chat_id)
         if len(db.get_user_monitoring(chat_id).custom_sources) >= plan.max_custom_sources:
             return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business)}
-        if not valid_http_url(value):
+        try:
+            feed = discover_rss_feed(value)
+        except RssDiscoveryError:
             return {"ok": False, "error": "invalid_rss_url", "state": api_state(chat_id, db, sources, require_business)}
         db.add_user_source(
             chat_id,
-            Source(source_name_from_value(value), value, "rss", country=settings.country_code),
+            Source(feed.title or source_name_from_value(feed.url), feed.url, "rss", country=settings.country_code),
         )
     elif action == "add_tg":
         plan = db.get_active_plan(chat_id)

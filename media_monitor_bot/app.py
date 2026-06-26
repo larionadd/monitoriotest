@@ -30,6 +30,7 @@ from .locales import (
 from .mini_app_server import start_static_server
 from .monitor import Monitor, fetch_rss, fetch_telegram_channel, telegram_preview_url
 from .reports import write_csv_report
+from .rss_discovery import RssDiscoveryError, discover_rss_feed
 from .sources import load_sources
 from .telegram_api import TelegramApi, escape
 
@@ -1869,7 +1870,7 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         return
 
     url, name = parse_rss_add_value(value)
-    if not valid_http_url(url):
+    if not url:
         telegram.send_message(
             chat_id,
             locale_text(language_code, "invalid_rss_url"),
@@ -1877,10 +1878,9 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         )
         return
 
-    source = Source(name or source_name_from_url(url), url, "rss", country=db.get_user_settings(chat_id).country_code)
     try:
-        articles = fetch_rss(source, 20)
-    except Exception:
+        feed = discover_rss_feed(url, 20)
+    except RssDiscoveryError:
         telegram.send_message(
             chat_id,
             locale_text(language_code, "rss_read_failed"),
@@ -1888,14 +1888,12 @@ def add_custom_rss(chat_id: int, value: str, db: Database, telegram: TelegramApi
         )
         return
 
-    if not articles:
-        telegram.send_message(
-            chat_id,
-            locale_text(language_code, "rss_empty"),
-            reply_markup=source_menu_for_chat(chat_id, db),
-        )
-        return
-
+    source = Source(
+        name or feed.title or source_name_from_url(feed.url),
+        feed.url,
+        "rss",
+        country=db.get_user_settings(chat_id).country_code,
+    )
     added = db.add_user_source(chat_id, source)
     telegram.send_message(
         chat_id,
