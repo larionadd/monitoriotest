@@ -9,7 +9,7 @@
 
   const labels = {
     en: {
-      plan: "Pakiet",
+      plan: "Plan",
       sources: "Sources",
       today: "Today",
       tabNews: "News",
@@ -25,7 +25,7 @@
       autoMonitoring: "Automatic monitoring",
       fullText: "Full text",
       plans: "Plans",
-      keyword: "Suchwort",
+      keyword: "Keyword",
       keywordPlaceholder: "for example: bitcoin",
       addKeyword: "Add keyword",
       stopWord: "Stop word",
@@ -171,7 +171,7 @@
       on: "Вкл."
     },
     pl: {
-      plan: "Tarifa",
+      plan: "Pakiet",
       sources: "Źródła",
       today: "Dzisiaj",
       tabNews: "Wiadomości",
@@ -241,7 +241,7 @@
       autoMonitoring: "Automatisches Monitoring",
       fullText: "Volltext",
       plans: "Tarife",
-      keyword: "Keyword",
+      keyword: "Suchwort",
       keywordPlaceholder: "zum Beispiel: bitcoin",
       addKeyword: "Keyword hinzufügen",
       stopWord: "Stoppwort",
@@ -279,7 +279,7 @@
       on: "Ein"
     },
     es: {
-      plan: "Plan",
+      plan: "Tarifa",
       sources: "Fuentes",
       today: "Hoy",
       tabNews: "Noticias",
@@ -446,6 +446,8 @@
   const statusText = $("statusText");
 
   if (tg) {
+    document.body.classList.add("in-telegram");
+    syncTelegramInsets();
     tg.ready();
     tg.expand();
     if (typeof tg.requestFullscreen === "function") {
@@ -453,6 +455,11 @@
     }
     if (typeof tg.disableVerticalSwipes === "function") {
       tg.disableVerticalSwipes();
+    }
+    if (typeof tg.onEvent === "function") {
+      tg.onEvent("safeAreaChanged", syncTelegramInsets);
+      tg.onEvent("contentSafeAreaChanged", syncTelegramInsets);
+      tg.onEvent("viewportChanged", syncTelegramInsets);
     }
   }
 
@@ -541,7 +548,12 @@
     setTimeout(loadAll, 800);
   });
 
-  loadAll();
+  start();
+
+  async function start() {
+    await waitForTelegramAuth();
+    loadAll();
+  }
 
   function activateTab(name) {
     document.querySelectorAll(".tab").forEach((button) => {
@@ -554,6 +566,9 @@
 
   async function loadAll() {
     try {
+      if (tg && !tg.initData) {
+        throw new Error("missing_telegram_init_data");
+      }
       const [statePayload, recentPayload] = await Promise.all([
         apiGet("/api/state"),
         apiGet("/api/recent")
@@ -570,6 +585,27 @@
       renderDemo();
       setStatus(t("loadError") + " " + t("openTelegram"));
     }
+  }
+
+  function waitForTelegramAuth() {
+    if (!tg || tg.initData) return Promise.resolve();
+    return new Promise((resolve) => {
+      const startedAt = Date.now();
+      const timer = setInterval(() => {
+        if (tg.initData || Date.now() - startedAt > 1800) {
+          clearInterval(timer);
+          resolve();
+        }
+      }, 100);
+    });
+  }
+
+  function syncTelegramInsets() {
+    if (!tg) return;
+    const safeTop = Number(tg.safeAreaInset && tg.safeAreaInset.top) || 0;
+    const contentTop = Number(tg.contentSafeAreaInset && tg.contentSafeAreaInset.top) || 0;
+    const top = Math.max(46, safeTop, contentTop);
+    document.documentElement.style.setProperty("--tg-safe-top", top + "px");
   }
 
   async function apiGet(path) {
