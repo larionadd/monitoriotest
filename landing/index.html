@@ -90,6 +90,29 @@
       font-size: 14px;
     }
 
+    .language-switcher {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .language-switcher select {
+      min-height: 30px;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      outline: 0;
+    }
+
     .nav-cta,
     .button {
       display: inline-flex;
@@ -339,6 +362,36 @@
       flex-wrap: wrap;
       gap: 12px;
       margin-bottom: 34px;
+    }
+
+    .language-panel {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 20px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .82);
+      box-shadow: 0 12px 32px rgba(20, 38, 70, .08);
+    }
+
+    .language-panel span {
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .language-panel select {
+      min-height: 38px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 800;
     }
 
     .proof {
@@ -663,11 +716,24 @@
         <span>Monitorio</span>
       </a>
       <div class="nav-links">
-        <a href="#features">Можливості</a>
-        <a href="#workflow">Як працює</a>
-        <a href="#plans">Тарифи</a>
+        <a href="#features" data-i18n="navFeatures">Можливості</a>
+        <a href="#workflow" data-i18n="navWorkflow">Як працює</a>
+        <a href="#plans" data-i18n="navPlans">Тарифи</a>
       </div>
-      <a class="nav-cta" href="https://t.me/Monitori0bot">Відкрити бота</a>
+      <label class="language-switcher">
+        <span data-i18n="languageShort">Мова</span>
+        <select class="language-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="uk">Українська</option>
+          <option value="pl">Polski</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+          <option value="it">Italiano</option>
+          <option value="be">Беларуская</option>
+          <option value="ru">Русский</option>
+        </select>
+      </label>
+      <a class="nav-cta" href="https://t.me/Monitori0bot" data-i18n="openBot">Відкрити бота</a>
     </nav>
   </header>
 
@@ -675,58 +741,71 @@
     <section class="hero">
       <div class="hero-visual" aria-hidden="true">
         <div class="panel sources">
-          <h3>Джерела</h3>
-          <div class="source-row"><span>Українська правда</span><i class="dot"></i></div>
-          <div class="source-row"><span>BBC Ukraine</span><i class="dot"></i></div>
-          <div class="source-row"><span>Telegram: Trukha</span><i class="dot"></i></div>
-          <div class="source-row"><span>Власні RSS та TG</span><i class="dot"></i></div>
+          <h3 data-i18n="mockSources">Джерела</h3>
+          <div class="source-row"><span data-i18n="mockSourceUa">Українські медіа</span><i class="dot"></i></div>
+          <div class="source-row"><span data-i18n="mockSourcePl">Польські медіа</span><i class="dot"></i></div>
+          <div class="source-row"><span data-i18n="mockSourceTg">Telegram-канали</span><i class="dot"></i></div>
+          <div class="source-row"><span data-i18n="mockSourceCustom">Власні RSS та TG</span><i class="dot"></i></div>
         </div>
         <div class="phone">
           <div class="screen-title">Monitorio</div>
           <div class="stats">
-            <div class="stat"><strong>Pro</strong><span>Тариф</span></div>
-            <div class="stat"><strong>255</strong><span>Джерела</span></div>
-            <div class="stat"><strong>18/500</strong><span>Сьогодні</span></div>
+            <div class="stat"><strong>Pro</strong><span data-i18n="mockPlan">Тариф</span></div>
+            <div class="stat"><strong>255</strong><span data-i18n="mockSources">Джерела</span></div>
+            <div class="stat"><strong>18/500</strong><span data-i18n="mockToday">Сьогодні</span></div>
           </div>
-          <div class="screen-tabs"><b>Новини</b><b>Фільтри</b><b>Регіон</b><b>Звіти</b></div>
+          <div class="screen-tabs"><b data-i18n="tabNews">Новини</b><b data-i18n="tabFilters">Фільтри</b><b data-i18n="tabRegion">Регіон</b><b data-i18n="tabReports">Звіти</b></div>
           <article class="alert-card">
             <div class="badge-row">
-              <span class="badge">ключ: енергетика</span>
-              <span class="badge">24 Канал</span>
+              <span class="badge" data-i18n="mockKeywordEnergy">ключ: енергетика</span>
+              <span class="badge" data-i18n="mockRegionPoland">регіон: Польща</span>
             </div>
-            <h3>Нова згадка у медіа: уряд оновив план підтримки енергосистеми</h3>
-            <span>Заголовок, анонс, повний текст або приховане посилання.</span>
+            <h3 data-i18n="mockAlertOne">Нова згадка у сусідній країні: медіа пишуть про рішення уряду</h3>
+            <span data-i18n="mockAlertHint">Заголовок, анонс, повний текст або приховане посилання.</span>
           </article>
           <article class="alert-card">
             <div class="badge-row">
-              <span class="badge">ключ: sud.ua</span>
+              <span class="badge" data-i18n="mockKeywordBrand">ключ: бренд</span>
               <span class="badge">Telegram</span>
             </div>
-            <h3>Знайдено згадку у прихованому посиланні під словом у дописі</h3>
-            <span>Бот перевіряє текст і URL, якщо канал доступний для пошуку.</span>
+            <h3 data-i18n="mockAlertTwo">Знайдено згадку у прихованому посиланні під словом у дописі</h3>
+            <span data-i18n="mockAlertTwoHint">Бот перевіряє текст допису та URL.</span>
           </article>
         </div>
         <div class="panel filters">
-          <h3>Фільтри</h3>
-          <div class="filter-row"><span>Ключові слова</span><strong>12</strong></div>
-          <div class="filter-row"><span>Стоп-слова</span><strong>4</strong></div>
-          <div class="filter-row"><span>Регіони</span><strong>UA, PL, UK</strong></div>
+          <h3 data-i18n="mockFilters">Фільтри</h3>
+          <div class="filter-row"><span data-i18n="mockKeywords">Ключові слова</span><strong>12</strong></div>
+          <div class="filter-row"><span data-i18n="mockStopWords">Стоп-слова</span><strong>4</strong></div>
+          <div class="filter-row"><span data-i18n="mockRegions">Регіони</span><strong>UA, PL, UK</strong></div>
         </div>
       </div>
 
       <div class="container">
         <div class="hero-copy">
-          <span class="kicker">Медіамоніторинг у Telegram</span>
-          <h1>Знаходьте важливі згадки раніше за всіх</h1>
-          <p class="lead">Monitorio відстежує новини, RSS-стрічки й Telegram-канали за ключовими словами, показує результати в боті та кабінеті, підтримує регіони, мови, повний текст і CSV-звіти.</p>
+          <div class="language-panel">
+            <span data-i18n="chooseLanguage">Оберіть мову перед початком роботи</span>
+            <select class="language-select" aria-label="Language">
+              <option value="en">English</option>
+              <option value="uk">Українська</option>
+              <option value="pl">Polski</option>
+              <option value="de">Deutsch</option>
+              <option value="es">Español</option>
+              <option value="it">Italiano</option>
+              <option value="be">Беларуская</option>
+              <option value="ru">Русский</option>
+            </select>
+          </div>
+          <span class="kicker" data-i18n="kicker">Медіамоніторинг у Telegram</span>
+          <h1 data-i18n="heroTitle">Моніторте новини потрібної країни, навіть якщо ви в іншому регіоні</h1>
+          <p class="lead" data-i18n="heroLead">Monitorio відстежує новини, RSS-стрічки й Telegram-канали за ключовими словами. Оберіть країну моніторингу, щоб бачити інформаційне поле України, Польщі, Великої Британії, Німеччини та інших регіонів.</p>
           <div class="hero-actions">
-            <a class="button" href="https://t.me/Monitori0bot">Запустити в Telegram</a>
-            <a class="button secondary" href="https://app.monitorio.online">Відкрити кабінет</a>
+            <a class="button" href="https://t.me/Monitori0bot" data-i18n="startTelegram">Запустити в Telegram</a>
+            <a class="button secondary" href="https://app.monitorio.online" data-i18n="openCabinet">Кабінет з авторизацією</a>
           </div>
           <div class="proof">
-            <div class="proof-item"><strong>24/7</strong><span>автоматичні перевірки за розкладом тарифу</span></div>
-            <div class="proof-item"><strong>RSS + TG</strong><span>новини, канали, власні джерела користувача</span></div>
-            <div class="proof-item"><strong>CSV</strong><span>експорт згадок для звітів і командної роботи</span></div>
+            <div class="proof-item"><strong>8</strong><span data-i18n="proofRegions">країн для регіонального моніторингу</span></div>
+            <div class="proof-item"><strong>RSS + TG</strong><span data-i18n="proofSources">новини, канали, власні джерела користувача</span></div>
+            <div class="proof-item"><strong>CSV</strong><span data-i18n="proofCsv">експорт згадок для звітів і командної роботи</span></div>
           </div>
         </div>
       </div>
@@ -735,39 +814,39 @@
     <section class="band" id="features">
       <div class="container">
         <div class="section-head">
-          <h2>Один бот для щоденного моніторингу інформаційного поля</h2>
-          <p>Monitorio підходить для PR, юристів, редакцій, бізнесу, аналітиків і команд, яким важливо швидко бачити згадки про теми, бренди, персоналії або ризики.</p>
+          <h2 data-i18n="featuresTitle">Один бот для моніторингу інформаційного поля різних країн</h2>
+          <p data-i18n="featuresLead">Monitorio підходить для PR, юристів, редакцій, бізнесу, аналітиків і команд, яким важливо швидко бачити згадки про теми, бренди, персоналії або ризики у вибраному регіоні.</p>
         </div>
         <div class="feature-grid">
           <article class="feature">
             <span class="icon">🔎</span>
-            <h3>Пошук за ключами</h3>
-            <p>Ключові слова прив'язуються до регіону. Користувач може окремо додавати стоп-слова та обов'язкові слова для точнішої видачі.</p>
+            <h3 data-i18n="featureKeysTitle">Пошук за ключами</h3>
+            <p data-i18n="featureKeysText">Ключові слова прив'язуються до регіону. Користувач може окремо додавати стоп-слова та обов'язкові слова для точнішої видачі.</p>
           </article>
           <article class="feature">
             <span class="icon">📰</span>
-            <h3>Новини й Telegram</h3>
-            <p>Підтримуються RSS, публічні Telegram-канали, платні пакети джерел і власні джерела, які користувач додає самостійно.</p>
+            <h3 data-i18n="featureNewsTitle">Новини й Telegram</h3>
+            <p data-i18n="featureNewsText">Підтримуються RSS, публічні Telegram-канали, пакети джерел і власні джерела, які користувач додає самостійно.</p>
           </article>
           <article class="feature">
             <span class="icon">🧾</span>
-            <h3>Повний текст</h3>
-            <p>Швидкий режим перевіряє заголовки й анонси. Режим повного тексту додатково відкриває матеріал і шукає збіги в тілі новини.</p>
+            <h3 data-i18n="featureFullTitle">Повний текст</h3>
+            <p data-i18n="featureFullText">Швидкий режим перевіряє заголовки й анонси. Режим повного тексту додатково відкриває матеріал і шукає збіги в тілі новини.</p>
           </article>
           <article class="feature">
             <span class="icon">🌍</span>
-            <h3>Регіони та мови</h3>
-            <p>Користувач може змінювати мову інтерфейсу й країну моніторингу, а база джерел розділена за країнами.</p>
+            <h3 data-i18n="featureRegionTitle">Моніторинг сусідніх країн</h3>
+            <p data-i18n="featureRegionText">Користувач обирає країну, з якої хоче отримувати новини. Для кожної країни є власна база медіа та Telegram-каналів.</p>
           </article>
           <article class="feature">
             <span class="icon">🔗</span>
-            <h3>Приховані посилання</h3>
-            <p>Для Telegram-дописів бот може враховувати URL, які сховані під словами, якщо вони доступні у відкритому перегляді каналу.</p>
+            <h3 data-i18n="featureLinksTitle">Приховані посилання</h3>
+            <p data-i18n="featureLinksText">Для Telegram-дописів бот може враховувати URL, які сховані під словами.</p>
           </article>
           <article class="feature">
             <span class="icon">📊</span>
-            <h3>Кабінет і звіти</h3>
-            <p>Mini App показує останні згадки, фільтри, джерела, налаштування, ручну перевірку та CSV-звіт для швидкого експорту.</p>
+            <h3 data-i18n="featureCabinetTitle">Кабінет і звіти</h3>
+            <p data-i18n="featureCabinetText">Кабінет показує останні згадки, фільтри, джерела, налаштування, ручну перевірку та CSV-звіт для швидкого експорту.</p>
           </article>
         </div>
       </div>
@@ -776,30 +855,30 @@
     <section class="band" id="workflow">
       <div class="container">
         <div class="section-head">
-          <h2>Налаштування займає кілька хвилин</h2>
-          <p>Бот працює прямо в Telegram, а кабінет потрібен для зручного керування джерелами, фільтрами та режимами пошуку.</p>
+          <h2 data-i18n="workflowTitle">Налаштування займає кілька хвилин</h2>
+          <p data-i18n="workflowLead">Бот працює прямо в Telegram, а кабінет потрібен для зручного керування джерелами, фільтрами та режимами пошуку. Для браузерного доступу потрібна авторизація через Telegram.</p>
         </div>
         <div class="workflow">
           <div class="steps">
             <article class="step">
               <b>1</b>
-              <div><h3>Оберіть мову та регіон</h3><p>Інтерфейс говорить мовою користувача, а країна визначає базу джерел для моніторингу.</p></div>
+              <div><h3 data-i18n="stepOneTitle">Оберіть мову та регіон</h3><p data-i18n="stepOneText">Інтерфейс говорить мовою користувача, а країна визначає базу джерел для моніторингу.</p></div>
             </article>
             <article class="step">
               <b>2</b>
-              <div><h3>Додайте ключові слова</h3><p>Кожен ключ зберігається з регіоном, який був активним у момент додавання.</p></div>
+              <div><h3 data-i18n="stepTwoTitle">Додайте ключові слова</h3><p data-i18n="stepTwoText">Кожен ключ зберігається з регіоном, який був активним у момент додавання.</p></div>
             </article>
             <article class="step">
               <b>3</b>
-              <div><h3>Отримуйте згадки</h3><p>Запускайте перевірку вручну або увімкніть автоматичний моніторинг відповідно до тарифу.</p></div>
+              <div><h3 data-i18n="stepThreeTitle">Отримуйте згадки</h3><p data-i18n="stepThreeText">Запускайте перевірку вручну або увімкніть автоматичний моніторинг відповідно до тарифу.</p></div>
             </article>
           </div>
           <aside class="report">
-            <h3>Приклад результату</h3>
-            <div class="report-line"><span>Ключ</span><strong>bitcoin</strong></div>
-            <div class="report-line"><span>Джерело</span><strong>РБК-Україна</strong></div>
-            <div class="report-line"><span>Знайдено</span><strong>заголовок, анонс або повний текст</strong></div>
-            <div class="report-line"><span>Звіт</span><strong>Telegram + CSV</strong></div>
+            <h3 data-i18n="reportTitle">Приклад результату</h3>
+            <div class="report-line"><span data-i18n="reportKeyword">Ключ</span><strong data-i18n="reportKeywordValue">енергетика</strong></div>
+            <div class="report-line"><span data-i18n="reportRegion">Регіон</span><strong data-i18n="reportRegionValue">Польща</strong></div>
+            <div class="report-line"><span data-i18n="reportFound">Знайдено</span><strong data-i18n="reportFoundValue">заголовок, анонс або повний текст</strong></div>
+            <div class="report-line"><span data-i18n="reportExport">Звіт</span><strong>Telegram + CSV</strong></div>
           </aside>
         </div>
       </div>
@@ -808,38 +887,38 @@
     <section class="band" id="plans">
       <div class="container">
         <div class="section-head">
-          <h2>Тарифи для різної інтенсивності моніторингу</h2>
-          <p>Фінальні ціни й ліміти керуються в боті. Лендінг показує логіку пакетів без прив'язки до тимчасових акцій.</p>
+          <h2 data-i18n="plansTitle">Тарифи для різної інтенсивності моніторингу</h2>
+          <p data-i18n="plansLead">Фінальні ціни й ліміти керуються в боті. Лендінг показує логіку пакетів без прив'язки до тимчасових акцій.</p>
         </div>
         <div class="pricing-grid">
           <article class="price">
             <h3>Free</h3>
-            <span class="price-tag">Старт</span>
-            <p>Для перевірки ідеї, одного ключового слова та обмеженої кількості результатів.</p>
+            <span class="price-tag" data-i18n="freeTag">Старт</span>
+            <p data-i18n="freeText">Для перевірки ідеї, одного ключового слова та обмеженої кількості результатів.</p>
             <ul>
-              <li>базові RSS-джерела</li>
-              <li>ручна перевірка</li>
-              <li>обмежений денний ліміт</li>
+              <li data-i18n="freeOne">базові RSS-джерела</li>
+              <li data-i18n="freeTwo">ручна перевірка</li>
+              <li data-i18n="freeThree">обмежений денний ліміт</li>
             </ul>
           </article>
           <article class="price highlight">
             <h3>Pro</h3>
-            <span class="price-tag">Робота щодня</span>
-            <p>Для регулярного моніторингу, більшої кількості ключів, Telegram-джерел і повного тексту.</p>
+            <span class="price-tag" data-i18n="proTag">Робота щодня</span>
+            <p data-i18n="proText">Для регулярного моніторингу, більшої кількості ключів, Telegram-джерел і повного тексту.</p>
             <ul>
-              <li>автоматичний моніторинг</li>
-              <li>база TG-каналів</li>
-              <li>CSV-звіти</li>
+              <li data-i18n="proOne">автоматичний моніторинг</li>
+              <li data-i18n="proTwo">база TG-каналів</li>
+              <li data-i18n="proThree">CSV-звіти</li>
             </ul>
           </article>
           <article class="price">
             <h3>Business</h3>
-            <span class="price-tag">Команди</span>
-            <p>Для високої частоти перевірок, постійного моніторингу та великої бази джерел.</p>
+            <span class="price-tag" data-i18n="businessTag">Команди</span>
+            <p data-i18n="businessText">Для високої частоти перевірок, постійного моніторингу та великої бази джерел.</p>
             <ul>
-              <li>часті перевірки</li>
-              <li>розширені ліміти</li>
-              <li>пріоритет для масштабування</li>
+              <li data-i18n="businessOne">часті перевірки</li>
+              <li data-i18n="businessTwo">розширені ліміти</li>
+              <li data-i18n="businessThree">пріоритет для масштабування</li>
             </ul>
           </article>
         </div>
@@ -849,10 +928,10 @@
     <section class="final">
       <div class="container">
         <div>
-          <h2>Запустіть Monitorio у Telegram</h2>
-          <p>Додайте перший ключ, оберіть країну моніторингу й перевірте, як бот знаходить згадки у ваших джерелах.</p>
+          <h2 data-i18n="finalTitle">Запустіть Monitorio у Telegram</h2>
+          <p data-i18n="finalText">Додайте перший ключ, оберіть країну моніторингу й перевірте, як бот знаходить згадки у ваших джерелах.</p>
         </div>
-        <a class="button" href="https://t.me/Monitori0bot">Почати зараз</a>
+        <a class="button" href="https://t.me/Monitori0bot" data-i18n="startNow">Почати зараз</a>
       </div>
     </section>
   </main>
@@ -860,8 +939,805 @@
   <footer>
     <div class="container">
       <span>© 2026 Monitorio</span>
-      <span>Media and Telegram monitoring</span>
+      <span data-i18n="footerTag">Media and Telegram monitoring</span>
     </div>
   </footer>
+  <script>
+    const translations = {
+      uk: {
+        title: "Monitorio - моніторинг медіа та Telegram",
+        description: "Monitorio шукає згадки у новинах, RSS-стрічках і Telegram-каналах за ключовими словами. Автоматичний моніторинг, регіони, повний текст, CSV-звіти.",
+        navFeatures: "Можливості",
+        navWorkflow: "Як працює",
+        navPlans: "Тарифи",
+        languageShort: "Мова",
+        openBot: "Відкрити бота",
+        chooseLanguage: "Оберіть мову перед початком роботи",
+        kicker: "Медіамоніторинг у Telegram",
+        heroTitle: "Моніторте новини потрібної країни, навіть якщо ви в іншому регіоні",
+        heroLead: "Monitorio відстежує новини, RSS-стрічки й Telegram-канали за ключовими словами. Оберіть країну моніторингу, щоб бачити інформаційне поле України, Польщі, Великої Британії, Німеччини та інших регіонів.",
+        startTelegram: "Запустити в Telegram",
+        openCabinet: "Кабінет з авторизацією",
+        proofRegions: "країн для регіонального моніторингу",
+        proofSources: "новини, канали, власні джерела користувача",
+        proofCsv: "експорт згадок для звітів і командної роботи",
+        featuresTitle: "Один бот для моніторингу інформаційного поля різних країн",
+        featuresLead: "Monitorio підходить для PR, юристів, редакцій, бізнесу, аналітиків і команд, яким важливо швидко бачити згадки про теми, бренди, персоналії або ризики у вибраному регіоні.",
+        featureKeysTitle: "Пошук за ключами",
+        featureKeysText: "Ключові слова прив'язуються до регіону. Користувач може окремо додавати стоп-слова та обов'язкові слова для точнішої видачі.",
+        featureNewsTitle: "Новини й Telegram",
+        featureNewsText: "Підтримуються RSS, публічні Telegram-канали, пакети джерел і власні джерела, які користувач додає самостійно.",
+        featureFullTitle: "Повний текст",
+        featureFullText: "Швидкий режим перевіряє заголовки й анонси. Режим повного тексту додатково відкриває матеріал і шукає збіги в тілі новини.",
+        featureRegionTitle: "Моніторинг сусідніх країн",
+        featureRegionText: "Користувач обирає країну, з якої хоче отримувати новини. Для кожної країни є власна база медіа та Telegram-каналів.",
+        featureLinksTitle: "Приховані посилання",
+        featureLinksText: "Для Telegram-дописів бот може враховувати URL, які сховані під словами.",
+        featureCabinetTitle: "Кабінет і звіти",
+        featureCabinetText: "Кабінет показує останні згадки, фільтри, джерела, налаштування, ручну перевірку та CSV-звіт для швидкого експорту.",
+        workflowTitle: "Налаштування займає кілька хвилин",
+        workflowLead: "Бот працює прямо в Telegram, а кабінет потрібен для зручного керування джерелами, фільтрами та режимами пошуку. Для браузерного доступу потрібна авторизація через Telegram.",
+        stepOneTitle: "Оберіть мову та регіон",
+        stepOneText: "Інтерфейс говорить мовою користувача, а країна визначає базу джерел для моніторингу.",
+        stepTwoTitle: "Додайте ключові слова",
+        stepTwoText: "Кожен ключ зберігається з регіоном, який був активним у момент додавання.",
+        stepThreeTitle: "Отримуйте згадки",
+        stepThreeText: "Запускайте перевірку вручну або увімкніть автоматичний моніторинг відповідно до тарифу.",
+        reportTitle: "Приклад результату",
+        reportKeyword: "Ключ",
+        reportKeywordValue: "енергетика",
+        reportRegion: "Регіон",
+        reportRegionValue: "Польща",
+        reportFound: "Знайдено",
+        reportFoundValue: "заголовок, анонс або повний текст",
+        reportExport: "Звіт",
+        plansTitle: "Тарифи для різної інтенсивності моніторингу",
+        plansLead: "Фінальні ціни й ліміти керуються в боті. Лендінг показує логіку пакетів без прив'язки до тимчасових акцій.",
+        freeTag: "Старт",
+        freeText: "Для перевірки ідеї, одного ключового слова та обмеженої кількості результатів.",
+        freeOne: "базові RSS-джерела",
+        freeTwo: "ручна перевірка",
+        freeThree: "обмежений денний ліміт",
+        proTag: "Робота щодня",
+        proText: "Для регулярного моніторингу, більшої кількості ключів, Telegram-джерел і повного тексту.",
+        proOne: "автоматичний моніторинг",
+        proTwo: "база TG-каналів",
+        proThree: "CSV-звіти",
+        businessTag: "Команди",
+        businessText: "Для високої частоти перевірок, постійного моніторингу та великої бази джерел.",
+        businessOne: "часті перевірки",
+        businessTwo: "розширені ліміти",
+        businessThree: "пріоритет для масштабування",
+        finalTitle: "Запустіть Monitorio у Telegram",
+        finalText: "Додайте перший ключ, оберіть країну моніторингу й перевірте, як бот знаходить згадки у ваших джерелах.",
+        startNow: "Почати зараз",
+        footerTag: "Моніторинг медіа та Telegram",
+        mockSources: "Джерела",
+        mockSourceUa: "Українські медіа",
+        mockSourcePl: "Польські медіа",
+        mockSourceTg: "Telegram-канали",
+        mockSourceCustom: "Власні RSS та TG",
+        mockPlan: "Тариф",
+        mockToday: "Сьогодні",
+        tabNews: "Новини",
+        tabFilters: "Фільтри",
+        tabRegion: "Регіон",
+        tabReports: "Звіти",
+        mockKeywordEnergy: "ключ: енергетика",
+        mockRegionPoland: "регіон: Польща",
+        mockAlertOne: "Нова згадка у сусідній країні: медіа пишуть про рішення уряду",
+        mockAlertHint: "Заголовок, анонс, повний текст або приховане посилання.",
+        mockKeywordBrand: "ключ: бренд",
+        mockAlertTwo: "Знайдено згадку у прихованому посиланні під словом у дописі",
+        mockAlertTwoHint: "Бот перевіряє текст допису та URL.",
+        mockFilters: "Фільтри",
+        mockKeywords: "Ключові слова",
+        mockStopWords: "Стоп-слова",
+        mockRegions: "Регіони"
+      },
+      en: {
+        title: "Monitorio - media and Telegram monitoring",
+        description: "Monitorio tracks mentions in news, RSS feeds, and Telegram channels by keywords. Automatic monitoring, regions, full text, CSV reports.",
+        navFeatures: "Features",
+        navWorkflow: "How it works",
+        navPlans: "Plans",
+        languageShort: "Language",
+        openBot: "Open bot",
+        chooseLanguage: "Choose your language before you start",
+        kicker: "Media monitoring in Telegram",
+        heroTitle: "Monitor news from the country you need, even when you are elsewhere",
+        heroLead: "Monitorio tracks news, RSS feeds, and Telegram channels by keywords. Choose a monitoring country to follow the information field of Ukraine, Poland, the United Kingdom, Germany, and other regions.",
+        startTelegram: "Start in Telegram",
+        openCabinet: "Cabinet with authorization",
+        proofRegions: "countries for regional monitoring",
+        proofSources: "news, channels, and user-added sources",
+        proofCsv: "CSV export for reports and team work",
+        featuresTitle: "One bot for monitoring the media field of different countries",
+        featuresLead: "Monitorio is useful for PR, legal teams, newsrooms, businesses, analysts, and teams that need fast alerts about topics, brands, people, or risks in a selected region.",
+        featureKeysTitle: "Keyword search",
+        featureKeysText: "Keywords are tied to a region. Users can add stop words and required words to make results more precise.",
+        featureNewsTitle: "News and Telegram",
+        featureNewsText: "RSS feeds, public Telegram channels, source packages, and user-added sources are supported.",
+        featureFullTitle: "Full text",
+        featureFullText: "Fast mode checks titles and summaries. Full-text mode also opens the article and searches the article body.",
+        featureRegionTitle: "Neighbor-country monitoring",
+        featureRegionText: "The user chooses the country they want news from. Each country has its own media and Telegram source base.",
+        featureLinksTitle: "Hidden links",
+        featureLinksText: "For Telegram posts, the bot can consider URLs hidden behind words.",
+        featureCabinetTitle: "Cabinet and reports",
+        featureCabinetText: "The cabinet shows recent mentions, filters, sources, settings, manual checks, and CSV reports for quick export.",
+        workflowTitle: "Setup takes a few minutes",
+        workflowLead: "The bot works directly in Telegram, while the cabinet helps manage sources, filters, and search modes. Browser access requires Telegram authorization.",
+        stepOneTitle: "Choose language and region",
+        stepOneText: "The interface uses the user's language, while the country defines the source base for monitoring.",
+        stepTwoTitle: "Add keywords",
+        stepTwoText: "Each keyword is saved with the region that was active when it was added.",
+        stepThreeTitle: "Receive mentions",
+        stepThreeText: "Run checks manually or enable automatic monitoring according to your plan.",
+        reportTitle: "Result example",
+        reportKeyword: "Keyword",
+        reportKeywordValue: "energy",
+        reportRegion: "Region",
+        reportRegionValue: "Poland",
+        reportFound: "Found in",
+        reportFoundValue: "title, summary, or full text",
+        reportExport: "Report",
+        plansTitle: "Plans for different monitoring intensity",
+        plansLead: "Final prices and limits are managed in the bot. This page explains the package logic without temporary promotions.",
+        freeTag: "Start",
+        freeText: "For testing the idea, one keyword, and a limited number of results.",
+        freeOne: "basic RSS sources",
+        freeTwo: "manual check",
+        freeThree: "limited daily quota",
+        proTag: "Daily work",
+        proText: "For regular monitoring, more keywords, Telegram sources, and full text.",
+        proOne: "automatic monitoring",
+        proTwo: "TG-channel base",
+        proThree: "CSV reports",
+        businessTag: "Teams",
+        businessText: "For high-frequency checks, continuous monitoring, and a larger source base.",
+        businessOne: "frequent checks",
+        businessTwo: "extended limits",
+        businessThree: "scaling priority",
+        finalTitle: "Start Monitorio in Telegram",
+        finalText: "Add your first keyword, choose a monitoring country, and see how the bot finds mentions in your sources.",
+        startNow: "Start now",
+        footerTag: "Media and Telegram monitoring",
+        mockSources: "Sources",
+        mockSourceUa: "Ukrainian media",
+        mockSourcePl: "Polish media",
+        mockSourceTg: "Telegram channels",
+        mockSourceCustom: "Custom RSS and TG",
+        mockPlan: "Plan",
+        mockToday: "Today",
+        tabNews: "News",
+        tabFilters: "Filters",
+        tabRegion: "Region",
+        tabReports: "Reports",
+        mockKeywordEnergy: "keyword: energy",
+        mockRegionPoland: "region: Poland",
+        mockAlertOne: "New mention in a neighboring country: media report a government decision",
+        mockAlertHint: "Title, summary, full text, or hidden link.",
+        mockKeywordBrand: "keyword: brand",
+        mockAlertTwo: "Mention found in a hidden link behind a word in a post",
+        mockAlertTwoHint: "The bot checks post text and URLs.",
+        mockFilters: "Filters",
+        mockKeywords: "Keywords",
+        mockStopWords: "Stop words",
+        mockRegions: "Regions"
+      },
+      pl: {
+        title: "Monitorio - monitoring mediów i Telegrama",
+        description: "Monitorio śledzi wzmianki w wiadomościach, RSS i kanałach Telegram według słów kluczowych. Monitoring automatyczny, regiony, pełny tekst, raporty CSV.",
+        navFeatures: "Funkcje",
+        navWorkflow: "Jak działa",
+        navPlans: "Plany",
+        languageShort: "Język",
+        openBot: "Otwórz bota",
+        chooseLanguage: "Wybierz język przed rozpoczęciem",
+        kicker: "Monitoring mediów w Telegramie",
+        heroTitle: "Monitoruj wiadomości z wybranego kraju, nawet gdy jesteś gdzie indziej",
+        heroLead: "Monitorio śledzi wiadomości, kanały RSS i Telegram według słów kluczowych. Wybierz kraj monitoringu, aby obserwować przestrzeń informacyjną Ukrainy, Polski, Wielkiej Brytanii, Niemiec i innych regionów.",
+        startTelegram: "Uruchom w Telegramie",
+        openCabinet: "Panel z autoryzacją",
+        proofRegions: "krajów do monitoringu regionalnego",
+        proofSources: "wiadomości, kanały i własne źródła użytkownika",
+        proofCsv: "eksport CSV do raportów i pracy zespołowej",
+        featuresTitle: "Jeden bot do monitoringu mediów w różnych krajach",
+        featuresLead: "Monitorio pomaga PR, prawnikom, redakcjom, firmom, analitykom i zespołom szybko widzieć wzmianki o tematach, markach, osobach lub ryzykach w wybranym regionie.",
+        featureKeysTitle: "Wyszukiwanie słów kluczowych",
+        featureKeysText: "Słowa kluczowe są przypisane do regionu. Można dodawać słowa stop i słowa wymagane dla dokładniejszych wyników.",
+        featureNewsTitle: "Wiadomości i Telegram",
+        featureNewsText: "Obsługiwane są RSS, publiczne kanały Telegram, pakiety źródeł i własne źródła dodane przez użytkownika.",
+        featureFullTitle: "Pełny tekst",
+        featureFullText: "Tryb szybki sprawdza tytuły i opisy. Tryb pełnego tekstu otwiera artykuł i szuka w treści.",
+        featureRegionTitle: "Monitoring krajów sąsiednich",
+        featureRegionText: "Użytkownik wybiera kraj, z którego chce otrzymywać wiadomości. Każdy kraj ma własną bazę mediów i kanałów Telegram.",
+        featureLinksTitle: "Ukryte linki",
+        featureLinksText: "W postach Telegram bot może brać pod uwagę URL-e ukryte pod słowami.",
+        featureCabinetTitle: "Panel i raporty",
+        featureCabinetText: "Panel pokazuje ostatnie wzmianki, filtry, źródła, ustawienia, ręczne sprawdzanie i raport CSV.",
+        workflowTitle: "Konfiguracja zajmuje kilka minut",
+        workflowLead: "Bot działa bezpośrednio w Telegramie, a panel pomaga zarządzać źródłami, filtrami i trybami wyszukiwania. Dostęp z przeglądarki wymaga autoryzacji przez Telegram.",
+        stepOneTitle: "Wybierz język i region",
+        stepOneText: "Interfejs używa języka użytkownika, a kraj określa bazę źródeł do monitoringu.",
+        stepTwoTitle: "Dodaj słowa kluczowe",
+        stepTwoText: "Każde słowo jest zapisywane z regionem aktywnym w chwili dodania.",
+        stepThreeTitle: "Otrzymuj wzmianki",
+        stepThreeText: "Uruchamiaj sprawdzanie ręcznie albo włącz automatyczny monitoring zgodnie z planem.",
+        reportTitle: "Przykład wyniku",
+        reportKeyword: "Słowo",
+        reportKeywordValue: "energia",
+        reportRegion: "Region",
+        reportRegionValue: "Polska",
+        reportFound: "Znaleziono",
+        reportFoundValue: "tytuł, opis albo pełny tekst",
+        reportExport: "Raport",
+        plansTitle: "Plany dla różnej intensywności monitoringu",
+        plansLead: "Ostateczne ceny i limity są zarządzane w bocie. Strona pokazuje logikę pakietów bez promocji tymczasowych.",
+        freeTag: "Start",
+        freeText: "Do testu pomysłu, jednego słowa kluczowego i ograniczonej liczby wyników.",
+        freeOne: "podstawowe źródła RSS",
+        freeTwo: "ręczne sprawdzanie",
+        freeThree: "ograniczony limit dzienny",
+        proTag: "Praca codzienna",
+        proText: "Do regularnego monitoringu, większej liczby słów, źródeł Telegram i pełnego tekstu.",
+        proOne: "automatyczny monitoring",
+        proTwo: "baza kanałów TG",
+        proThree: "raporty CSV",
+        businessTag: "Zespoły",
+        businessText: "Do częstych kontroli, stałego monitoringu i dużej bazy źródeł.",
+        businessOne: "częste kontrole",
+        businessTwo: "rozszerzone limity",
+        businessThree: "priorytet skalowania",
+        finalTitle: "Uruchom Monitorio w Telegramie",
+        finalText: "Dodaj pierwsze słowo, wybierz kraj monitoringu i sprawdź, jak bot znajduje wzmianki.",
+        startNow: "Zacznij teraz",
+        footerTag: "Monitoring mediów i Telegrama",
+        mockSources: "Źródła",
+        mockSourceUa: "Media ukraińskie",
+        mockSourcePl: "Media polskie",
+        mockSourceTg: "Kanały Telegram",
+        mockSourceCustom: "Własne RSS i TG",
+        mockPlan: "Plan",
+        mockToday: "Dzisiaj",
+        tabNews: "Wiadomości",
+        tabFilters: "Filtry",
+        tabRegion: "Region",
+        tabReports: "Raporty",
+        mockKeywordEnergy: "słowo: energia",
+        mockRegionPoland: "region: Polska",
+        mockAlertOne: "Nowa wzmianka w kraju sąsiednim: media piszą o decyzji rządu",
+        mockAlertHint: "Tytuł, opis, pełny tekst albo ukryty link.",
+        mockKeywordBrand: "słowo: marka",
+        mockAlertTwo: "Wzmianka znaleziona w ukrytym linku pod słowem w poście",
+        mockAlertTwoHint: "Bot sprawdza tekst posta i URL-e.",
+        mockFilters: "Filtry",
+        mockKeywords: "Słowa kluczowe",
+        mockStopWords: "Słowa stop",
+        mockRegions: "Regiony"
+      },
+      de: {},
+      es: {},
+      it: {},
+      be: {},
+      ru: {}
+    };
+
+    translations.de = {
+      ...translations.en,
+      title: "Monitorio - Medien- und Telegram-Monitoring",
+      description: "Monitorio verfolgt Erwähnungen in Nachrichten, RSS-Feeds und Telegram-Kanälen nach Keywords. Automatisches Monitoring, Regionen, Volltext, CSV-Berichte.",
+      navFeatures: "Funktionen",
+      navWorkflow: "So funktioniert es",
+      navPlans: "Tarife",
+      languageShort: "Sprache",
+      openBot: "Bot öffnen",
+      chooseLanguage: "Wählen Sie zuerst Ihre Sprache",
+      kicker: "Medienmonitoring in Telegram",
+      heroTitle: "Beobachten Sie Nachrichten aus dem gewünschten Land, auch wenn Sie in einer anderen Region sind",
+      heroLead: "Monitorio verfolgt Nachrichten, RSS-Feeds und Telegram-Kanäle nach Keywords. Wählen Sie ein Monitoring-Land, um das Informationsfeld der Ukraine, Polens, Großbritanniens, Deutschlands und weiterer Regionen zu sehen.",
+      startTelegram: "In Telegram starten",
+      openCabinet: "Kabinett mit Autorisierung",
+      proofRegions: "Länder für regionales Monitoring",
+      proofSources: "Nachrichten, Kanäle und eigene Quellen",
+      proofCsv: "CSV-Export für Berichte und Teamarbeit",
+      featuresTitle: "Ein Bot für Medienmonitoring in verschiedenen Ländern",
+      featuresLead: "Monitorio hilft PR, Juristen, Redaktionen, Unternehmen, Analysten und Teams, Erwähnungen zu Themen, Marken, Personen oder Risiken in einer gewählten Region schnell zu sehen.",
+      featureRegionTitle: "Monitoring von Nachbarländern",
+      featureRegionText: "Der Nutzer wählt das Land, aus dem er Nachrichten erhalten möchte. Jedes Land hat eine eigene Basis aus Medien und Telegram-Kanälen.",
+      workflowLead: "Der Bot arbeitet direkt in Telegram, das Kabinett hilft bei Quellen, Filtern und Suchmodi. Browserzugang erfordert Telegram-Autorisierung.",
+      reportRegionValue: "Polen",
+      footerTag: "Medien- und Telegram-Monitoring",
+      mockSourceUa: "Ukrainische Medien",
+      mockSourcePl: "Polnische Medien",
+      mockRegionPoland: "Region: Polen"
+    };
+
+    translations.es = {
+      ...translations.en,
+      title: "Monitorio - monitoreo de medios y Telegram",
+      description: "Monitorio rastrea menciones en noticias, RSS y canales de Telegram por palabras clave. Monitoreo automático, regiones, texto completo, informes CSV.",
+      navFeatures: "Funciones",
+      navWorkflow: "Cómo funciona",
+      navPlans: "Planes",
+      languageShort: "Idioma",
+      openBot: "Abrir bot",
+      chooseLanguage: "Elige el idioma antes de empezar",
+      kicker: "Monitoreo de medios en Telegram",
+      heroTitle: "Monitorea noticias del país que necesitas, aunque estés en otra región",
+      heroLead: "Monitorio rastrea noticias, RSS y canales de Telegram por palabras clave. Elige un país de monitoreo para seguir el campo informativo de Ucrania, Polonia, Reino Unido, Alemania y otras regiones.",
+      startTelegram: "Iniciar en Telegram",
+      openCabinet: "Panel con autorización",
+      proofRegions: "países para monitoreo regional",
+      proofSources: "noticias, canales y fuentes propias",
+      proofCsv: "exportación CSV para informes y equipos",
+      featuresTitle: "Un bot para monitorear el campo mediático de distintos países",
+      featuresLead: "Monitorio ayuda a PR, abogados, redacciones, empresas, analistas y equipos a ver rápido menciones sobre temas, marcas, personas o riesgos en una región elegida.",
+      featureRegionTitle: "Monitoreo de países vecinos",
+      featureRegionText: "El usuario elige el país del que quiere recibir noticias. Cada país tiene su propia base de medios y canales de Telegram.",
+      workflowLead: "El bot funciona directamente en Telegram, y el panel ayuda a gestionar fuentes, filtros y modos de búsqueda. El acceso desde navegador requiere autorización por Telegram.",
+      reportRegionValue: "Polonia",
+      footerTag: "Monitoreo de medios y Telegram",
+      mockSourceUa: "Medios ucranianos",
+      mockSourcePl: "Medios polacos",
+      mockRegionPoland: "región: Polonia"
+    };
+
+    translations.it = {
+      ...translations.en,
+      title: "Monitorio - monitoraggio media e Telegram",
+      description: "Monitorio traccia menzioni in notizie, RSS e canali Telegram tramite parole chiave. Monitoraggio automatico, regioni, testo completo, report CSV.",
+      navFeatures: "Funzioni",
+      navWorkflow: "Come funziona",
+      navPlans: "Piani",
+      languageShort: "Lingua",
+      openBot: "Apri bot",
+      chooseLanguage: "Scegli la lingua prima di iniziare",
+      kicker: "Monitoraggio media in Telegram",
+      heroTitle: "Monitora le notizie del paese che ti interessa, anche da un'altra regione",
+      heroLead: "Monitorio traccia notizie, feed RSS e canali Telegram per parole chiave. Scegli il paese di monitoraggio per seguire lo spazio informativo di Ucraina, Polonia, Regno Unito, Germania e altre regioni.",
+      startTelegram: "Avvia in Telegram",
+      openCabinet: "Pannello con autorizzazione",
+      proofRegions: "paesi per monitoraggio regionale",
+      proofSources: "notizie, canali e fonti aggiunte dall'utente",
+      proofCsv: "export CSV per report e lavoro di squadra",
+      featuresTitle: "Un bot per monitorare il campo mediatico di diversi paesi",
+      featuresLead: "Monitorio aiuta PR, legali, redazioni, aziende, analisti e team a vedere rapidamente menzioni su temi, brand, persone o rischi nella regione scelta.",
+      featureRegionTitle: "Monitoraggio dei paesi vicini",
+      featureRegionText: "L'utente sceglie il paese da cui vuole ricevere notizie. Ogni paese ha una propria base di media e canali Telegram.",
+      workflowLead: "Il bot funziona direttamente in Telegram, mentre il pannello aiuta a gestire fonti, filtri e modalità di ricerca. L'accesso da browser richiede autorizzazione Telegram.",
+      reportRegionValue: "Polonia",
+      footerTag: "Monitoraggio media e Telegram",
+      mockSourceUa: "Media ucraini",
+      mockSourcePl: "Media polacchi",
+      mockRegionPoland: "regione: Polonia"
+    };
+
+    translations.be = {
+      ...translations.uk,
+      title: "Monitorio - маніторынг медыя і Telegram",
+      description: "Monitorio шукае згадкі ў навінах, RSS-стужках і Telegram-каналах па ключавых словах. Аўтаматычны маніторынг, рэгіёны, поўны тэкст, CSV-справаздачы.",
+      navFeatures: "Магчымасці",
+      navWorkflow: "Як працуе",
+      navPlans: "Тарыфы",
+      languageShort: "Мова",
+      openBot: "Адкрыць бота",
+      chooseLanguage: "Выберыце мову перад пачаткам працы",
+      kicker: "Медыяманіторынг у Telegram",
+      heroTitle: "Маніторце навіны патрэбнай краіны, нават калі вы ў іншым рэгіёне",
+      heroLead: "Monitorio адсочвае навіны, RSS-стужкі і Telegram-каналы па ключавых словах. Выберыце краіну маніторынгу, каб бачыць інфармацыйнае поле Украіны, Польшчы, Вялікай Брытаніі, Германіі і іншых рэгіёнаў.",
+      startTelegram: "Запусціць у Telegram",
+      openCabinet: "Кабінет з аўтарызацыяй",
+      proofRegions: "краін для рэгіянальнага маніторынгу",
+      proofSources: "навіны, каналы і ўласныя крыніцы карыстальніка",
+      proofCsv: "экспарт CSV для справаздач і каманднай працы",
+      featuresTitle: "Адзін бот для маніторынгу інфармацыйнага поля розных краін",
+      featureRegionTitle: "Маніторынг суседніх краін",
+      featureRegionText: "Карыстальнік выбірае краіну, з якой хоча атрымліваць навіны. Для кожнай краіны ёсць уласная база медыя і Telegram-каналаў.",
+      workflowLead: "Бот працуе проста ў Telegram, а кабінет патрэбны для кіравання крыніцамі, фільтрамі і рэжымамі пошуку. Для доступу з браўзера патрэбна аўтарызацыя праз Telegram.",
+      reportRegionValue: "Польшча",
+      footerTag: "Маніторынг медыя і Telegram",
+      mockSourceUa: "Украінскія медыя",
+      mockSourcePl: "Польскія медыя",
+      mockRegionPoland: "рэгіён: Польшча"
+    };
+
+    translations.ru = {
+      ...translations.uk,
+      title: "Monitorio - мониторинг медиа и Telegram",
+      description: "Monitorio ищет упоминания в новостях, RSS-лентах и Telegram-каналах по ключевым словам. Автоматический мониторинг, регионы, полный текст, CSV-отчеты.",
+      navFeatures: "Возможности",
+      navWorkflow: "Как работает",
+      navPlans: "Тарифы",
+      languageShort: "Язык",
+      openBot: "Открыть бота",
+      chooseLanguage: "Выберите язык перед началом работы",
+      kicker: "Медиамониторинг в Telegram",
+      heroTitle: "Мониторьте новости нужной страны, даже если вы в другом регионе",
+      heroLead: "Monitorio отслеживает новости, RSS-ленты и Telegram-каналы по ключевым словам. Выберите страну мониторинга, чтобы видеть информационное поле Украины, Польши, Великобритании, Германии и других регионов.",
+      startTelegram: "Запустить в Telegram",
+      openCabinet: "Кабинет с авторизацией",
+      proofRegions: "стран для регионального мониторинга",
+      proofSources: "новости, каналы и собственные источники пользователя",
+      proofCsv: "экспорт CSV для отчетов и командной работы",
+      featuresTitle: "Один бот для мониторинга информационного поля разных стран",
+      featuresLead: "Monitorio подходит PR, юристам, редакциям, бизнесу, аналитикам и командам, которым важно быстро видеть упоминания тем, брендов, персоналий или рисков в выбранном регионе.",
+      featureKeysTitle: "Поиск по ключам",
+      featureKeysText: "Ключевые слова привязываются к региону. Пользователь может добавлять стоп-слова и обязательные слова для более точной выдачи.",
+      featureNewsTitle: "Новости и Telegram",
+      featureNewsText: "Поддерживаются RSS, публичные Telegram-каналы, пакеты источников и собственные источники, которые пользователь добавляет сам.",
+      featureFullTitle: "Полный текст",
+      featureFullText: "Быстрый режим проверяет заголовки и анонсы. Режим полного текста дополнительно открывает материал и ищет совпадения в тексте новости.",
+      featureRegionTitle: "Мониторинг соседних стран",
+      featureRegionText: "Пользователь выбирает страну, из которой хочет получать новости. Для каждой страны есть своя база медиа и Telegram-каналов.",
+      featureLinksTitle: "Скрытые ссылки",
+      featureLinksText: "Для Telegram-постов бот может учитывать URL, скрытые под словами.",
+      featureCabinetTitle: "Кабинет и отчеты",
+      featureCabinetText: "Кабинет показывает последние упоминания, фильтры, источники, настройки, ручную проверку и CSV-отчет для быстрого экспорта.",
+      workflowTitle: "Настройка занимает несколько минут",
+      workflowLead: "Бот работает прямо в Telegram, а кабинет нужен для управления источниками, фильтрами и режимами поиска. Для доступа из браузера нужна авторизация через Telegram.",
+      stepOneTitle: "Выберите язык и регион",
+      stepOneText: "Интерфейс говорит на языке пользователя, а страна определяет базу источников для мониторинга.",
+      stepTwoTitle: "Добавьте ключевые слова",
+      stepTwoText: "Каждый ключ сохраняется с регионом, который был активен в момент добавления.",
+      stepThreeTitle: "Получайте упоминания",
+      stepThreeText: "Запускайте проверку вручную или включайте автоматический мониторинг согласно тарифу.",
+      reportTitle: "Пример результата",
+      reportKeyword: "Ключ",
+      reportRegion: "Регион",
+      reportRegionValue: "Польша",
+      reportFound: "Найдено",
+      reportFoundValue: "заголовок, анонс или полный текст",
+      reportExport: "Отчет",
+      plansTitle: "Тарифы для разной интенсивности мониторинга",
+      plansLead: "Финальные цены и лимиты управляются в боте. Лендинг показывает логику пакетов без временных акций.",
+      freeTag: "Старт",
+      freeText: "Для проверки идеи, одного ключевого слова и ограниченного количества результатов.",
+      freeOne: "базовые RSS-источники",
+      freeTwo: "ручная проверка",
+      freeThree: "ограниченный дневной лимит",
+      proTag: "Ежедневная работа",
+      proText: "Для регулярного мониторинга, большего количества ключей, Telegram-источников и полного текста.",
+      proOne: "автоматический мониторинг",
+      proTwo: "база TG-каналов",
+      proThree: "CSV-отчеты",
+      businessTag: "Команды",
+      businessText: "Для высокой частоты проверок, постоянного мониторинга и большой базы источников.",
+      businessOne: "частые проверки",
+      businessTwo: "расширенные лимиты",
+      businessThree: "приоритет для масштабирования",
+      finalTitle: "Запустите Monitorio в Telegram",
+      finalText: "Добавьте первый ключ, выберите страну мониторинга и проверьте, как бот находит упоминания в ваших источниках.",
+      startNow: "Начать сейчас",
+      footerTag: "Мониторинг медиа и Telegram",
+      mockSourceUa: "Украинские медиа",
+      mockSourcePl: "Польские медиа",
+      mockPlan: "Тариф",
+      mockToday: "Сегодня",
+      tabNews: "Новости",
+      tabFilters: "Фильтры",
+      tabRegion: "Регион",
+      tabReports: "Отчеты",
+      mockKeywordEnergy: "ключ: энергетика",
+      mockRegionPoland: "регион: Польша",
+      mockAlertOne: "Новое упоминание в соседней стране: медиа пишут о решении правительства",
+      mockAlertHint: "Заголовок, анонс, полный текст или скрытая ссылка.",
+      mockKeywordBrand: "ключ: бренд",
+      mockAlertTwo: "Найдено упоминание в скрытой ссылке под словом в посте",
+      mockAlertTwoHint: "Бот проверяет текст поста и URL.",
+      mockFilters: "Фильтры",
+      mockKeywords: "Ключевые слова",
+      mockStopWords: "Стоп-слова",
+      mockRegions: "Регионы"
+    };
+
+    Object.assign(translations.de, {
+      featureKeysTitle: "Keyword-Suche",
+      featureKeysText: "Keywords werden einer Region zugeordnet. Nutzer können Stoppwörter und Pflichtwörter hinzufügen, um Ergebnisse genauer zu machen.",
+      featureNewsTitle: "Nachrichten und Telegram",
+      featureNewsText: "RSS-Feeds, öffentliche Telegram-Kanäle, Quellenpakete und eigene Quellen des Nutzers werden unterstützt.",
+      featureFullTitle: "Volltext",
+      featureFullText: "Der Schnellmodus prüft Titel und Kurztexte. Der Volltextmodus öffnet zusätzlich den Artikel und sucht im Nachrichtentext.",
+      featureLinksTitle: "Versteckte Links",
+      featureLinksText: "Bei Telegram-Beiträgen kann der Bot URLs berücksichtigen, die hinter Wörtern verborgen sind.",
+      featureCabinetTitle: "Kabinett und Berichte",
+      featureCabinetText: "Das Kabinett zeigt letzte Treffer, Filter, Quellen, Einstellungen, manuelle Prüfung und CSV-Berichte für schnellen Export.",
+      workflowTitle: "Die Einrichtung dauert nur wenige Minuten",
+      stepOneTitle: "Sprache und Region wählen",
+      stepOneText: "Die Oberfläche nutzt die Sprache des Nutzers, während das Land die Quellenbasis für das Monitoring bestimmt.",
+      stepTwoTitle: "Keywords hinzufügen",
+      stepTwoText: "Jedes Keyword wird mit der Region gespeichert, die beim Hinzufügen aktiv war.",
+      stepThreeTitle: "Erwähnungen erhalten",
+      stepThreeText: "Starten Sie Prüfungen manuell oder aktivieren Sie automatisches Monitoring gemäß Ihrem Tarif.",
+      reportTitle: "Beispielergebnis",
+      reportKeyword: "Keyword",
+      reportKeywordValue: "Energie",
+      reportRegion: "Region",
+      reportFound: "Gefunden in",
+      reportFoundValue: "Titel, Kurztext oder Volltext",
+      reportExport: "Bericht",
+      plansTitle: "Tarife für unterschiedliche Monitoring-Intensität",
+      plansLead: "Endgültige Preise und Limits werden im Bot verwaltet. Diese Seite erklärt die Paketlogik ohne zeitlich begrenzte Aktionen.",
+      freeTag: "Start",
+      freeText: "Zum Testen der Idee, eines Keywords und einer begrenzten Anzahl von Ergebnissen.",
+      freeOne: "Basis-RSS-Quellen",
+      freeTwo: "manuelle Prüfung",
+      freeThree: "begrenztes Tageslimit",
+      proTag: "Tägliche Arbeit",
+      proText: "Für regelmäßiges Monitoring, mehr Keywords, Telegram-Quellen und Volltext.",
+      proOne: "automatisches Monitoring",
+      proTwo: "TG-Kanalbasis",
+      proThree: "CSV-Berichte",
+      businessTag: "Teams",
+      businessText: "Für häufige Prüfungen, kontinuierliches Monitoring und eine große Quellenbasis.",
+      businessOne: "häufige Prüfungen",
+      businessTwo: "erweiterte Limits",
+      businessThree: "Priorität beim Skalieren",
+      finalTitle: "Starten Sie Monitorio in Telegram",
+      finalText: "Fügen Sie Ihr erstes Keyword hinzu, wählen Sie ein Monitoring-Land und prüfen Sie, wie der Bot Erwähnungen in Ihren Quellen findet.",
+      startNow: "Jetzt starten",
+      mockSources: "Quellen",
+      mockSourceTg: "Telegram-Kanäle",
+      mockSourceCustom: "Eigene RSS und TG",
+      mockPlan: "Tarif",
+      mockToday: "Heute",
+      tabNews: "Nachrichten",
+      tabFilters: "Filter",
+      tabRegion: "Region",
+      tabReports: "Berichte",
+      mockKeywordEnergy: "Keyword: Energie",
+      mockAlertOne: "Neue Erwähnung in einem Nachbarland: Medien berichten über eine Regierungsentscheidung",
+      mockAlertHint: "Titel, Kurztext, Volltext oder versteckter Link.",
+      mockKeywordBrand: "Keyword: Marke",
+      mockAlertTwo: "Erwähnung in einem versteckten Link hinter einem Wort im Beitrag gefunden",
+      mockAlertTwoHint: "Der Bot prüft Beitragstext und URLs.",
+      mockFilters: "Filter",
+      mockKeywords: "Keywords",
+      mockStopWords: "Stoppwörter",
+      mockRegions: "Regionen"
+    });
+
+    Object.assign(translations.es, {
+      featureKeysTitle: "Búsqueda por palabras clave",
+      featureKeysText: "Las palabras clave se vinculan a una región. El usuario puede añadir palabras excluidas y obligatorias para precisar los resultados.",
+      featureNewsTitle: "Noticias y Telegram",
+      featureNewsText: "Se admiten RSS, canales públicos de Telegram, paquetes de fuentes y fuentes propias añadidas por el usuario.",
+      featureFullTitle: "Texto completo",
+      featureFullText: "El modo rápido revisa títulos y resúmenes. El modo de texto completo abre el artículo y busca en el cuerpo de la noticia.",
+      featureLinksTitle: "Enlaces ocultos",
+      featureLinksText: "En publicaciones de Telegram, el bot puede tener en cuenta URL ocultas bajo palabras.",
+      featureCabinetTitle: "Panel e informes",
+      featureCabinetText: "El panel muestra menciones recientes, filtros, fuentes, ajustes, comprobación manual e informes CSV para exportación rápida.",
+      workflowTitle: "La configuración toma unos minutos",
+      stepOneTitle: "Elige idioma y región",
+      stepOneText: "La interfaz usa el idioma del usuario, mientras que el país define la base de fuentes para el monitoreo.",
+      stepTwoTitle: "Añade palabras clave",
+      stepTwoText: "Cada palabra clave se guarda con la región activa en el momento de añadirla.",
+      stepThreeTitle: "Recibe menciones",
+      stepThreeText: "Ejecuta comprobaciones manuales o activa el monitoreo automático según tu plan.",
+      reportTitle: "Ejemplo de resultado",
+      reportKeyword: "Clave",
+      reportKeywordValue: "energía",
+      reportRegion: "Región",
+      reportFound: "Encontrado en",
+      reportFoundValue: "título, resumen o texto completo",
+      reportExport: "Informe",
+      plansTitle: "Planes para distintas intensidades de monitoreo",
+      plansLead: "Los precios y límites finales se gestionan en el bot. Esta página explica la lógica de los paquetes sin promociones temporales.",
+      freeTag: "Inicio",
+      freeText: "Para probar la idea, una palabra clave y un número limitado de resultados.",
+      freeOne: "fuentes RSS básicas",
+      freeTwo: "comprobación manual",
+      freeThree: "límite diario reducido",
+      proTag: "Trabajo diario",
+      proText: "Para monitoreo regular, más palabras clave, fuentes de Telegram y texto completo.",
+      proOne: "monitoreo automático",
+      proTwo: "base de canales TG",
+      proThree: "informes CSV",
+      businessTag: "Equipos",
+      businessText: "Para comprobaciones frecuentes, monitoreo continuo y una base amplia de fuentes.",
+      businessOne: "comprobaciones frecuentes",
+      businessTwo: "límites ampliados",
+      businessThree: "prioridad de escalado",
+      finalTitle: "Inicia Monitorio en Telegram",
+      finalText: "Añade tu primera palabra clave, elige un país de monitoreo y comprueba cómo el bot encuentra menciones.",
+      startNow: "Empezar ahora",
+      mockSources: "Fuentes",
+      mockSourceTg: "Canales de Telegram",
+      mockSourceCustom: "RSS y TG propios",
+      mockPlan: "Plan",
+      mockToday: "Hoy",
+      tabNews: "Noticias",
+      tabFilters: "Filtros",
+      tabRegion: "Región",
+      tabReports: "Informes",
+      mockKeywordEnergy: "clave: energía",
+      mockAlertOne: "Nueva mención en un país vecino: los medios informan sobre una decisión del gobierno",
+      mockAlertHint: "Título, resumen, texto completo o enlace oculto.",
+      mockKeywordBrand: "clave: marca",
+      mockAlertTwo: "Mención encontrada en un enlace oculto bajo una palabra en una publicación",
+      mockAlertTwoHint: "El bot revisa el texto de la publicación y las URL.",
+      mockFilters: "Filtros",
+      mockKeywords: "Palabras clave",
+      mockStopWords: "Palabras excluidas",
+      mockRegions: "Regiones"
+    });
+
+    Object.assign(translations.it, {
+      featureKeysTitle: "Ricerca per parole chiave",
+      featureKeysText: "Le parole chiave sono collegate a una regione. L'utente può aggiungere parole escluse e parole obbligatorie per risultati più precisi.",
+      featureNewsTitle: "Notizie e Telegram",
+      featureNewsText: "Sono supportati RSS, canali Telegram pubblici, pacchetti di fonti e fonti proprie aggiunte dall'utente.",
+      featureFullTitle: "Testo completo",
+      featureFullText: "La modalità rapida controlla titoli e sommari. La modalità testo completo apre anche l'articolo e cerca nel corpo della notizia.",
+      featureLinksTitle: "Link nascosti",
+      featureLinksText: "Nei post Telegram, il bot può considerare URL nascosti sotto le parole.",
+      featureCabinetTitle: "Pannello e report",
+      featureCabinetText: "Il pannello mostra menzioni recenti, filtri, fonti, impostazioni, controllo manuale e report CSV per esportazione rapida.",
+      workflowTitle: "La configurazione richiede pochi minuti",
+      stepOneTitle: "Scegli lingua e regione",
+      stepOneText: "L'interfaccia usa la lingua dell'utente, mentre il paese definisce la base di fonti per il monitoraggio.",
+      stepTwoTitle: "Aggiungi parole chiave",
+      stepTwoText: "Ogni parola chiave viene salvata con la regione attiva al momento dell'aggiunta.",
+      stepThreeTitle: "Ricevi menzioni",
+      stepThreeText: "Esegui controlli manuali o attiva il monitoraggio automatico in base al piano.",
+      reportTitle: "Esempio di risultato",
+      reportKeyword: "Chiave",
+      reportKeywordValue: "energia",
+      reportRegion: "Regione",
+      reportFound: "Trovato in",
+      reportFoundValue: "titolo, sommario o testo completo",
+      reportExport: "Report",
+      plansTitle: "Piani per diverse intensità di monitoraggio",
+      plansLead: "Prezzi e limiti finali sono gestiti nel bot. Questa pagina spiega la logica dei pacchetti senza promozioni temporanee.",
+      freeTag: "Inizio",
+      freeText: "Per testare l'idea, una parola chiave e un numero limitato di risultati.",
+      freeOne: "fonti RSS di base",
+      freeTwo: "controllo manuale",
+      freeThree: "limite giornaliero ridotto",
+      proTag: "Lavoro quotidiano",
+      proText: "Per monitoraggio regolare, più parole chiave, fonti Telegram e testo completo.",
+      proOne: "monitoraggio automatico",
+      proTwo: "base di canali TG",
+      proThree: "report CSV",
+      businessTag: "Team",
+      businessText: "Per controlli frequenti, monitoraggio continuo e una grande base di fonti.",
+      businessOne: "controlli frequenti",
+      businessTwo: "limiti estesi",
+      businessThree: "priorità di scalabilità",
+      finalTitle: "Avvia Monitorio in Telegram",
+      finalText: "Aggiungi la prima parola chiave, scegli un paese di monitoraggio e verifica come il bot trova le menzioni.",
+      startNow: "Inizia ora",
+      mockSources: "Fonti",
+      mockSourceTg: "Canali Telegram",
+      mockSourceCustom: "RSS e TG propri",
+      mockPlan: "Piano",
+      mockToday: "Oggi",
+      tabNews: "Notizie",
+      tabFilters: "Filtri",
+      tabRegion: "Regione",
+      tabReports: "Report",
+      mockKeywordEnergy: "chiave: energia",
+      mockAlertOne: "Nuova menzione in un paese vicino: i media scrivono di una decisione del governo",
+      mockAlertHint: "Titolo, sommario, testo completo o link nascosto.",
+      mockKeywordBrand: "chiave: brand",
+      mockAlertTwo: "Menzione trovata in un link nascosto sotto una parola nel post",
+      mockAlertTwoHint: "Il bot controlla testo del post e URL.",
+      mockFilters: "Filtri",
+      mockKeywords: "Parole chiave",
+      mockStopWords: "Parole escluse",
+      mockRegions: "Regioni"
+    });
+
+    Object.assign(translations.be, {
+      featuresLead: "Monitorio падыходзіць для PR, юрыстаў, рэдакцый, бізнесу, аналітыкаў і каманд, якім важна хутка бачыць згадкі пра тэмы, брэнды, людзей або рызыкі ў выбраным рэгіёне.",
+      featureKeysTitle: "Пошук па ключах",
+      featureKeysText: "Ключавыя словы прывязваюцца да рэгіёна. Карыстальнік можа дадаваць стоп-словы і абавязковыя словы для больш дакладнай выдачы.",
+      featureNewsTitle: "Навіны і Telegram",
+      featureNewsText: "Падтрымліваюцца RSS, публічныя Telegram-каналы, пакеты крыніц і ўласныя крыніцы, якія карыстальнік дадае сам.",
+      featureFullTitle: "Поўны тэкст",
+      featureFullText: "Хуткі рэжым правярае загалоўкі і анонсы. Рэжым поўнага тэксту дадаткова адкрывае матэрыял і шукае супадзенні ў тэксце навіны.",
+      featureLinksTitle: "Схаваныя спасылкі",
+      featureLinksText: "Для Telegram-допісаў бот можа ўлічваць URL, схаваныя пад словамі.",
+      featureCabinetTitle: "Кабінет і справаздачы",
+      featureCabinetText: "Кабінет паказвае апошнія згадкі, фільтры, крыніцы, налады, ручную праверку і CSV-справаздачу для хуткага экспарту.",
+      workflowTitle: "Наладжванне займае некалькі хвілін",
+      stepOneTitle: "Выберыце мову і рэгіён",
+      stepOneText: "Інтэрфейс гаворыць мовай карыстальніка, а краіна вызначае базу крыніц для маніторынгу.",
+      stepTwoTitle: "Дадайце ключавыя словы",
+      stepTwoText: "Кожны ключ захоўваецца з рэгіёнам, які быў актыўны ў момант дадання.",
+      stepThreeTitle: "Атрымлівайце згадкі",
+      stepThreeText: "Запускайце праверку ўручную або ўключайце аўтаматычны маніторынг паводле тарыфу.",
+      reportTitle: "Прыклад выніку",
+      reportKeyword: "Ключ",
+      reportKeywordValue: "энергетыка",
+      reportRegion: "Рэгіён",
+      reportFound: "Знойдзена",
+      reportFoundValue: "загаловак, анонс або поўны тэкст",
+      reportExport: "Справаздача",
+      plansTitle: "Тарыфы для рознай інтэнсіўнасці маніторынгу",
+      plansLead: "Фінальныя цэны і ліміты кіруюцца ў боце. Лэндынг паказвае логіку пакетаў без часовых акцый.",
+      freeTag: "Старт",
+      freeText: "Для праверкі ідэі, аднаго ключавога слова і абмежаванай колькасці вынікаў.",
+      freeOne: "базавыя RSS-крыніцы",
+      freeTwo: "ручная праверка",
+      freeThree: "абмежаваны дзённы ліміт",
+      proTag: "Штодзённая праца",
+      proText: "Для рэгулярнага маніторынгу, большай колькасці ключоў, Telegram-крыніц і поўнага тэксту.",
+      proOne: "аўтаматычны маніторынг",
+      proTwo: "база TG-каналаў",
+      proThree: "CSV-справаздачы",
+      businessTag: "Каманды",
+      businessText: "Для частых праверак, пастаяннага маніторынгу і вялікай базы крыніц.",
+      businessOne: "частыя праверкі",
+      businessTwo: "пашыраныя ліміты",
+      businessThree: "прыярытэт для маштабавання",
+      finalTitle: "Запусціце Monitorio у Telegram",
+      finalText: "Дадайце першы ключ, выберыце краіну маніторынгу і праверце, як бот знаходзіць згадкі ў вашых крыніцах.",
+      startNow: "Пачаць зараз",
+      mockSources: "Крыніцы",
+      mockSourceTg: "Telegram-каналы",
+      mockSourceCustom: "Уласныя RSS і TG",
+      mockPlan: "Тарыф",
+      mockToday: "Сёння",
+      tabNews: "Навіны",
+      tabFilters: "Фільтры",
+      tabRegion: "Рэгіён",
+      tabReports: "Справаздачы",
+      mockKeywordEnergy: "ключ: энергетыка",
+      mockAlertOne: "Новая згадка ў суседняй краіне: медыя пішуць пра рашэнне ўрада",
+      mockAlertHint: "Загаловак, анонс, поўны тэкст або схаваная спасылка.",
+      mockKeywordBrand: "ключ: брэнд",
+      mockAlertTwo: "Знойдзена згадка ў схаванай спасылцы пад словам у допісе",
+      mockAlertTwoHint: "Бот правярае тэкст допісу і URL.",
+      mockFilters: "Фільтры",
+      mockKeywords: "Ключавыя словы",
+      mockStopWords: "Стоп-словы",
+      mockRegions: "Рэгіёны"
+    });
+
+    const languageNames = {
+      en: "English",
+      uk: "Українська",
+      pl: "Polski",
+      de: "Deutsch",
+      es: "Español",
+      it: "Italiano",
+      be: "Беларуская",
+      ru: "Русский"
+    };
+
+    function applyLanguage(language) {
+      const selected = translations[language] ? language : "en";
+      const dictionary = translations[selected];
+      document.documentElement.lang = selected;
+      document.title = dictionary.title;
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription) {
+        metaDescription.setAttribute("content", dictionary.description);
+      }
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        const key = node.getAttribute("data-i18n");
+        if (key && dictionary[key]) {
+          node.textContent = dictionary[key];
+        }
+      });
+      document.querySelectorAll(".language-select").forEach((select) => {
+        select.value = selected;
+      });
+      localStorage.setItem("monitorioLandingLanguage", selected);
+    }
+
+    const browserLanguage = (navigator.language || "en").slice(0, 2);
+    const initialLanguage = localStorage.getItem("monitorioLandingLanguage") || (translations[browserLanguage] ? browserLanguage : "en");
+    document.querySelectorAll(".language-select").forEach((select) => {
+      select.addEventListener("change", (event) => applyLanguage(event.target.value));
+      [...select.options].forEach((option) => {
+        option.textContent = languageNames[option.value] || option.textContent;
+      });
+    });
+    applyLanguage(initialLanguage);
+  </script>
 </body>
 </html>
