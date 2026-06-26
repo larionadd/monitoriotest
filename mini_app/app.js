@@ -9,7 +9,7 @@
 
   const labels = {
     en: {
-      plan: "Plan",
+      plan: "Pakiet",
       sources: "Sources",
       today: "Today",
       tabNews: "News",
@@ -25,7 +25,7 @@
       autoMonitoring: "Automatic monitoring",
       fullText: "Full text",
       plans: "Plans",
-      keyword: "Keyword",
+      keyword: "Suchwort",
       keywordPlaceholder: "for example: bitcoin",
       addKeyword: "Add keyword",
       stopWord: "Stop word",
@@ -171,7 +171,7 @@
       on: "Вкл."
     },
     pl: {
-      plan: "Plan",
+      plan: "Tarifa",
       sources: "Źródła",
       today: "Dzisiaj",
       tabNews: "Wiadomości",

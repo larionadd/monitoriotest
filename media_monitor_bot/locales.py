@@ -1588,6 +1588,11 @@ RU_MESSAGES.update(
 )
 MESSAGES["ru"] = RU_MESSAGES
 
+from .locale_overrides import COMPLETE_TRANSLATION_OVERRIDES
+
+for language_code, messages in COMPLETE_TRANSLATION_OVERRIDES.items():
+    MESSAGES.setdefault(language_code, {}).update(messages)
+
 
 def language_name(code: str) -> str:
     return LANGUAGES.get(normalize_language(code), LANGUAGES[DEFAULT_LANGUAGE]).name

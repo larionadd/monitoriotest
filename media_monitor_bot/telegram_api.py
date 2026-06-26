@@ -100,10 +100,13 @@ class TelegramApi:
         )
         response.raise_for_status()
 
-    def set_my_commands(self, commands: list[dict[str, str]]) -> None:
+    def set_my_commands(self, commands: list[dict[str, str]], language_code: str | None = None) -> None:
+        payload: dict[str, Any] = {"commands": commands}
+        if language_code:
+            payload["language_code"] = language_code
         response = requests.post(
             f"{self.base_url}/setMyCommands",
-            json={"commands": commands},
+            json=payload,
             timeout=self.timeout,
         )
         response.raise_for_status()
