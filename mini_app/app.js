@@ -38,6 +38,7 @@
       addTg: "Add TG",
       tgPlaceholder: "@channel or https://t.me/channel",
       tgBlocks: "TG packages",
+      sourceOverview: "Source overview",
       sourcesFile: "Sources file",
       opening: "Opening cabinet...",
       openTelegram: "Open this Mini App through Telegram.",
@@ -91,6 +92,7 @@
       addTg: "Додати TG",
       tgPlaceholder: "@channel або https://t.me/channel",
       tgBlocks: "TG-пакети",
+      sourceOverview: "Огляд джерел",
       sourcesFile: "Файл джерел",
       opening: "Відкриваємо кабінет...",
       openTelegram: "Відкрийте Mini App через Telegram.",
@@ -144,6 +146,7 @@
       addTg: "Добавить TG",
       tgPlaceholder: "@channel или https://t.me/channel",
       tgBlocks: "TG-пакеты",
+      sourceOverview: "Обзор источников",
       sourcesFile: "Файл источников",
       opening: "Открываем кабинет...",
       openTelegram: "Откройте Mini App через Telegram.",
@@ -197,6 +200,7 @@
       addTg: "Dodaj TG",
       tgPlaceholder: "@channel lub https://t.me/channel",
       tgBlocks: "Pakiety TG",
+      sourceOverview: "Przegląd źródeł",
       sourcesFile: "Plik źródeł",
       opening: "Otwieranie panelu...",
       openTelegram: "Otwórz Mini App przez Telegram.",
@@ -250,6 +254,7 @@
       addTg: "TG hinzufügen",
       tgPlaceholder: "@channel oder https://t.me/channel",
       tgBlocks: "TG-Pakete",
+      sourceOverview: "Quellenübersicht",
       sourcesFile: "Quellen-Datei",
       opening: "Kabinett wird geöffnet...",
       openTelegram: "Öffnen Sie die Mini App über Telegram.",
@@ -303,6 +308,7 @@
       addTg: "Añadir TG",
       tgPlaceholder: "@channel o https://t.me/channel",
       tgBlocks: "Paquetes TG",
+      sourceOverview: "Resumen de fuentes",
       sourcesFile: "Archivo de fuentes",
       opening: "Abriendo panel...",
       openTelegram: "Abra Mini App desde Telegram.",
@@ -356,6 +362,7 @@
       addTg: "Aggiungi TG",
       tgPlaceholder: "@channel o https://t.me/channel",
       tgBlocks: "Pacchetti TG",
+      sourceOverview: "Panoramica fonti",
       sourcesFile: "File fonti",
       opening: "Apertura pannello...",
       openTelegram: "Apri Mini App tramite Telegram.",
@@ -409,6 +416,7 @@
       addTg: "Дадаць TG",
       tgPlaceholder: "@channel або https://t.me/channel",
       tgBlocks: "TG-пакеты",
+      sourceOverview: "Агляд крыніц",
       sourcesFile: "Файл крыніц",
       opening: "Адкрываем кабінет...",
       openTelegram: "Адкрыйце Mini App праз Telegram.",
@@ -440,6 +448,12 @@
   if (tg) {
     tg.ready();
     tg.expand();
+    if (typeof tg.requestFullscreen === "function") {
+      tg.requestFullscreen();
+    }
+    if (typeof tg.disableVerticalSwipes === "function") {
+      tg.disableVerticalSwipes();
+    }
   }
 
   applyTranslations();
@@ -453,10 +467,10 @@
   });
 
   $("refreshButton").addEventListener("click", loadAll);
-  $("checkButton").addEventListener("click", () => send({ action: "check" }));
-  $("reportButton").addEventListener("click", () => send({ action: "report" }));
-  $("plansButton").addEventListener("click", () => send({ action: "plans" }));
-  $("sourcesFileButton").addEventListener("click", () => send({ action: "sources_file" }));
+  $("checkButton").addEventListener("click", () => sendToChat({ action: "check" }));
+  $("reportButton").addEventListener("click", () => sendToChat({ action: "report" }));
+  $("plansButton").addEventListener("click", () => sendToChat({ action: "plans" }));
+  $("sourcesFileButton").addEventListener("click", () => sendToChat({ action: "sources_file" }));
 
   $("languageSelect").addEventListener("change", (event) => {
     state.language = event.target.value;
@@ -516,6 +530,7 @@
     if (!value) return setStatus(t("typeRss"));
     send({ action: "add_rss", value });
     $("rssInput").value = "";
+    setTimeout(loadAll, 800);
   });
 
   $("addTgButton").addEventListener("click", () => {
@@ -523,6 +538,7 @@
     if (!value) return setStatus(t("typeTg"));
     send({ action: "add_tg", value });
     $("tgInput").value = "";
+    setTimeout(loadAll, 800);
   });
 
   loadAll();
@@ -561,6 +577,21 @@
       headers: {
         "X-Telegram-Init-Data": tg && tg.initData || ""
       }
+    });
+    if (!response.ok) {
+      throw new Error(path + " " + response.status);
+    }
+    return response.json();
+  }
+
+  async function apiPost(path, payload) {
+    const response = await fetch(apiUrl(path), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Telegram-Init-Data": tg && tg.initData || ""
+      },
+      body: JSON.stringify(payload || {})
     });
     if (!response.ok) {
       throw new Error(path + " " + response.status);
@@ -663,6 +694,7 @@
     $("standardSources").textContent = sources.standard.active + "/" + sources.standard.total;
     $("paidSources").textContent = sources.paid_telegram.active + "/" + sources.paid_telegram.total;
     $("customSources").textContent = sources.custom.active + "/" + sources.custom.total;
+    renderSourceOverview(sources);
 
     const root = $("tgBlocks");
     root.innerHTML = "";
@@ -685,6 +717,42 @@
         });
       });
       root.appendChild(row);
+    });
+  }
+
+  function renderSourceOverview(sources) {
+    const root = $("sourceList");
+    root.innerHTML = "";
+    const groups = [
+      ["RSS", sources.standard_items || []],
+      ["TG", sources.paid_telegram_items || []],
+      ["Custom", sources.custom_items || []]
+    ];
+    groups.forEach(([title, items]) => {
+      const section = document.createElement("section");
+      section.className = "source-section";
+      const heading = document.createElement("h3");
+      heading.textContent = title;
+      section.appendChild(heading);
+      if (!items.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted-line";
+        empty.textContent = "-";
+        section.appendChild(empty);
+      }
+      items.slice(0, 12).forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "source-row";
+        row.innerHTML = [
+          "<span>",
+          "<strong>" + escapeHtml(item.name || item.url || "") + "</strong>",
+          "<small>" + escapeHtml(sourceMeta(item)) + "</small>",
+          "</span>",
+          '<b class="' + (item.active ? "dot is-active" : "dot") + '"></b>'
+        ].join("");
+        section.appendChild(row);
+      });
+      root.appendChild(section);
     });
   }
 
@@ -728,7 +796,24 @@
     element.classList.toggle("is-on", Boolean(enabled));
   }
 
-  function send(payload) {
+  async function send(payload) {
+    if (tg && tg.initData) {
+      try {
+        const result = await apiPost("/api/action", payload);
+        if (result.state) {
+          state.data = result.state;
+          renderState();
+        }
+        setStatus(result.ok === false ? (result.error || t("loadError")) : t("sent"));
+        return;
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    sendToChat(payload);
+  }
+
+  function sendToChat(payload) {
     if (!tg || !tg.sendData) {
       setStatus(t("openTelegram"));
       return;
@@ -743,6 +828,20 @@
 
   function setStatus(text) {
     statusText.textContent = text || "";
+  }
+
+  function sourceMeta(item) {
+    const parts = [];
+    if (item.rank) parts.push("#" + item.rank);
+    if (item.subscribers) parts.push(formatNumber(item.subscribers));
+    if (item.type) parts.push(item.type);
+    return parts.join(" · ") || item.url || "";
+  }
+
+  function formatNumber(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "";
+    return number.toLocaleString();
   }
 
   function applyTranslations() {
