@@ -9,6 +9,7 @@ import shutil
 import sys
 import threading
 import time
+import unicodedata
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -193,11 +194,28 @@ def button_action(value: str) -> str | None:
     default_action = BUTTON_KEY_BY_DEFAULT_TEXT.get(value.strip())
     if default_action:
         return default_action
+    normalized_needle = normalize_button_text(value)
     for language_code in LANGUAGES:
         for key in BUTTON_KEYS:
-            if needle == button_label(language_code, key).lower():
+            label = button_label(language_code, key)
+            if needle == label.lower() or normalized_needle == normalize_button_text(label):
                 return key
     return None
+
+
+def normalize_button_text(value: str) -> str:
+    words = []
+    current = []
+    for char in (value or "").casefold():
+        category = unicodedata.category(char)
+        if category[0] in {"L", "N"}:
+            current.append(char)
+        elif current:
+            words.append("".join(current))
+            current = []
+    if current:
+        words.append("".join(current))
+    return " ".join(words)
 
 PENDING_ACTIONS: dict[int, str] = {}
 MONITOR_LOCK = threading.Lock()
