@@ -404,7 +404,10 @@ def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> 
     if not config.mini_app_url:
         return
     try:
-        telegram.set_default_chat_menu_button()
+        if config.mini_app_menu_button:
+            telegram.set_chat_menu_button(config.mini_app_menu_button_text or "Cabinet", config.mini_app_url)
+        else:
+            telegram.set_default_chat_menu_button()
     except Exception:
         logging.exception("Не вдалося скинути глобальну Telegram menu button для Mini App")
     try:

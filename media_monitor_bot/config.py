@@ -27,6 +27,8 @@ class Config:
     mini_app_host: str = "127.0.0.1"
     mini_app_port: int = 8080
     mini_app_static_path: Path = Path("mini_app")
+    mini_app_menu_button: bool = False
+    mini_app_menu_button_text: str = "Cabinet"
     poll_interval_seconds: int = 7200
     source_timeout_seconds: int = 15
     user_daily_limit: int = 100
@@ -78,6 +80,8 @@ def load_config(path: str | Path) -> Config:
         mini_app_host=str(os.getenv("MINI_APP_HOST") or raw.get("mini_app_host", "127.0.0.1")).strip(),
         mini_app_port=int(os.getenv("MINI_APP_PORT") or raw.get("mini_app_port", 8080)),
         mini_app_static_path=_resolve(base, os.getenv("MINI_APP_STATIC_PATH") or raw.get("mini_app_static_path", "mini_app")),
+        mini_app_menu_button=_bool(os.getenv("MINI_APP_MENU_BUTTON") or raw.get("mini_app_menu_button", False)),
+        mini_app_menu_button_text=str(os.getenv("MINI_APP_MENU_BUTTON_TEXT") or raw.get("mini_app_menu_button_text", "Cabinet")).strip(),
         poll_interval_seconds=int(os.getenv("POLL_INTERVAL_SECONDS") or raw.get("poll_interval_seconds", 7200)),
         source_timeout_seconds=int(os.getenv("SOURCE_TIMEOUT_SECONDS") or raw.get("source_timeout_seconds", 15)),
         user_daily_limit=int(os.getenv("USER_DAILY_LIMIT") or raw.get("user_daily_limit", 100)),

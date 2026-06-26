@@ -6,6 +6,8 @@
   "mini_app_host": "127.0.0.1",
   "mini_app_port": 8080,
   "mini_app_static_path": "/opt/media-monitor-bot/mini_app",
+  "mini_app_menu_button": false,
+  "mini_app_menu_button_text": "Cabinet",
   "poll_interval_seconds": 7200,
   "source_timeout_seconds": 8,
   "user_daily_limit": 100,
