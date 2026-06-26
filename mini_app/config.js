@@ -1,1 +1,1 @@
-window.MONITORIO_API_BASE = "https://monitorio.duckdns.org";
+window.MONITORIO_API_BASE = "https://civic-tricks-moon-vancouver.trycloudflare.com";
