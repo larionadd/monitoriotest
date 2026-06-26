@@ -10,7 +10,7 @@ import sys
 import threading
 import time
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from .billing import PLANS, Plan, paid_plans, plan_by_id
 from .config import Source, load_config
@@ -143,7 +143,7 @@ TRIAL_DAYS = 7
 def main_menu_for_chat(chat_id: int, db: Database) -> dict:
     language_code = db.get_user_settings(chat_id).language_code
     keyboard = menu_keyboard(language_code, MAIN_MENU_ROWS)
-    if MINI_APP_URL and (REQUIRE_ONBOARDING or db.get_active_plan(chat_id).id == "business"):
+    if MINI_APP_URL:
         keyboard.insert(0, [{"text": button_label(language_code, "app"), "web_app": {"url": MINI_APP_URL}}])
     if REQUIRE_ONBOARDING:
         keyboard.insert(-1, [{"text": button_label(language_code, "settings")}])
@@ -386,7 +386,7 @@ def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> 
     if not config.mini_app_url:
         return
     try:
-        telegram.set_default_chat_menu_button()
+        telegram.set_chat_menu_button("Monitorio", config.mini_app_url)
     except Exception:
         logging.exception("Не вдалося скинути глобальну Telegram menu button для Mini App")
     try:
@@ -397,7 +397,7 @@ def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> 
             bot_token=config.telegram_bot_token,
             db=db,
             sources=sources,
-            require_business=not config.require_onboarding,
+            require_business=False,
         )
     except Exception:
         logging.exception("Не вдалося запустити Mini App server")
@@ -441,13 +441,6 @@ def handle_web_app_data(
 ) -> None:
     db.touch_user(chat_id)
     language_code = db.get_user_settings(chat_id).language_code
-    if not REQUIRE_ONBOARDING and db.get_active_plan(chat_id).id != "business":
-        telegram.send_message(
-            chat_id,
-            locale_text(language_code, "mini_app_business_only"),
-            reply_markup=main_menu_for_chat(chat_id, db),
-        )
-        return
     try:
         payload = json.loads(web_app_data.get("data") or "{}")
     except json.JSONDecodeError:
@@ -1972,10 +1965,10 @@ def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -
                     source.country,
                     source.language,
                     source.type,
-                    source.name,
+                    display_source_name(source),
                     f"@{username}" if username else "",
                     source.subscribers or "",
-                    source.url,
+                    display_source_url(source),
                     f"/rss off {lookup}".strip(),
                     f"/rss on {lookup}".strip(),
                 ]
@@ -1984,7 +1977,7 @@ def write_sources_table(chat_id: int, db: Database, sources, output_dir: Path) -
             writer.writerow([])
             writer.writerow(["Disabled sources"])
             for row in disabled_rows:
-                writer.writerow([row["source"].name, row["source"].url])
+                writer.writerow([display_source_name(row["source"]), display_source_url(row["source"])])
     return path
 
 
@@ -2019,8 +2012,10 @@ def format_sources(chat_id: int, db: Database, sources) -> str:
         status = "✅" if row["enabled"] else "⛔"
         kind = locale_text(language_code, "source_kind_custom" if row["custom"] else "source_kind_standard")
         source = row["source"]
-        lines.append(f"{display_number}. {status} {escape(source.name)} ({kind}, {escape(source.type)})")
-        lines.append(f"   {escape(source.url)}")
+        lines.append(f"{display_number}. {status} {escape(display_source_name(source))} ({kind}, {escape(source.type)})")
+        source_url = display_source_url(source)
+        if source_url:
+            lines.append(f"   {escape(source_url)}")
     if paid_tg_rows:
         paid_active = sum(1 for row in paid_tg_rows if row["enabled"])
         lines.extend(
@@ -2033,6 +2028,31 @@ def format_sources(chat_id: int, db: Database, sources) -> str:
     lines.append("")
     lines.append(locale_text(language_code, "rss_commands_hint"))
     return "\n".join(lines)
+
+
+def display_source_name(source: Source) -> str:
+    return re.sub(r"\s+via\s+Google\s+News\s*$", "", source.name, flags=re.IGNORECASE).strip() or source.name
+
+
+def display_source_url(source: Source) -> str:
+    if is_google_news_source(source.url):
+        site = google_news_site_query(source.url)
+        return site or ""
+    return source.url
+
+
+def is_google_news_source(url: str) -> bool:
+    host = urlparse(url).netloc.lower()
+    return host.endswith("news.google.com")
+
+
+def google_news_site_query(url: str) -> str:
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query).get("q", [""])[0].strip()
+    match = re.search(r"site:([^\s]+)", query, flags=re.IGNORECASE)
+    if not match:
+        return ""
+    return match.group(1).strip()
 
 
 def source_rows(chat_id: int, db: Database, sources) -> list[dict]:
