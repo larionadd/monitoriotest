@@ -11,6 +11,7 @@
     en: {
       plan: "Plan",
       sources: "Sources",
+      monitoringSources: "total in monitoring",
       today: "Today",
       tabNews: "News",
       tabSettings: "Settings",
@@ -65,6 +66,7 @@
     uk: {
       plan: "Тариф",
       sources: "Джерела",
+      monitoringSources: "усього в моніторингу",
       today: "Сьогодні",
       tabNews: "Новини",
       tabSettings: "Налаштування",
@@ -119,6 +121,7 @@
     ru: {
       plan: "Тариф",
       sources: "Источники",
+      monitoringSources: "всего в мониторинге",
       today: "Сегодня",
       tabNews: "Новости",
       tabSettings: "Настройки",
@@ -173,6 +176,7 @@
     pl: {
       plan: "Pakiet",
       sources: "Źródła",
+      monitoringSources: "łącznie w monitoringu",
       today: "Dzisiaj",
       tabNews: "Wiadomości",
       tabSettings: "Ustawienia",
@@ -227,6 +231,7 @@
     de: {
       plan: "Tarif",
       sources: "Quellen",
+      monitoringSources: "insgesamt im Monitoring",
       today: "Heute",
       tabNews: "Nachrichten",
       tabSettings: "Einstellungen",
@@ -281,6 +286,7 @@
     es: {
       plan: "Tarifa",
       sources: "Fuentes",
+      monitoringSources: "total en monitoreo",
       today: "Hoy",
       tabNews: "Noticias",
       tabSettings: "Ajustes",
@@ -335,6 +341,7 @@
     it: {
       plan: "Piano",
       sources: "Fonti",
+      monitoringSources: "totale nel monitoraggio",
       today: "Oggi",
       tabNews: "Notizie",
       tabSettings: "Impostazioni",
@@ -389,6 +396,7 @@
     be: {
       plan: "Тарыф",
       sources: "Крыніцы",
+      monitoringSources: "усяго ў маніторынгу",
       today: "Сёння",
       tabNews: "Навіны",
       tabSettings: "Налады",
@@ -653,8 +661,13 @@
     if (!data) return;
     $("profileLine").textContent = data.country.label + " - " + data.language.name;
     $("planName").textContent = data.plan.name;
-    $("planMeta").textContent = data.locked ? t("locked") : data.plan.id;
-    $("activeSources").textContent = data.monitoring.active_sources;
+    $("planMeta").textContent = data.locked ? t("locked") : t("plan") + " " + data.plan.name;
+    const activeSources = Number(data.monitoring.active_sources || 0);
+    const monitoringSources = Number(data.monitoring.monitoring_sources || activeSources);
+    $("activeSources").textContent = activeSources;
+    $("sourcesMeta").textContent = monitoringSources > activeSources
+      ? t("sources") + " / " + monitoringSources + " " + t("monitoringSources")
+      : t("sources");
     $("sentToday").textContent = data.monitoring.sent_today + "/" + data.plan.alerts_per_day;
 
     fillSelect($("languageSelect"), data.languages, data.language.code);
@@ -798,6 +811,7 @@
     $("planName").textContent = "-";
     $("planMeta").textContent = "Telegram";
     $("activeSources").textContent = "-";
+    $("sourcesMeta").textContent = t("sources");
     $("sentToday").textContent = "-";
     $("newsList").innerHTML = "";
     $("emptyNews").style.display = "block";

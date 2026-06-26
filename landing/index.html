@@ -1,0 +1,867 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitorio - моніторинг медіа та Telegram</title>
+  <meta name="description" content="Monitorio шукає згадки у новинах, RSS-стрічках і Telegram-каналах за ключовими словами. Автоматичний моніторинг, повний текст, регіони, CSV-звіти.">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --ink: #0e1726;
+      --muted: #607086;
+      --line: #d9e2ee;
+      --blue: #1463d8;
+      --blue-dark: #0d48a7;
+      --green: #158456;
+      --amber: #bd6b12;
+      --panel: rgba(255, 255, 255, .91);
+      --shadow: 0 18px 50px rgba(20, 38, 70, .13);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(217, 226, 238, .74);
+      background: rgba(244, 247, 251, .86);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(1180px, calc(100% - 32px));
+      min-height: 68px;
+      margin: 0 auto;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 20px rgba(20, 99, 216, .12);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .nav-cta,
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      border: 1px solid var(--blue);
+      background: var(--blue);
+      color: #ffffff;
+      font-weight: 850;
+      box-shadow: 0 10px 24px rgba(20, 99, 216, .22);
+    }
+
+    .button.secondary {
+      background: #ffffff;
+      color: var(--blue-dark);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 88svh;
+      overflow: hidden;
+      padding: 122px 0 56px;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(110deg, rgba(244, 247, 251, .98) 0%, rgba(244, 247, 251, .91) 42%, rgba(244, 247, 251, .58) 78%, rgba(244, 247, 251, .92) 100%),
+        linear-gradient(135deg, #e7f0fb 0%, #f7fbf8 43%, #fff7e8 100%);
+    }
+
+    .hero-visual {
+      position: absolute;
+      top: 104px;
+      right: max(-80px, calc((100vw - 1180px) / 2 - 110px));
+      z-index: -1;
+      width: min(720px, 58vw);
+      min-height: 570px;
+      opacity: .94;
+    }
+
+    .phone {
+      position: absolute;
+      top: 18px;
+      right: 28px;
+      width: 320px;
+      min-height: 548px;
+      padding: 18px 14px;
+      border: 1px solid rgba(125, 144, 168, .32);
+      border-radius: 34px;
+      background: rgba(255, 255, 255, .86);
+      box-shadow: 0 26px 80px rgba(20, 38, 70, .18);
+    }
+
+    .screen-title {
+      margin: 7px 4px 13px;
+      font-size: 26px;
+      font-weight: 950;
+    }
+
+    .screen-tabs,
+    .stats,
+    .alert-card,
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow: hidden;
+      border-radius: 13px;
+    }
+
+    .stat {
+      min-height: 72px;
+      padding: 12px;
+      border-right: 1px solid var(--line);
+    }
+
+    .stat:last-child {
+      border-right: 0;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+    }
+
+    .stat span,
+    .alert-card span,
+    .panel span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .screen-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      margin: 12px 0;
+      padding: 5px;
+      border-radius: 13px;
+    }
+
+    .screen-tabs b {
+      display: grid;
+      place-items: center;
+      min-height: 38px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .screen-tabs b:first-child {
+      color: #ffffff;
+      background: var(--blue);
+    }
+
+    .alert-card {
+      margin-top: 11px;
+      padding: 14px;
+      border-radius: 12px;
+    }
+
+    .alert-card h3 {
+      margin: 8px 0 6px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 99px;
+      background: #edf4ff;
+      color: var(--blue-dark);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .panel {
+      position: absolute;
+      left: 0;
+      width: 365px;
+      padding: 16px;
+      border-radius: 14px;
+    }
+
+    .panel.sources {
+      top: 44px;
+    }
+
+    .panel.filters {
+      bottom: 48px;
+      left: 74px;
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .source-row,
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 42px;
+      border-top: 1px solid #e6edf5;
+    }
+
+    .source-row:first-of-type,
+    .filter-row:first-of-type {
+      border-top: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--green);
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero-copy {
+      max-width: 650px;
+      padding-top: 52px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      background: rgba(255, 255, 255, .74);
+      color: var(--blue-dark);
+      font-weight: 850;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 22px 0 18px;
+      max-width: 760px;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: .98;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 610px;
+      margin: 0 0 30px;
+      color: #344158;
+      font-size: 20px;
+      line-height: 1.55;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 34px;
+    }
+
+    .proof {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 620px;
+      gap: 10px;
+    }
+
+    .proof-item {
+      min-height: 82px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .78);
+    }
+
+    .proof-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 20px;
+    }
+
+    .proof-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    section.band {
+      padding: 70px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 26px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      max-width: 700px;
+      font-size: clamp(30px, 4vw, 46px);
+      line-height: 1.06;
+    }
+
+    .section-head p {
+      max-width: 470px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .feature-grid,
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature,
+    .price {
+      min-height: 220px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 12px 34px rgba(20, 38, 70, .07);
+    }
+
+    .icon {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      margin-bottom: 18px;
+      border-radius: 9px;
+      background: #eef5ff;
+      color: var(--blue-dark);
+      font-size: 19px;
+    }
+
+    .feature h3,
+    .price h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+
+    .feature p,
+    .price p,
+    .price li {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .step b {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      background: #f4f7fb;
+      color: var(--blue-dark);
+    }
+
+    .step h3 {
+      margin: 0 0 6px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .report {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101827;
+      color: #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .report h3 {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+
+    .report-line {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 14px;
+      padding: 13px 0;
+      border-top: 1px solid rgba(255, 255, 255, .13);
+    }
+
+    .report-line span {
+      color: #93a4bd;
+    }
+
+    .report-line strong {
+      color: #ffffff;
+    }
+
+    .price ul {
+      margin: 16px 0 0;
+      padding: 0 0 0 18px;
+    }
+
+    .price.highlight {
+      border-color: rgba(20, 99, 216, .42);
+      box-shadow: 0 18px 46px rgba(20, 99, 216, .14);
+    }
+
+    .price-tag {
+      display: block;
+      margin: 6px 0 10px;
+      font-size: 28px;
+      font-weight: 950;
+    }
+
+    .final {
+      padding: 64px 0 78px;
+      background: #101827;
+      color: #ffffff;
+    }
+
+    .final .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .final h2 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 4vw, 48px);
+    }
+
+    .final p {
+      max-width: 620px;
+      margin: 0;
+      color: #b9c5d7;
+      line-height: 1.55;
+    }
+
+    footer {
+      padding: 24px 0;
+      background: #0b1220;
+      color: #93a4bd;
+      font-size: 14px;
+    }
+
+    footer .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    @media (max-width: 980px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-bottom: 36px;
+      }
+
+      .hero-copy {
+        padding-top: 18px;
+      }
+
+      .hero-visual {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        min-height: 580px;
+        margin-top: 36px;
+      }
+
+      .panel.sources {
+        left: 0;
+      }
+
+      .panel.filters {
+        left: 28px;
+      }
+
+      .phone {
+        right: 0;
+      }
+
+      .section-head,
+      .workflow,
+      .final .container {
+        display: block;
+      }
+
+      .section-head p {
+        margin-top: 12px;
+      }
+
+      .feature-grid,
+      .pricing-grid,
+      .proof {
+        grid-template-columns: 1fr;
+      }
+
+      .report {
+        margin-top: 16px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero-visual {
+        min-height: 545px;
+      }
+
+      .phone {
+        width: min(310px, 92vw);
+      }
+
+      .panel {
+        width: min(340px, 92vw);
+      }
+
+      .panel.sources {
+        top: 356px;
+      }
+
+      .panel.filters {
+        display: none;
+      }
+
+      .button,
+      .nav-cta {
+        width: 100%;
+      }
+
+      .final .button {
+        margin-top: 22px;
+      }
+
+      footer .container {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Головна навігація">
+      <a class="brand" href="#top" aria-label="Monitorio">
+        <span class="mark">M</span>
+        <span>Monitorio</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Можливості</a>
+        <a href="#workflow">Як працює</a>
+        <a href="#plans">Тарифи</a>
+      </div>
+      <a class="nav-cta" href="https://t.me/Monitori0bot">Відкрити бота</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-visual" aria-hidden="true">
+        <div class="panel sources">
+          <h3>Джерела</h3>
+          <div class="source-row"><span>Українська правда</span><i class="dot"></i></div>
+          <div class="source-row"><span>BBC Ukraine</span><i class="dot"></i></div>
+          <div class="source-row"><span>Telegram: Trukha</span><i class="dot"></i></div>
+          <div class="source-row"><span>Власні RSS та TG</span><i class="dot"></i></div>
+        </div>
+        <div class="phone">
+          <div class="screen-title">Monitorio</div>
+          <div class="stats">
+            <div class="stat"><strong>Pro</strong><span>Тариф</span></div>
+            <div class="stat"><strong>255</strong><span>Джерела</span></div>
+            <div class="stat"><strong>18/500</strong><span>Сьогодні</span></div>
+          </div>
+          <div class="screen-tabs"><b>Новини</b><b>Фільтри</b><b>Регіон</b><b>Звіти</b></div>
+          <article class="alert-card">
+            <div class="badge-row">
+              <span class="badge">ключ: енергетика</span>
+              <span class="badge">24 Канал</span>
+            </div>
+            <h3>Нова згадка у медіа: уряд оновив план підтримки енергосистеми</h3>
+            <span>Заголовок, анонс, повний текст або приховане посилання.</span>
+          </article>
+          <article class="alert-card">
+            <div class="badge-row">
+              <span class="badge">ключ: sud.ua</span>
+              <span class="badge">Telegram</span>
+            </div>
+            <h3>Знайдено згадку у прихованому посиланні під словом у дописі</h3>
+            <span>Бот перевіряє текст і URL, якщо канал доступний для пошуку.</span>
+          </article>
+        </div>
+        <div class="panel filters">
+          <h3>Фільтри</h3>
+          <div class="filter-row"><span>Ключові слова</span><strong>12</strong></div>
+          <div class="filter-row"><span>Стоп-слова</span><strong>4</strong></div>
+          <div class="filter-row"><span>Регіони</span><strong>UA, PL, UK</strong></div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="hero-copy">
+          <span class="kicker">Медіамоніторинг у Telegram</span>
+          <h1>Знаходьте важливі згадки раніше за всіх</h1>
+          <p class="lead">Monitorio відстежує новини, RSS-стрічки й Telegram-канали за ключовими словами, показує результати в боті та кабінеті, підтримує регіони, мови, повний текст і CSV-звіти.</p>
+          <div class="hero-actions">
+            <a class="button" href="https://t.me/Monitori0bot">Запустити в Telegram</a>
+            <a class="button secondary" href="https://app.monitorio.online">Відкрити кабінет</a>
+          </div>
+          <div class="proof">
+            <div class="proof-item"><strong>24/7</strong><span>автоматичні перевірки за розкладом тарифу</span></div>
+            <div class="proof-item"><strong>RSS + TG</strong><span>новини, канали, власні джерела користувача</span></div>
+            <div class="proof-item"><strong>CSV</strong><span>експорт згадок для звітів і командної роботи</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="features">
+      <div class="container">
+        <div class="section-head">
+          <h2>Один бот для щоденного моніторингу інформаційного поля</h2>
+          <p>Monitorio підходить для PR, юристів, редакцій, бізнесу, аналітиків і команд, яким важливо швидко бачити згадки про теми, бренди, персоналії або ризики.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature">
+            <span class="icon">🔎</span>
+            <h3>Пошук за ключами</h3>
+            <p>Ключові слова прив'язуються до регіону. Користувач може окремо додавати стоп-слова та обов'язкові слова для точнішої видачі.</p>
+          </article>
+          <article class="feature">
+            <span class="icon">📰</span>
+            <h3>Новини й Telegram</h3>
+            <p>Підтримуються RSS, публічні Telegram-канали, платні пакети джерел і власні джерела, які користувач додає самостійно.</p>
+          </article>
+          <article class="feature">
+            <span class="icon">🧾</span>
+            <h3>Повний текст</h3>
+            <p>Швидкий режим перевіряє заголовки й анонси. Режим повного тексту додатково відкриває матеріал і шукає збіги в тілі новини.</p>
+          </article>
+          <article class="feature">
+            <span class="icon">🌍</span>
+            <h3>Регіони та мови</h3>
+            <p>Користувач може змінювати мову інтерфейсу й країну моніторингу, а база джерел розділена за країнами.</p>
+          </article>
+          <article class="feature">
+            <span class="icon">🔗</span>
+            <h3>Приховані посилання</h3>
+            <p>Для Telegram-дописів бот може враховувати URL, які сховані під словами, якщо вони доступні у відкритому перегляді каналу.</p>
+          </article>
+          <article class="feature">
+            <span class="icon">📊</span>
+            <h3>Кабінет і звіти</h3>
+            <p>Mini App показує останні згадки, фільтри, джерела, налаштування, ручну перевірку та CSV-звіт для швидкого експорту.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="workflow">
+      <div class="container">
+        <div class="section-head">
+          <h2>Налаштування займає кілька хвилин</h2>
+          <p>Бот працює прямо в Telegram, а кабінет потрібен для зручного керування джерелами, фільтрами та режимами пошуку.</p>
+        </div>
+        <div class="workflow">
+          <div class="steps">
+            <article class="step">
+              <b>1</b>
+              <div><h3>Оберіть мову та регіон</h3><p>Інтерфейс говорить мовою користувача, а країна визначає базу джерел для моніторингу.</p></div>
+            </article>
+            <article class="step">
+              <b>2</b>
+              <div><h3>Додайте ключові слова</h3><p>Кожен ключ зберігається з регіоном, який був активним у момент додавання.</p></div>
+            </article>
+            <article class="step">
+              <b>3</b>
+              <div><h3>Отримуйте згадки</h3><p>Запускайте перевірку вручну або увімкніть автоматичний моніторинг відповідно до тарифу.</p></div>
+            </article>
+          </div>
+          <aside class="report">
+            <h3>Приклад результату</h3>
+            <div class="report-line"><span>Ключ</span><strong>bitcoin</strong></div>
+            <div class="report-line"><span>Джерело</span><strong>РБК-Україна</strong></div>
+            <div class="report-line"><span>Знайдено</span><strong>заголовок, анонс або повний текст</strong></div>
+            <div class="report-line"><span>Звіт</span><strong>Telegram + CSV</strong></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="band" id="plans">
+      <div class="container">
+        <div class="section-head">
+          <h2>Тарифи для різної інтенсивності моніторингу</h2>
+          <p>Фінальні ціни й ліміти керуються в боті. Лендінг показує логіку пакетів без прив'язки до тимчасових акцій.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price">
+            <h3>Free</h3>
+            <span class="price-tag">Старт</span>
+            <p>Для перевірки ідеї, одного ключового слова та обмеженої кількості результатів.</p>
+            <ul>
+              <li>базові RSS-джерела</li>
+              <li>ручна перевірка</li>
+              <li>обмежений денний ліміт</li>
+            </ul>
+          </article>
+          <article class="price highlight">
+            <h3>Pro</h3>
+            <span class="price-tag">Робота щодня</span>
+            <p>Для регулярного моніторингу, більшої кількості ключів, Telegram-джерел і повного тексту.</p>
+            <ul>
+              <li>автоматичний моніторинг</li>
+              <li>база TG-каналів</li>
+              <li>CSV-звіти</li>
+            </ul>
+          </article>
+          <article class="price">
+            <h3>Business</h3>
+            <span class="price-tag">Команди</span>
+            <p>Для високої частоти перевірок, постійного моніторингу та великої бази джерел.</p>
+            <ul>
+              <li>часті перевірки</li>
+              <li>розширені ліміти</li>
+              <li>пріоритет для масштабування</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="final">
+      <div class="container">
+        <div>
+          <h2>Запустіть Monitorio у Telegram</h2>
+          <p>Додайте перший ключ, оберіть країну моніторингу й перевірте, як бот знаходить згадки у ваших джерелах.</p>
+        </div>
+        <a class="button" href="https://t.me/Monitori0bot">Почати зараз</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <span>© 2026 Monitorio</span>
+      <span>Media and Telegram monitoring</span>
+    </div>
+  </footer>
+</body>
+</html>

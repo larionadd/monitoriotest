@@ -178,6 +178,7 @@ def api_state(chat_id: int, db: Database, sources: list[Source], require_busines
     disabled = set(monitoring.disabled_source_urls)
     keyword_countries = {keyword.country_code for keyword in monitoring.keywords} or {settings.country_code}
     enabled_sources = db.get_enabled_sources(chat_id, sources, keyword_countries)
+    selected_country_sources = db.get_enabled_sources(chat_id, sources, {settings.country_code})
     country_sources = [source for source in sources if normalize_country(source.country) == settings.country_code]
     paid_tg = [
         source
@@ -230,7 +231,9 @@ def api_state(chat_id: int, db: Database, sources: list[Source], require_busines
             "auto": monitoring.auto_monitoring_enabled,
             "full_text": monitoring.full_text_enabled,
             "sent_today": db.sent_today_count(chat_id),
-            "active_sources": len(enabled_sources),
+            "active_sources": len(selected_country_sources),
+            "monitoring_sources": len(enabled_sources),
+            "monitoring_countries": sorted(keyword_countries),
             "keywords": [
                 {
                     "phrase": keyword.phrase,
