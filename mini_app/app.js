@@ -594,7 +594,10 @@
       helpFiltersTitle: "Filter logic",
       helpFiltersText: "Keywords work as OR logic. Stop words block results. Required words add an extra condition.",
       helpSourcesTitle: "Sources and reports",
-      helpSourcesText: "In Sources you can add RSS or Telegram channels, manage TG packages, and request a CSV source file."
+      helpSourcesText: "In Sources you can add RSS or Telegram channels, manage TG packages, and request a CSV source file.",
+      helpSupportTitle: "Support",
+      helpSupportText: "Have a question or a suggestion? Write to our support team and we'll help.",
+      helpSupportButton: "Contact support"
     },
     uk: {
       tabHelp: "Допомога",
@@ -607,7 +610,10 @@
       helpFiltersTitle: "Логіка фільтрів",
       helpFiltersText: "Ключі працюють за логікою OR. Стоп-слова блокують результат. Обов'язкові слова додають додаткову умову.",
       helpSourcesTitle: "Джерела і звіти",
-      helpSourcesText: "У Джерелах можна додавати RSS або Telegram-канали, керувати TG-пакетами і замовити CSV-файл джерел."
+      helpSourcesText: "У Джерелах можна додавати RSS або Telegram-канали, керувати TG-пакетами і замовити CSV-файл джерел.",
+      helpSupportTitle: "Підтримка",
+      helpSupportText: "Виникло питання чи побажання? Напишіть у підтримку — і ми допоможемо.",
+      helpSupportButton: "Написати в підтримку"
     },
     ru: {
       tabHelp: "Помощь",
@@ -620,7 +626,10 @@
       helpFiltersTitle: "Логика фильтров",
       helpFiltersText: "Ключи работают по логике OR. Стоп-слова блокируют результат. Обязательные слова добавляют дополнительное условие.",
       helpSourcesTitle: "Источники и отчеты",
-      helpSourcesText: "В Источниках можно добавлять RSS или Telegram-каналы, управлять TG-пакетами и запросить CSV-файл источников."
+      helpSourcesText: "В Источниках можно добавлять RSS или Telegram-каналы, управлять TG-пакетами и запросить CSV-файл источников.",
+      helpSupportTitle: "Поддержка",
+      helpSupportText: "Возник вопрос или пожелание? Напишите в поддержку — и мы поможем.",
+      helpSupportButton: "Написать в поддержку"
     },
     pl: {
       tabHelp: "Pomoc",
@@ -633,7 +642,10 @@
       helpFiltersTitle: "Logika filtrów",
       helpFiltersText: "Słowa kluczowe działają w logice OR. Stop words blokują wynik. Wymagane słowa dodają warunek dodatkowy.",
       helpSourcesTitle: "Źródła i raporty",
-      helpSourcesText: "W Źródłach możesz dodawać RSS lub kanały Telegram, zarządzać pakietami TG i poprosić o plik CSV źródeł."
+      helpSourcesText: "W Źródłach możesz dodawać RSS lub kanały Telegram, zarządzać pakietami TG i poprosić o plik CSV źródeł.",
+      helpSupportTitle: "Wsparcie",
+      helpSupportText: "Masz pytanie lub sugestię? Napisz do naszego wsparcia, a pomożemy.",
+      helpSupportButton: "Napisz do wsparcia"
     },
     de: {
       tabHelp: "Hilfe",
@@ -646,7 +658,10 @@
       helpFiltersTitle: "Filterlogik",
       helpFiltersText: "Keywords arbeiten mit OR-Logik. Stop-Wörter blockieren Ergebnisse. Pflichtwörter ergänzen eine Zusatzbedingung.",
       helpSourcesTitle: "Quellen und Berichte",
-      helpSourcesText: "In Quellen können Sie RSS oder Telegram-Kanäle hinzufügen, TG-Pakete verwalten und eine CSV-Quelldatei anfordern."
+      helpSourcesText: "In Quellen können Sie RSS oder Telegram-Kanäle hinzufügen, TG-Pakete verwalten und eine CSV-Quelldatei anfordern.",
+      helpSupportTitle: "Support",
+      helpSupportText: "Frage oder Vorschlag? Schreiben Sie unserem Support, wir helfen gern.",
+      helpSupportButton: "Support kontaktieren"
     },
     es: {
       tabHelp: "Ayuda",
@@ -659,7 +674,10 @@
       helpFiltersTitle: "Lógica de filtros",
       helpFiltersText: "Las palabras clave funcionan con lógica OR. Las palabras de bloqueo excluyen resultados. Las palabras obligatorias añaden una condición.",
       helpSourcesTitle: "Fuentes e informes",
-      helpSourcesText: "En Fuentes puede añadir RSS o canales de Telegram, gestionar paquetes TG y solicitar un CSV de fuentes."
+      helpSourcesText: "En Fuentes puede añadir RSS o canales de Telegram, gestionar paquetes TG y solicitar un CSV de fuentes.",
+      helpSupportTitle: "Soporte",
+      helpSupportText: "¿Tienes una pregunta o sugerencia? Escribe a soporte y te ayudaremos.",
+      helpSupportButton: "Contactar soporte"
     },
     it: {
       tabHelp: "Aiuto",
@@ -672,7 +690,10 @@
       helpFiltersTitle: "Logica dei filtri",
       helpFiltersText: "Le parole chiave usano la logica OR. Le stop word bloccano i risultati. Le parole obbligatorie aggiungono una condizione.",
       helpSourcesTitle: "Fonti e report",
-      helpSourcesText: "In Fonti puoi aggiungere RSS o canali Telegram, gestire pacchetti TG e richiedere un file CSV delle fonti."
+      helpSourcesText: "In Fonti puoi aggiungere RSS o canali Telegram, gestire pacchetti TG e richiedere un file CSV delle fonti.",
+      helpSupportTitle: "Supporto",
+      helpSupportText: "Hai una domanda o un suggerimento? Scrivi al supporto e ti aiuteremo.",
+      helpSupportButton: "Contatta il supporto"
     },
     be: {
       tabHelp: "Дапамога",
@@ -685,7 +706,10 @@
       helpFiltersTitle: "Логіка фільтраў",
       helpFiltersText: "Ключы працуюць па логіцы OR. Стоп-словы блакуюць вынік. Абавязковыя словы дадаюць дадатковую ўмову.",
       helpSourcesTitle: "Крыніцы і справаздачы",
-      helpSourcesText: "У Крыніцах можна дадаваць RSS або Telegram-каналы, кіраваць TG-пакетамі і запытаць CSV-файл крыніц."
+      helpSourcesText: "У Крыніцах можна дадаваць RSS або Telegram-каналы, кіраваць TG-пакетамі і запытаць CSV-файл крыніц.",
+      helpSupportTitle: "Падтрымка",
+      helpSupportText: "Узнікла пытанне ці пажаданне? Напішыце ў падтрымку — і мы дапаможам.",
+      helpSupportButton: "Напісаць у падтрымку"
     }
   };
   Object.keys(paymentLabels).forEach((language) => {
@@ -693,6 +717,51 @@
   });
   Object.keys(helpLabels).forEach((language) => {
     labels[language] = Object.assign(labels[language] || {}, helpLabels[language]);
+  });
+
+  const cryptoStatusLabels = {
+    en: {
+      cryptoStatusTitle: "Crypto payment",
+      cryptoStatusWaiting: "Waiting for payment",
+      cryptoStatusConfirming: "Payment is confirming",
+      cryptoStatusPaid: "Payment received",
+      cryptoStatusFailed: "Payment failed or expired",
+      cryptoStatusUnknown: "Payment status",
+      cryptoOpenInvoice: "Open invoice",
+      crypto_unavailable: "Crypto payments are not configured yet.",
+      crypto_checkout_failed: "Could not create crypto invoice. Try again later.",
+      stars_checkout_failed: "Could not open Telegram Stars payment.",
+      unknown_payment_method: "Unknown payment method."
+    },
+    uk: {
+      cryptoStatusTitle: "Crypto-оплата",
+      cryptoStatusWaiting: "Очікуємо оплату",
+      cryptoStatusConfirming: "Оплата підтверджується",
+      cryptoStatusPaid: "Оплату отримано",
+      cryptoStatusFailed: "Оплата не пройшла або минув час",
+      cryptoStatusUnknown: "Статус оплати",
+      cryptoOpenInvoice: "Відкрити рахунок",
+      crypto_unavailable: "Crypto-оплата ще не налаштована.",
+      crypto_checkout_failed: "Не вдалося створити crypto-рахунок. Спробуйте пізніше.",
+      stars_checkout_failed: "Не вдалося відкрити оплату Telegram Stars.",
+      unknown_payment_method: "Невідомий спосіб оплати."
+    },
+    ru: {
+      cryptoStatusTitle: "Crypto-оплата",
+      cryptoStatusWaiting: "Ожидаем оплату",
+      cryptoStatusConfirming: "Оплата подтверждается",
+      cryptoStatusPaid: "Оплата получена",
+      cryptoStatusFailed: "Оплата не прошла или истекла",
+      cryptoStatusUnknown: "Статус оплаты",
+      cryptoOpenInvoice: "Открыть счет",
+      crypto_unavailable: "Crypto-оплата еще не настроена.",
+      crypto_checkout_failed: "Не удалось создать crypto-счет. Попробуйте позже.",
+      stars_checkout_failed: "Не удалось открыть оплату Telegram Stars.",
+      unknown_payment_method: "Неизвестный способ оплаты."
+    }
+  };
+  Object.keys(cryptoStatusLabels).forEach((language) => {
+    labels[language] = Object.assign(labels[language] || {}, cryptoStatusLabels[language]);
   });
 
   const $ = (id) => document.getElementById(id);
@@ -732,6 +801,19 @@
   $("plansButton").addEventListener("click", () => activateTab("plans"));
   $("plansRefreshButton").addEventListener("click", loadAll);
   $("sourcesFileButton").addEventListener("click", () => sendToChat({ action: "sources_file" }));
+
+  const supportLink = $("supportLink");
+  if (supportLink) {
+    supportLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      const url = supportLink.getAttribute("href");
+      if (tg && typeof tg.openTelegramLink === "function") {
+        tg.openTelegramLink(url);
+      } else {
+        openLink(url);
+      }
+    });
+  }
 
   $("languageSelect").addEventListener("change", (event) => {
     const language = event.target.value;
@@ -1024,6 +1106,7 @@
     if (!root) return;
     root.innerHTML = "";
     const plans = payments && payments.plans || [];
+    renderCryptoStatus(root, payments && payments.crypto_status);
     if (!plans.length) {
       const empty = document.createElement("div");
       empty.className = "empty-state";
@@ -1058,6 +1141,39 @@
       });
       root.appendChild(card);
     });
+  }
+
+  function renderCryptoStatus(root, status) {
+    if (!status) return;
+    const card = document.createElement("article");
+    card.className = "crypto-status-card";
+    const normalized = String(status.status || "").toLowerCase();
+    const paid = Boolean(status.paid_at) || ["confirmed", "finished"].includes(normalized);
+    const failed = ["failed", "expired", "refunded"].includes(normalized);
+    const confirming = ["confirming", "confirmed", "sending"].includes(normalized);
+    const label = paid
+      ? t("cryptoStatusPaid")
+      : failed
+        ? t("cryptoStatusFailed")
+        : confirming
+          ? t("cryptoStatusConfirming")
+          : normalized
+            ? t("cryptoStatusWaiting")
+            : t("cryptoStatusUnknown");
+    card.innerHTML = [
+      "<div>",
+      "<strong>" + escapeHtml(t("cryptoStatusTitle")) + "</strong>",
+      "<p>" + escapeHtml(label) + " · " + escapeHtml(status.amount || "") + " " + escapeHtml(status.currency || "") + "</p>",
+      "</div>",
+      status.invoice_url && !paid && !failed
+        ? '<button class="compact-button" type="button">' + escapeHtml(t("cryptoOpenInvoice")) + "</button>"
+        : ""
+    ].join("");
+    const button = card.querySelector("button");
+    if (button) {
+      button.addEventListener("click", () => openLink(status.invoice_url));
+    }
+    root.appendChild(card);
   }
 
   function renderSourceOverview(sources) {
@@ -1187,7 +1303,7 @@
       setStatus(t("paymentOpening"));
       const result = await apiPost("/api/checkout", { plan_id: planId, method });
       if (!result.ok || !result.url) {
-        setStatus(result.error || t("checkoutError"));
+        setStatus(t(result.error || "checkoutError"));
         return;
       }
       if (result.open_with === "invoice" && tg && typeof tg.openInvoice === "function") {

@@ -1704,12 +1704,14 @@ def create_crypto_invoice(chat_id: int, plan: Plan, db: Database):
 
 def mini_app_payment_options(chat_id: int, db: Database) -> dict:
     language_code = db.get_user_settings(chat_id).language_code
+    latest_crypto = db.latest_crypto_payment(chat_id)
     return {
         "methods": {
             "stars": True,
             "crypto": crypto_enabled(),
         },
         "currency": CRYPTO_PRICE_CURRENCY.upper(),
+        "crypto_status": crypto_payment_status_payload(latest_crypto) if latest_crypto else None,
         "plans": [
             {
                 "id": plan.id,
@@ -1741,6 +1743,8 @@ def mini_app_checkout(chat_id: int, payload: dict, db: Database, telegram: Teleg
             logging.exception("Could not create Telegram Stars invoice link for chat_id=%s plan=%s", chat_id, plan.id)
             return {"ok": False, "error": "stars_checkout_failed"}
     if method == "crypto":
+        if not crypto_enabled():
+            return {"ok": False, "error": "crypto_unavailable"}
         try:
             invoice = create_crypto_invoice(chat_id, plan, db)
             return {
@@ -1748,11 +1752,27 @@ def mini_app_checkout(chat_id: int, payload: dict, db: Database, telegram: Teleg
                 "method": "crypto",
                 "open_with": "link",
                 "url": invoice.invoice_url,
+                "order_id": invoice.raw.get("order_id") or "",
+                "invoice_id": invoice.invoice_id,
             }
         except NowPaymentsError:
             logging.exception("Could not create NOWPayments invoice for chat_id=%s plan=%s", chat_id, plan.id)
             return {"ok": False, "error": "crypto_checkout_failed"}
     return {"ok": False, "error": "unknown_payment_method"}
+
+
+def crypto_payment_status_payload(row) -> dict:
+    return {
+        "order_id": row["order_id"],
+        "plan_id": row["plan_id"],
+        "amount": row["price_amount"],
+        "currency": str(row["price_currency"]).upper(),
+        "status": row["status"],
+        "invoice_url": row["invoice_url"],
+        "created_at": row["created_at"],
+        "updated_at": row["updated_at"],
+        "paid_at": row["paid_at"] or "",
+    }
 
 
 def handle_nowpayments_ipn(
@@ -1860,7 +1880,12 @@ def handle_successful_payment(chat_id: int, payment: dict, db: Database, telegra
         telegram_payment_charge_id=payment.get("telegram_payment_charge_id"),
         provider_payment_charge_id=payment.get("provider_payment_charge_id"),
     )
-    expires = db.activate_plan(chat_id, plan.id)
+    if recorded:
+        expires = db.activate_plan(chat_id, plan.id)
+    else:
+        # Дубль апдейта successful_payment (повтор getUpdates / рестарт) — не продовжуємо підписку вдруге.
+        subscription = db.get_subscription(chat_id)
+        expires = subscription["expires_at"] if subscription else db.activate_plan(chat_id, plan.id)
     status = locale_text(language_code, "payment_status_activated" if recorded else "payment_status_already")
     telegram.send_message(
         chat_id,
@@ -2796,4 +2821,3 @@ def format_remove_result(language_code: str, label: str, value: str, removed: bo
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

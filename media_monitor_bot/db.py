@@ -53,8 +53,9 @@ class Database:
 
     @contextmanager
     def connect(self):
-        conn = sqlite3.connect(self.path)
+        conn = sqlite3.connect(self.path, timeout=10)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA busy_timeout=10000")
         try:
             yield conn
             conn.commit()
@@ -514,6 +515,19 @@ class Database:
             return conn.execute(
                 "SELECT * FROM crypto_payments WHERE order_id = ?",
                 (order_id,),
+            ).fetchone()
+
+    def latest_crypto_payment(self, chat_id: int) -> sqlite3.Row | None:
+        with self.connect() as conn:
+            return conn.execute(
+                """
+                SELECT *
+                FROM crypto_payments
+                WHERE chat_id = ?
+                ORDER BY created_at DESC, id DESC
+                LIMIT 1
+                """,
+                (chat_id,),
             ).fetchone()
 
     def update_crypto_payment_status(

@@ -488,6 +488,29 @@ select {
   gap: 10px;
 }
 
+.crypto-status-card {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.crypto-status-card strong {
+  display: block;
+}
+
+.crypto-status-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
 .help-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -511,6 +534,29 @@ select {
   color: var(--muted);
   font-size: 14px;
   line-height: 1.45;
+}
+
+.help-support {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.support-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 2px;
+  padding: 0 16px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: var(--primary);
+  border: 1px solid var(--primary);
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
 }
 
 .plan-card {
@@ -721,6 +767,11 @@ select {
 
   .plans-grid {
     grid-template-columns: 1fr;
+  }
+
+  .crypto-status-card {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .help-grid {

@@ -99,4 +99,4 @@ def _sort_json(value: Any) -> Any:
     return value
 
 
-PAID_PAYMENT_STATUSES = {"confirmed", "finished"}
+PAID_PAYMENT_STATUSES = {"paid", "confirmed", "finished"}
