@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="uk">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Monitorio - моніторинг медіа та Telegram</title>
-  <meta name="description" content="Monitorio шукає згадки у новинах, RSS-стрічках і Telegram-каналах за ключовими словами. Автоматичний моніторинг, повний текст, регіони, CSV-звіти.">
+  <title>Monitorio - media and Telegram monitoring</title>
+  <meta name="description" content="Monitorio tracks mentions in news, RSS feeds, and Telegram channels by keywords. Automatic monitoring, regions, full text, CSV reports.">
   <style>
     :root {
       color-scheme: light;
@@ -364,36 +364,6 @@
       margin-bottom: 34px;
     }
 
-    .language-panel {
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin: 0 0 20px;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255, 255, 255, .82);
-      box-shadow: 0 12px 32px rgba(20, 38, 70, .08);
-    }
-
-    .language-panel span {
-      color: var(--muted);
-      font-weight: 800;
-      font-size: 14px;
-    }
-
-    .language-panel select {
-      min-height: 38px;
-      padding: 0 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #ffffff;
-      color: var(--ink);
-      font: inherit;
-      font-weight: 800;
-    }
-
     .proof {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -616,6 +586,11 @@
       gap: 16px;
     }
 
+    .reveal-on-scroll {
+      opacity: 1;
+      transform: none;
+    }
+
     @media (max-width: 980px) {
       .nav-links {
         display: none;
@@ -673,6 +648,55 @@
     }
 
     @media (max-width: 560px) {
+      .topbar {
+        position: sticky;
+      }
+
+      .nav {
+        width: min(100% - 20px, 1180px);
+        min-height: 58px;
+        gap: 8px;
+      }
+
+      .brand {
+        gap: 7px;
+        font-size: 17px;
+      }
+
+      .mark {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+      }
+
+      .language-switcher {
+        min-height: 36px;
+        padding: 0 6px;
+      }
+
+      .language-switcher span {
+        display: none;
+      }
+
+      .language-switcher select {
+        width: 82px;
+        min-height: 28px;
+        font-size: 12px;
+      }
+
+      .topbar .nav-cta {
+        flex: 0 0 auto;
+        width: auto;
+        min-height: 36px;
+        padding: 0 10px;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .hero {
+        padding-top: 48px;
+      }
+
       .hero-visual {
         min-height: 545px;
       }
@@ -693,9 +717,27 @@
         display: none;
       }
 
-      .button,
-      .nav-cta {
+      .button {
         width: 100%;
+      }
+
+      .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity .55s ease, transform .55s ease;
+      }
+
+      .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reveal-on-scroll {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
       }
 
       .final .button {
@@ -782,19 +824,6 @@
 
       <div class="container">
         <div class="hero-copy">
-          <div class="language-panel">
-            <span data-i18n="chooseLanguage">Оберіть мову перед початком роботи</span>
-            <select class="language-select" aria-label="Language">
-              <option value="en">English</option>
-              <option value="uk">Українська</option>
-              <option value="pl">Polski</option>
-              <option value="de">Deutsch</option>
-              <option value="es">Español</option>
-              <option value="it">Italiano</option>
-              <option value="be">Беларуская</option>
-              <option value="ru">Русский</option>
-            </select>
-          </div>
           <span class="kicker" data-i18n="kicker">Медіамоніторинг у Telegram</span>
           <h1 data-i18n="heroTitle">Контролюйте інформаційне поле потрібної країни з одного Telegram-бота</h1>
           <p class="lead" data-i18n="heroLead">Monitorio знаходить згадки за ключовими словами у медіа, RSS і Telegram. Оберіть країну моніторингу, додавайте власні сайти або канали й отримуйте потрібні новини без ручного перегляду десятків джерел.</p>
@@ -1771,11 +1800,11 @@
       document.querySelectorAll(".language-select").forEach((select) => {
         select.value = selected;
       });
-      localStorage.setItem("monitorioLandingLanguage", selected);
+      localStorage.setItem(storageKey, selected);
     }
 
-    const browserLanguage = (navigator.language || "en").slice(0, 2);
-    const initialLanguage = localStorage.getItem("monitorioLandingLanguage") || (translations[browserLanguage] ? browserLanguage : "en");
+    const storageKey = "monitorioLandingLanguageV2";
+    const initialLanguage = localStorage.getItem(storageKey) || "en";
     document.querySelectorAll(".language-select").forEach((select) => {
       select.addEventListener("change", (event) => applyLanguage(event.target.value));
       [...select.options].forEach((option) => {
@@ -1783,6 +1812,29 @@
       });
     });
     applyLanguage(initialLanguage);
+
+    document.querySelectorAll(".feature, .step, .report, .price, .final .container").forEach((node) => {
+      node.classList.add("reveal-on-scroll");
+    });
+
+    if ("IntersectionObserver" in window) {
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.16, rootMargin: "0px 0px -8% 0px" });
+
+      document.querySelectorAll(".reveal-on-scroll").forEach((node) => {
+        revealObserver.observe(node);
+      });
+    } else {
+      document.querySelectorAll(".reveal-on-scroll").forEach((node) => {
+        node.classList.add("is-visible");
+      });
+    }
   </script>
 </body>
 </html>
