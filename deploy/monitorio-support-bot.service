@@ -1,0 +1,19 @@
+[Unit]
+Description=Monitorio Support Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=media-monitor
+Group=media-monitor
+WorkingDirectory=/opt/media-monitor-bot
+EnvironmentFile=/etc/media-monitor-bot/support-bot.env
+ExecStart=/opt/media-monitor-bot/.venv/bin/python -m media_monitor_bot.support_bot
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/media-monitor-bot/support.out.log
+StandardError=append:/var/log/media-monitor-bot/support.err.log
+
+[Install]
+WantedBy=multi-user.target
