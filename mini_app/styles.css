@@ -488,6 +488,31 @@ select {
   gap: 10px;
 }
 
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.help-card {
+  padding: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.help-card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.help-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .plan-card {
   display: grid;
   gap: 10px;
@@ -590,6 +615,21 @@ select {
   font-size: 13px;
 }
 
+.source-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.source-actions .compact-button {
+  min-height: 30px;
+  padding: 0 8px;
+}
+
+.danger-button {
+  color: var(--red);
+}
+
 .muted-line {
   margin: 0;
   color: var(--muted);
@@ -670,7 +710,20 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .source-row {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .source-actions {
+    justify-content: flex-end;
+  }
+
   .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-grid {
     grid-template-columns: 1fr;
   }
 

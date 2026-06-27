@@ -14,7 +14,7 @@ import requests
 import brotli
 from bs4 import BeautifulSoup
 
-from .config import Config, Source
+from .config import Config, Source, clean_source_display_name
 from .db import Database
 from .locales import normalize_country, template_text
 from .matching import allowed_by_filters, contains_phrase
@@ -235,7 +235,7 @@ def fetch_rss(source: Source, timeout: int) -> list[Article]:
             continue
         articles.append(
             Article(
-                source=source.name,
+                source=clean_source_display_name(source.name),
                 title=title,
                 url=url,
                 published_at=entry_published(entry),
@@ -276,7 +276,7 @@ def fetch_telegram_channel(source: Source, timeout: int) -> list[Article]:
         title = text[:160]
         articles.append(
             Article(
-                source=source.name,
+                source=clean_source_display_name(source.name),
                 title=title,
                 url=url,
                 published_at=published_at,

@@ -12,7 +12,7 @@ from typing import Callable, Mapping
 from urllib.parse import parse_qsl, unquote, urlparse
 
 from .billing import plan_text
-from .config import Source
+from .config import Source, clean_source_display_name
 from .db import Database, normalize_url, source_allowed_for_plan
 from .locales import (
     COUNTRIES,
@@ -342,6 +342,21 @@ def api_action(
             db.enable_sources(chat_id, urls)
         else:
             db.disable_sources(chat_id, urls)
+    elif action == "source_toggle":
+        url = str(payload.get("url") or value).strip()
+        enabled = bool(payload.get("enabled"))
+        if not url:
+            return {"ok": False, "error": "bad_source", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
+        if enabled:
+            db.enable_source(chat_id, url)
+        else:
+            db.disable_source(chat_id, url)
+    elif action == "remove_source":
+        url = str(payload.get("url") or value).strip()
+        if not url:
+            return {"ok": False, "error": "bad_source", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
+        db.remove_user_source(chat_id, url)
+        db.enable_source(chat_id, url)
     elif action == "add_rss":
         plan = db.get_active_plan(chat_id)
         if len(db.get_user_monitoring(chat_id).custom_sources) >= plan.max_custom_sources:
@@ -397,7 +412,7 @@ def summarize_sources(sources: list[Source], disabled: set[str]) -> dict:
 def source_items(sources: list[Source], disabled: set[str], limit: int) -> list[dict]:
     return [
         {
-            "name": source.name,
+            "name": clean_source_display_name(source.name),
             "url": source.url,
             "type": source.type,
             "rank": source.rank,

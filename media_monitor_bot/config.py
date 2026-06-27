@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -19,6 +20,11 @@ class Source:
     subscribers: int | None = None
     country: str = "ua"
     language: str = ""
+
+
+def clean_source_display_name(name: str) -> str:
+    cleaned = re.sub(r"\s+via\s+Google\s+News\s*$", "", str(name or ""), flags=re.IGNORECASE).strip()
+    return cleaned or str(name or "").strip()
 
 
 @dataclass(frozen=True)

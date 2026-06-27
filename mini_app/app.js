@@ -581,8 +581,118 @@
       paymentMethods: "Варыянты аплаты"
     }
   };
+
+  const helpLabels = {
+    en: {
+      tabHelp: "Help",
+      helpTitle: "How Monitorio works",
+      helpIntro: "Monitorio tracks mentions in online media, RSS feeds, and public Telegram channels.",
+      helpQuickTitle: "Quick start",
+      helpQuickText: "Choose a region, add keywords in Filters, then run a manual check or enable automatic monitoring.",
+      helpRegionTitle: "Region logic",
+      helpRegionText: "Each keyword is linked to the monitoring region selected when you add it.",
+      helpFiltersTitle: "Filter logic",
+      helpFiltersText: "Keywords work as OR logic. Stop words block results. Required words add an extra condition.",
+      helpSourcesTitle: "Sources and reports",
+      helpSourcesText: "In Sources you can add RSS or Telegram channels, manage TG packages, and request a CSV source file."
+    },
+    uk: {
+      tabHelp: "Допомога",
+      helpTitle: "Як працює Monitorio",
+      helpIntro: "Monitorio відстежує згадки в онлайн-медіа, RSS-стрічках і публічних Telegram-каналах.",
+      helpQuickTitle: "Швидкий старт",
+      helpQuickText: "Оберіть регіон, додайте ключі у Фільтрах, потім запустіть ручну перевірку або увімкніть автоматичний моніторинг.",
+      helpRegionTitle: "Логіка регіонів",
+      helpRegionText: "Кожен ключ прив'язується до регіону, який був обраний у момент додавання ключа.",
+      helpFiltersTitle: "Логіка фільтрів",
+      helpFiltersText: "Ключі працюють за логікою OR. Стоп-слова блокують результат. Обов'язкові слова додають додаткову умову.",
+      helpSourcesTitle: "Джерела і звіти",
+      helpSourcesText: "У Джерелах можна додавати RSS або Telegram-канали, керувати TG-пакетами і замовити CSV-файл джерел."
+    },
+    ru: {
+      tabHelp: "Помощь",
+      helpTitle: "Как работает Monitorio",
+      helpIntro: "Monitorio отслеживает упоминания в онлайн-медиа, RSS-лентах и публичных Telegram-каналах.",
+      helpQuickTitle: "Быстрый старт",
+      helpQuickText: "Выберите регион, добавьте ключи в Фильтрах, затем запустите ручную проверку или включите автоматический мониторинг.",
+      helpRegionTitle: "Логика регионов",
+      helpRegionText: "Каждый ключ привязывается к региону, который был выбран в момент добавления ключа.",
+      helpFiltersTitle: "Логика фильтров",
+      helpFiltersText: "Ключи работают по логике OR. Стоп-слова блокируют результат. Обязательные слова добавляют дополнительное условие.",
+      helpSourcesTitle: "Источники и отчеты",
+      helpSourcesText: "В Источниках можно добавлять RSS или Telegram-каналы, управлять TG-пакетами и запросить CSV-файл источников."
+    },
+    pl: {
+      tabHelp: "Pomoc",
+      helpTitle: "Jak działa Monitorio",
+      helpIntro: "Monitorio śledzi wzmianki w mediach online, kanałach RSS i publicznych kanałach Telegram.",
+      helpQuickTitle: "Szybki start",
+      helpQuickText: "Wybierz region, dodaj słowa kluczowe w Filtrach, a potem uruchom ręczne sprawdzenie albo monitoring automatyczny.",
+      helpRegionTitle: "Logika regionów",
+      helpRegionText: "Każde słowo kluczowe jest powiązane z regionem wybranym w momencie jego dodania.",
+      helpFiltersTitle: "Logika filtrów",
+      helpFiltersText: "Słowa kluczowe działają w logice OR. Stop words blokują wynik. Wymagane słowa dodają warunek dodatkowy.",
+      helpSourcesTitle: "Źródła i raporty",
+      helpSourcesText: "W Źródłach możesz dodawać RSS lub kanały Telegram, zarządzać pakietami TG i poprosić o plik CSV źródeł."
+    },
+    de: {
+      tabHelp: "Hilfe",
+      helpTitle: "So funktioniert Monitorio",
+      helpIntro: "Monitorio verfolgt Erwähnungen in Online-Medien, RSS-Feeds und öffentlichen Telegram-Kanälen.",
+      helpQuickTitle: "Schnellstart",
+      helpQuickText: "Wählen Sie eine Region, fügen Sie Keywords in Filtern hinzu und starten Sie dann eine manuelle Prüfung oder automatisches Monitoring.",
+      helpRegionTitle: "Regionenlogik",
+      helpRegionText: "Jedes Keyword wird mit der Monitoring-Region verknüpft, die beim Hinzufügen ausgewählt war.",
+      helpFiltersTitle: "Filterlogik",
+      helpFiltersText: "Keywords arbeiten mit OR-Logik. Stop-Wörter blockieren Ergebnisse. Pflichtwörter ergänzen eine Zusatzbedingung.",
+      helpSourcesTitle: "Quellen und Berichte",
+      helpSourcesText: "In Quellen können Sie RSS oder Telegram-Kanäle hinzufügen, TG-Pakete verwalten und eine CSV-Quelldatei anfordern."
+    },
+    es: {
+      tabHelp: "Ayuda",
+      helpTitle: "Cómo funciona Monitorio",
+      helpIntro: "Monitorio rastrea menciones en medios online, RSS y canales públicos de Telegram.",
+      helpQuickTitle: "Inicio rápido",
+      helpQuickText: "Elija una región, añada palabras clave en Filtros y luego ejecute una comprobación manual o active el monitoreo automático.",
+      helpRegionTitle: "Lógica de regiones",
+      helpRegionText: "Cada palabra clave se vincula a la región seleccionada en el momento de añadirla.",
+      helpFiltersTitle: "Lógica de filtros",
+      helpFiltersText: "Las palabras clave funcionan con lógica OR. Las palabras de bloqueo excluyen resultados. Las palabras obligatorias añaden una condición.",
+      helpSourcesTitle: "Fuentes e informes",
+      helpSourcesText: "En Fuentes puede añadir RSS o canales de Telegram, gestionar paquetes TG y solicitar un CSV de fuentes."
+    },
+    it: {
+      tabHelp: "Aiuto",
+      helpTitle: "Come funziona Monitorio",
+      helpIntro: "Monitorio monitora menzioni in media online, feed RSS e canali Telegram pubblici.",
+      helpQuickTitle: "Avvio rapido",
+      helpQuickText: "Scegli una regione, aggiungi parole chiave nei Filtri, poi avvia un controllo manuale o abilita il monitoraggio automatico.",
+      helpRegionTitle: "Logica delle regioni",
+      helpRegionText: "Ogni parola chiave viene collegata alla regione selezionata al momento dell'aggiunta.",
+      helpFiltersTitle: "Logica dei filtri",
+      helpFiltersText: "Le parole chiave usano la logica OR. Le stop word bloccano i risultati. Le parole obbligatorie aggiungono una condizione.",
+      helpSourcesTitle: "Fonti e report",
+      helpSourcesText: "In Fonti puoi aggiungere RSS o canali Telegram, gestire pacchetti TG e richiedere un file CSV delle fonti."
+    },
+    be: {
+      tabHelp: "Дапамога",
+      helpTitle: "Як працуе Monitorio",
+      helpIntro: "Monitorio адсочвае згадкі ў анлайн-медыя, RSS-стужках і публічных Telegram-каналах.",
+      helpQuickTitle: "Хуткі старт",
+      helpQuickText: "Выберыце рэгіён, дадайце ключы ў Фільтрах, потым запусціце ручную праверку або аўтаматычны маніторынг.",
+      helpRegionTitle: "Логіка рэгіёнаў",
+      helpRegionText: "Кожны ключ прывязваецца да рэгіёна, які быў выбраны ў момант дадання ключа.",
+      helpFiltersTitle: "Логіка фільтраў",
+      helpFiltersText: "Ключы працуюць па логіцы OR. Стоп-словы блакуюць вынік. Абавязковыя словы дадаюць дадатковую ўмову.",
+      helpSourcesTitle: "Крыніцы і справаздачы",
+      helpSourcesText: "У Крыніцах можна дадаваць RSS або Telegram-каналы, кіраваць TG-пакетамі і запытаць CSV-файл крыніц."
+    }
+  };
   Object.keys(paymentLabels).forEach((language) => {
     labels[language] = Object.assign(labels[language] || {}, paymentLabels[language]);
+  });
+  Object.keys(helpLabels).forEach((language) => {
+    labels[language] = Object.assign(labels[language] || {}, helpLabels[language]);
   });
 
   const $ = (id) => document.getElementById(id);
@@ -840,7 +950,7 @@
       card.innerHTML = [
         '<div class="news-meta">',
         '<span class="badge">' + escapeHtml(item.keyword || "") + "</span>",
-        '<span class="badge">' + escapeHtml(item.source || "") + "</span>",
+        '<span class="badge">' + escapeHtml(displaySourceName(item.source || "")) + "</span>",
         '<span class="badge">' + escapeHtml(formatDate(item.sent_at || item.published_at)) + "</span>",
         "</div>",
         "<h3>" + escapeHtml(item.title || "") + "</h3>",
@@ -954,11 +1064,11 @@
     const root = $("sourceList");
     root.innerHTML = "";
     const groups = [
-      ["RSS", sources.standard_items || []],
-      ["TG", sources.paid_telegram_items || []],
-      ["Custom", sources.custom_items || []]
+      ["RSS", sources.standard_items || [], false],
+      ["TG", sources.paid_telegram_items || [], false],
+      ["Custom", sources.custom_items || [], true]
     ];
-    groups.forEach(([title, items]) => {
+    groups.forEach(([title, items, isCustom]) => {
       const section = document.createElement("section");
       section.className = "source-section";
       const heading = document.createElement("h3");
@@ -975,11 +1085,27 @@
         row.className = "source-row";
         row.innerHTML = [
           "<span>",
-          "<strong>" + escapeHtml(item.name || item.url || "") + "</strong>",
+          "<strong>" + escapeHtml(displaySourceName(item.name || item.url || "")) + "</strong>",
           "<small>" + escapeHtml(sourceMeta(item)) + "</small>",
           "</span>",
-          '<b class="' + (item.active ? "dot is-active" : "dot") + '"></b>'
+          '<div class="source-actions">',
+          '<b class="' + (item.active ? "dot is-active" : "dot") + '"></b>',
+          '<button class="compact-button" type="button" data-action="toggle">' + escapeHtml(item.active ? t("off") : t("on")) + "</button>",
+          isCustom ? '<button class="compact-button danger-button" type="button" data-action="remove">' + escapeHtml(t("remove")) + "</button>" : "",
+          "</div>"
         ].join("");
+        const toggleButton = row.querySelector('button[data-action="toggle"]');
+        toggleButton.addEventListener("click", () => {
+          send({ action: "source_toggle", url: item.url, enabled: !item.active });
+          setTimeout(loadAll, 800);
+        });
+        const removeButton = row.querySelector('button[data-action="remove"]');
+        if (removeButton) {
+          removeButton.addEventListener("click", () => {
+            send({ action: "remove_source", url: item.url });
+            setTimeout(loadAll, 800);
+          });
+        }
         section.appendChild(row);
       });
       root.appendChild(section);
@@ -1112,6 +1238,11 @@
     if (item.subscribers) parts.push(formatNumber(item.subscribers));
     if (item.type) parts.push(item.type);
     return parts.join(" · ") || item.url || "";
+  }
+
+  function displaySourceName(value) {
+    const cleaned = String(value || "").replace(/\s+via\s+Google\s+News\s*$/i, "").trim();
+    return cleaned || String(value || "");
   }
 
   function formatNumber(value) {

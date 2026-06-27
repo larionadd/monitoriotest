@@ -17,7 +17,7 @@ from typing import Mapping
 from urllib.parse import parse_qs, urlparse
 
 from .billing import PLANS, Plan, paid_plans, plan_by_id
-from .config import Config, Source, load_config
+from .config import Config, Source, clean_source_display_name, load_config
 from .db import Database, normalize_url, source_allowed_for_plan
 from .locales import (
     COUNTRIES,
@@ -220,13 +220,7 @@ CRYPTO_MESSAGES = {
 
 
 def main_menu_for_chat(chat_id: int, db: Database) -> dict:
-    language_code = db.get_user_settings(chat_id).language_code
-    keyboard = menu_keyboard(language_code, MAIN_MENU_ROWS)
-    if MINI_APP_URL:
-        keyboard.insert(0, [{"text": button_label(language_code, "app"), "web_app": {"url": MINI_APP_URL}}])
-    if REQUIRE_ONBOARDING:
-        keyboard.insert(-1, [{"text": button_label(language_code, "settings")}])
-    return menu_markup(keyboard)
+    return {"remove_keyboard": True}
 
 
 def filter_menu_for_chat(chat_id: int, db: Database) -> dict:
@@ -2588,7 +2582,7 @@ def format_sources(chat_id: int, db: Database, sources) -> str:
 
 
 def display_source_name(source: Source) -> str:
-    return re.sub(r"\s+via\s+Google\s+News\s*$", "", source.name, flags=re.IGNORECASE).strip() or source.name
+    return clean_source_display_name(source.name)
 
 
 def display_source_url(source: Source) -> str:

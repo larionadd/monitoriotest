@@ -38,6 +38,7 @@
       <button class="tab" data-tab="filters" data-i18n="tabFilters" type="button">Filters</button>
       <button class="tab" data-tab="sources" data-i18n="tabSources" type="button">Sources</button>
       <button class="tab" data-tab="plans" data-i18n="tabPlans" type="button">Plans</button>
+      <button class="tab" data-tab="help" data-i18n="tabHelp" type="button">Help</button>
     </nav>
 
     <section class="tab-panel is-active" data-panel="news">
@@ -101,6 +102,33 @@
       <div class="plans-grid" id="plansGrid"></div>
     </section>
 
+    <section class="tab-panel help-panel" data-panel="help">
+      <div class="toolbar">
+        <div>
+          <h2 data-i18n="helpTitle">Help</h2>
+          <small data-i18n="helpIntro">Monitorio tracks mentions in media, RSS feeds, and public Telegram channels.</small>
+        </div>
+      </div>
+      <div class="help-grid">
+        <article class="help-card">
+          <strong data-i18n="helpQuickTitle">Quick start</strong>
+          <p data-i18n="helpQuickText">Choose a region, add keywords in Filters, then run a manual check or enable automatic monitoring.</p>
+        </article>
+        <article class="help-card">
+          <strong data-i18n="helpRegionTitle">Region logic</strong>
+          <p data-i18n="helpRegionText">Each keyword is linked to the monitoring region selected when you add it.</p>
+        </article>
+        <article class="help-card">
+          <strong data-i18n="helpFiltersTitle">Filter logic</strong>
+          <p data-i18n="helpFiltersText">Keywords work as OR logic. Stop words block results. Required words add an extra condition.</p>
+        </article>
+        <article class="help-card">
+          <strong data-i18n="helpSourcesTitle">Sources and reports</strong>
+          <p data-i18n="helpSourcesText">In Sources you can add RSS or Telegram channels, manage TG packages, and request a CSV source file.</p>
+        </article>
+      </div>
+    </section>
+
     <section class="tab-panel" data-panel="filters">
       <div class="input-card">
         <label class="field">
@@ -135,7 +163,7 @@
     <section class="tab-panel" data-panel="sources">
       <div class="source-stats">
         <div><strong id="standardSources">-</strong><small>RSS/standard</small></div>
-        <div><strong id="paidSources">-</strong><small>Paid TG</small></div>
+        <div><strong id="paidSources">-</strong><small>TG</small></div>
         <div><strong id="customSources">-</strong><small>Custom</small></div>
       </div>
 
