@@ -38,6 +38,8 @@ def start_static_server(
     sources: list[Source] | None = None,
     require_business: bool = True,
     nowpayments_ipn_handler: Callable[[bytes, Mapping[str, str]], tuple[int, dict]] | None = None,
+    payment_options_handler: Callable[[int], dict] | None = None,
+    checkout_handler: Callable[[int, dict], dict] | None = None,
 ) -> ThreadingHTTPServer:
     root = static_path.resolve()
     source_list = sources or []
@@ -107,7 +109,13 @@ def start_static_server(
                 self.send_json({"error": "bad_json"}, status=400)
                 return
             if parsed.path == "/api/action":
-                self.send_json(api_action(chat_id, payload, db, source_list, require_business))
+                self.send_json(api_action(chat_id, payload, db, source_list, require_business, payment_options_handler))
+                return
+            if parsed.path == "/api/checkout":
+                if not checkout_handler:
+                    self.send_json({"ok": False, "error": "checkout_unavailable"}, status=503)
+                    return
+                self.send_json(checkout_handler(chat_id, payload))
                 return
             self.send_json({"error": "not_found"}, status=404)
 
@@ -120,7 +128,7 @@ def start_static_server(
                 self.send_json({"error": "unauthorized"}, status=401)
                 return
             if path == "/api/state":
-                self.send_json(api_state(chat_id, db, source_list, require_business))
+                self.send_json(api_state(chat_id, db, source_list, require_business, payment_options_handler))
                 return
             if path == "/api/recent":
                 self.send_json(api_recent(chat_id, db))
@@ -182,7 +190,13 @@ def validate_init_data(init_data: str, bot_token: str) -> int | None:
         return None
 
 
-def api_state(chat_id: int, db: Database, sources: list[Source], require_business: bool) -> dict:
+def api_state(
+    chat_id: int,
+    db: Database,
+    sources: list[Source],
+    require_business: bool,
+    payment_options_handler: Callable[[int], dict] | None = None,
+) -> dict:
     settings = db.get_user_settings(chat_id)
     monitoring = db.get_user_monitoring(chat_id)
     plan = db.get_active_plan(chat_id)
@@ -266,10 +280,18 @@ def api_state(chat_id: int, db: Database, sources: list[Source], require_busines
             "paid_telegram_items": source_items(paid_tg, disabled, limit=100),
             "tg_blocks": tg_blocks_state(paid_tg, disabled),
         },
+        "payments": payment_options_handler(chat_id) if payment_options_handler else {"plans": [], "methods": {}},
     }
 
 
-def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source], require_business: bool) -> dict:
+def api_action(
+    chat_id: int,
+    payload: dict,
+    db: Database,
+    sources: list[Source],
+    require_business: bool,
+    payment_options_handler: Callable[[int], dict] | None = None,
+) -> dict:
     action = str(payload.get("action") or "").strip()
     value = str(payload.get("value") or "").strip()
     settings = db.get_user_settings(chat_id)
@@ -281,7 +303,7 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
     elif action == "add_keyword":
         plan = db.get_active_plan(chat_id)
         if len(db.get_user_monitoring(chat_id).keywords) >= plan.max_keywords:
-            return {"ok": False, "error": "keyword_limit", "state": api_state(chat_id, db, sources, require_business)}
+            return {"ok": False, "error": "keyword_limit", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
         db.add_keyword(chat_id, value)
     elif action == "remove_keyword":
         db.remove_keyword(chat_id, value)
@@ -302,7 +324,7 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
             return {
                 "ok": False,
                 "error": "fulltext_unavailable",
-                "state": api_state(chat_id, db, sources, require_business),
+                "state": api_state(chat_id, db, sources, require_business, payment_options_handler),
             }
         db.set_full_text_enabled(chat_id, enabled)
     elif action == "tg_block":
@@ -312,7 +334,7 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
             block_number = 0
         enabled = bool(payload.get("enabled"))
         if block_number <= 0:
-            return {"ok": False, "error": "bad_block", "state": api_state(chat_id, db, sources, require_business)}
+            return {"ok": False, "error": "bad_block", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
         paid_tg = paid_tg_sources(chat_id, db, sources)
         block = paid_tg[(block_number - 1) * 50 : block_number * 50]
         urls = [source.url for source in block]
@@ -323,11 +345,11 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
     elif action == "add_rss":
         plan = db.get_active_plan(chat_id)
         if len(db.get_user_monitoring(chat_id).custom_sources) >= plan.max_custom_sources:
-            return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business)}
+            return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
         try:
             feed = discover_rss_feed(value)
         except RssDiscoveryError:
-            return {"ok": False, "error": "invalid_rss_url", "state": api_state(chat_id, db, sources, require_business)}
+            return {"ok": False, "error": "invalid_rss_url", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
         db.add_user_source(
             chat_id,
             Source(feed.title or source_name_from_value(feed.url), feed.url, "rss", country=settings.country_code),
@@ -335,17 +357,17 @@ def api_action(chat_id: int, payload: dict, db: Database, sources: list[Source],
     elif action == "add_tg":
         plan = db.get_active_plan(chat_id)
         if len(db.get_user_monitoring(chat_id).custom_sources) >= plan.max_custom_sources:
-            return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business)}
+            return {"ok": False, "error": "custom_source_limit", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
         url = telegram_source_url(value)
         if not valid_http_url(url) or "t.me/s/" not in url:
-            return {"ok": False, "error": "invalid_tg_url", "state": api_state(chat_id, db, sources, require_business)}
+            return {"ok": False, "error": "invalid_tg_url", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
         db.add_user_source(
             chat_id,
             Source(source_name_from_value(value), url, "telegram", country=settings.country_code),
         )
     else:
-        return {"ok": False, "error": "unknown_action", "state": api_state(chat_id, db, sources, require_business)}
-    return {"ok": True, "state": api_state(chat_id, db, sources, require_business)}
+        return {"ok": False, "error": "unknown_action", "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
+    return {"ok": True, "state": api_state(chat_id, db, sources, require_business, payment_options_handler)}
 
 
 def api_recent(chat_id: int, db: Database) -> dict:

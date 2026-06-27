@@ -81,6 +81,31 @@ class TelegramApi:
         )
         response.raise_for_status()
 
+    def create_invoice_link(
+        self,
+        title: str,
+        description: str,
+        payload: str,
+        prices: list[dict[str, Any]],
+    ) -> str:
+        response = requests.post(
+            f"{self.base_url}/createInvoiceLink",
+            json={
+                "title": title,
+                "description": description,
+                "payload": payload,
+                "provider_token": "",
+                "currency": "XTR",
+                "prices": prices,
+            },
+            timeout=self.timeout,
+        )
+        response.raise_for_status()
+        payload_json = response.json()
+        if not payload_json.get("ok"):
+            raise RuntimeError(payload_json)
+        return str(payload_json["result"])
+
     def answer_pre_checkout_query(
         self,
         pre_checkout_query_id: str,

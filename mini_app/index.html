@@ -37,6 +37,7 @@
       <button class="tab" data-tab="settings" data-i18n="tabSettings" type="button">Settings</button>
       <button class="tab" data-tab="filters" data-i18n="tabFilters" type="button">Filters</button>
       <button class="tab" data-tab="sources" data-i18n="tabSources" type="button">Sources</button>
+      <button class="tab" data-tab="plans" data-i18n="tabPlans" type="button">Plans</button>
     </nav>
 
     <section class="tab-panel is-active" data-panel="news">
@@ -87,6 +88,17 @@
       <div class="action-row">
         <button class="secondary-button" id="plansButton" data-i18n="plans" type="button">Plans</button>
       </div>
+    </section>
+
+    <section class="tab-panel" data-panel="plans">
+      <div class="toolbar">
+        <div>
+          <h2 data-i18n="plansTitle">Choose a plan</h2>
+          <small data-i18n="plansHint">Pay with Telegram Stars or crypto without leaving the cabinet.</small>
+        </div>
+        <button class="compact-button" id="plansRefreshButton" data-i18n="refresh" type="button">Refresh</button>
+      </div>
+      <div class="plans-grid" id="plansGrid"></div>
     </section>
 
     <section class="tab-panel" data-panel="filters">

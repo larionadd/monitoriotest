@@ -499,6 +499,8 @@ def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> 
             sources=sources,
             require_business=False,
             nowpayments_ipn_handler=lambda raw_body, headers: handle_nowpayments_ipn(raw_body, headers, db, telegram),
+            payment_options_handler=lambda chat_id: mini_app_payment_options(chat_id, db),
+            checkout_handler=lambda chat_id, payload: mini_app_checkout(chat_id, payload, db, telegram),
         )
     except Exception:
         logging.exception("Не вдалося запустити Mini App server")
@@ -1629,6 +1631,17 @@ def send_plan_invoice(chat_id: int, plan_id: str, db: Database, telegram: Telegr
     )
 
 
+def create_stars_invoice_link(chat_id: int, plan: Plan, db: Database, telegram: TelegramApi) -> str:
+    language_code = db.get_user_settings(chat_id).language_code
+    payload = f"plan:{plan.id}:{chat_id}:{int(time.time())}"
+    return telegram.create_invoice_link(
+        title=locale_text(language_code, "invoice_title", plan=plan.name, days=plan.days),
+        description=plan_description(language_code, plan),
+        payload=payload,
+        prices=[{"label": locale_text(language_code, "invoice_price_label", plan=plan.name, days=plan.days), "amount": plan.stars}],
+    )
+
+
 def send_crypto_invoice(chat_id: int, plan_id: str, db: Database, telegram: TelegramApi) -> None:
     language_code = db.get_user_settings(chat_id).language_code
     plan = plan_by_id(plan_id.strip())
@@ -1642,31 +1655,12 @@ def send_crypto_invoice(chat_id: int, plan_id: str, db: Database, telegram: Tele
     if not amount:
         telegram.send_message(chat_id, crypto_text(language_code, "unavailable"), reply_markup=main_menu_for_chat(chat_id, db))
         return
-    order_id = f"crypto-{chat_id}-{plan.id}-{int(time.time())}-{secrets.token_hex(4)}"
     try:
-        invoice = NOWPAYMENTS_CLIENT.create_invoice(
-            price_amount=amount,
-            price_currency=CRYPTO_PRICE_CURRENCY,
-            order_id=order_id,
-            order_description=f"Monitorio {plan.name} plan for {plan.days} days",
-            ipn_callback_url=NOWPAYMENTS_IPN_CALLBACK_URL,
-            success_url=CRYPTO_SUCCESS_URL,
-            cancel_url=CRYPTO_CANCEL_URL,
-        )
+        invoice = create_crypto_invoice(chat_id, plan, db)
     except NowPaymentsError:
         logging.exception("NOWPayments invoice failed for chat_id=%s plan=%s", chat_id, plan.id)
         telegram.send_message(chat_id, crypto_text(language_code, "failed"), reply_markup=main_menu_for_chat(chat_id, db))
         return
-    db.record_crypto_invoice(
-        chat_id=chat_id,
-        plan_id=plan.id,
-        order_id=order_id,
-        price_amount=str(amount),
-        price_currency=CRYPTO_PRICE_CURRENCY,
-        provider_invoice_id=invoice.invoice_id,
-        invoice_url=invoice.invoice_url,
-        raw_payload=json.dumps(invoice.raw, ensure_ascii=False),
-    )
     telegram.send_message(
         chat_id,
         crypto_text(
@@ -1683,6 +1677,88 @@ def send_crypto_invoice(chat_id: int, plan_id: str, db: Database, telegram: Tele
             ]
         },
     )
+
+
+def create_crypto_invoice(chat_id: int, plan: Plan, db: Database):
+    if not crypto_enabled() or NOWPAYMENTS_CLIENT is None:
+        raise NowPaymentsError("NOWPayments is not configured")
+    amount = CRYPTO_PLAN_PRICES.get(plan.id)
+    if not amount:
+        raise NowPaymentsError(f"No crypto price for plan {plan.id}")
+    order_id = f"crypto-{chat_id}-{plan.id}-{int(time.time())}-{secrets.token_hex(4)}"
+    invoice = NOWPAYMENTS_CLIENT.create_invoice(
+        price_amount=amount,
+        price_currency=CRYPTO_PRICE_CURRENCY,
+        order_id=order_id,
+        order_description=f"Monitorio {plan.name} plan for {plan.days} days",
+        ipn_callback_url=NOWPAYMENTS_IPN_CALLBACK_URL,
+        success_url=CRYPTO_SUCCESS_URL,
+        cancel_url=CRYPTO_CANCEL_URL,
+    )
+    db.record_crypto_invoice(
+        chat_id=chat_id,
+        plan_id=plan.id,
+        order_id=order_id,
+        price_amount=str(amount),
+        price_currency=CRYPTO_PRICE_CURRENCY,
+        provider_invoice_id=invoice.invoice_id,
+        invoice_url=invoice.invoice_url,
+        raw_payload=json.dumps(invoice.raw, ensure_ascii=False),
+    )
+    return invoice
+
+
+def mini_app_payment_options(chat_id: int, db: Database) -> dict:
+    language_code = db.get_user_settings(chat_id).language_code
+    return {
+        "methods": {
+            "stars": True,
+            "crypto": crypto_enabled(),
+        },
+        "currency": CRYPTO_PRICE_CURRENCY.upper(),
+        "plans": [
+            {
+                "id": plan.id,
+                "name": plan.name,
+                "days": plan.days,
+                "stars": plan.stars,
+                "crypto_amount": str(CRYPTO_PLAN_PRICES[plan.id]) if crypto_enabled() and plan.id in CRYPTO_PLAN_PRICES else "",
+                "description": plan_description(language_code, plan),
+            }
+            for plan in paid_plans()
+        ],
+    }
+
+
+def mini_app_checkout(chat_id: int, payload: dict, db: Database, telegram: TelegramApi) -> dict:
+    method = str(payload.get("method") or "").strip().lower()
+    plan = plan_by_id(str(payload.get("plan_id") or payload.get("plan") or "").strip())
+    if plan.id == "free":
+        return {"ok": False, "error": "unknown_plan"}
+    if method == "stars":
+        try:
+            return {
+                "ok": True,
+                "method": "stars",
+                "open_with": "invoice",
+                "url": create_stars_invoice_link(chat_id, plan, db, telegram),
+            }
+        except Exception:
+            logging.exception("Could not create Telegram Stars invoice link for chat_id=%s plan=%s", chat_id, plan.id)
+            return {"ok": False, "error": "stars_checkout_failed"}
+    if method == "crypto":
+        try:
+            invoice = create_crypto_invoice(chat_id, plan, db)
+            return {
+                "ok": True,
+                "method": "crypto",
+                "open_with": "link",
+                "url": invoice.invoice_url,
+            }
+        except NowPaymentsError:
+            logging.exception("Could not create NOWPayments invoice for chat_id=%s plan=%s", chat_id, plan.id)
+            return {"ok": False, "error": "crypto_checkout_failed"}
+    return {"ok": False, "error": "unknown_payment_method"}
 
 
 def handle_nowpayments_ipn(
@@ -1731,7 +1807,7 @@ def handle_nowpayments_ipn(
             args=(int(row["chat_id"]), plan, expires, db.get_user_settings(int(row["chat_id"])).language_code, db, telegram),
             daemon=True,
             name="nowpayments-notify",
-        )
+        ).start()
     return 200, {"ok": True, "status": status, "activated": newly_paid}
 
 

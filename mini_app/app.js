@@ -458,6 +458,132 @@
     }
   };
 
+  const paymentLabels = {
+    en: {
+      tabPlans: "Plans",
+      plansTitle: "Choose a plan",
+      plansHint: "Pay with Telegram Stars or crypto without leaving the cabinet.",
+      currentPlan: "Current plan",
+      starsPay: "Pay with Stars",
+      cryptoPay: "Pay crypto",
+      validDays: "{days} days",
+      noCrypto: "Crypto unavailable",
+      paymentOpening: "Opening payment window...",
+      paymentPaid: "Payment received. Refreshing cabinet...",
+      paymentPending: "Payment window closed. Refresh the cabinet after payment.",
+      checkoutError: "Could not open payment. Try again.",
+      paymentMethods: "Payment options"
+    },
+    uk: {
+      tabPlans: "Тарифи",
+      plansTitle: "Оберіть тариф",
+      plansHint: "Оплачуйте Telegram Stars або криптою без виходу з Кабінету.",
+      currentPlan: "Поточний тариф",
+      starsPay: "Оплатити Stars",
+      cryptoPay: "Оплатити криптою",
+      validDays: "{days} днів",
+      noCrypto: "Крипто недоступна",
+      paymentOpening: "Відкриваю оплату...",
+      paymentPaid: "Оплату отримано. Оновлюю Кабінет...",
+      paymentPending: "Вікно оплати закрито. Оновіть Кабінет після оплати.",
+      checkoutError: "Не вдалося відкрити оплату. Спробуйте ще раз.",
+      paymentMethods: "Варіанти оплати"
+    },
+    ru: {
+      tabPlans: "Тарифы",
+      plansTitle: "Выберите тариф",
+      plansHint: "Оплачивайте Telegram Stars или криптой без выхода из Кабинета.",
+      currentPlan: "Текущий тариф",
+      starsPay: "Оплатить Stars",
+      cryptoPay: "Оплатить криптой",
+      validDays: "{days} дней",
+      noCrypto: "Крипто недоступна",
+      paymentOpening: "Открываю оплату...",
+      paymentPaid: "Оплата получена. Обновляю Кабинет...",
+      paymentPending: "Окно оплаты закрыто. Обновите Кабинет после оплаты.",
+      checkoutError: "Не удалось открыть оплату. Попробуйте еще раз.",
+      paymentMethods: "Варианты оплаты"
+    },
+    pl: {
+      tabPlans: "Plany",
+      plansTitle: "Wybierz plan",
+      plansHint: "Płać Telegram Stars albo krypto bez opuszczania panelu.",
+      currentPlan: "Aktualny plan",
+      starsPay: "Zapłać Stars",
+      cryptoPay: "Zapłać krypto",
+      validDays: "{days} dni",
+      noCrypto: "Krypto niedostępne",
+      paymentOpening: "Otwieranie płatności...",
+      paymentPaid: "Płatność otrzymana. Odświeżam panel...",
+      paymentPending: "Okno płatności zamknięte. Odśwież panel po płatności.",
+      checkoutError: "Nie udało się otworzyć płatności. Spróbuj ponownie.",
+      paymentMethods: "Opcje płatności"
+    },
+    de: {
+      tabPlans: "Tarife",
+      plansTitle: "Tarif wählen",
+      plansHint: "Zahlen Sie mit Telegram Stars oder Krypto, ohne das Kabinett zu verlassen.",
+      currentPlan: "Aktueller Tarif",
+      starsPay: "Mit Stars zahlen",
+      cryptoPay: "Mit Krypto zahlen",
+      validDays: "{days} Tage",
+      noCrypto: "Krypto nicht verfügbar",
+      paymentOpening: "Zahlung wird geöffnet...",
+      paymentPaid: "Zahlung erhalten. Kabinett wird aktualisiert...",
+      paymentPending: "Zahlungsfenster geschlossen. Aktualisieren Sie das Kabinett nach der Zahlung.",
+      checkoutError: "Zahlung konnte nicht geöffnet werden. Versuchen Sie es erneut.",
+      paymentMethods: "Zahlungsoptionen"
+    },
+    es: {
+      tabPlans: "Planes",
+      plansTitle: "Elija un plan",
+      plansHint: "Pague con Telegram Stars o cripto sin salir del panel.",
+      currentPlan: "Plan actual",
+      starsPay: "Pagar con Stars",
+      cryptoPay: "Pagar con cripto",
+      validDays: "{days} días",
+      noCrypto: "Cripto no disponible",
+      paymentOpening: "Abriendo pago...",
+      paymentPaid: "Pago recibido. Actualizando panel...",
+      paymentPending: "Ventana de pago cerrada. Actualice el panel después del pago.",
+      checkoutError: "No se pudo abrir el pago. Inténtelo de nuevo.",
+      paymentMethods: "Opciones de pago"
+    },
+    it: {
+      tabPlans: "Piani",
+      plansTitle: "Scegli un piano",
+      plansHint: "Paga con Telegram Stars o crypto senza uscire dal pannello.",
+      currentPlan: "Piano attuale",
+      starsPay: "Paga con Stars",
+      cryptoPay: "Paga con crypto",
+      validDays: "{days} giorni",
+      noCrypto: "Crypto non disponibile",
+      paymentOpening: "Apertura pagamento...",
+      paymentPaid: "Pagamento ricevuto. Aggiorno il pannello...",
+      paymentPending: "Finestra di pagamento chiusa. Aggiorna il pannello dopo il pagamento.",
+      checkoutError: "Impossibile aprire il pagamento. Riprova.",
+      paymentMethods: "Opzioni di pagamento"
+    },
+    be: {
+      tabPlans: "Тарыфы",
+      plansTitle: "Выберыце тарыф",
+      plansHint: "Аплачвайце Telegram Stars або крыптай без выхаду з Кабінета.",
+      currentPlan: "Бягучы тарыф",
+      starsPay: "Аплаціць Stars",
+      cryptoPay: "Аплаціць крыптай",
+      validDays: "{days} дзён",
+      noCrypto: "Крыпта недаступная",
+      paymentOpening: "Адкрываю аплату...",
+      paymentPaid: "Аплата атрымана. Абнаўляю Кабінет...",
+      paymentPending: "Акно аплаты закрыта. Абнавіце Кабінет пасля аплаты.",
+      checkoutError: "Не ўдалося адкрыць аплату. Паспрабуйце яшчэ раз.",
+      paymentMethods: "Варыянты аплаты"
+    }
+  };
+  Object.keys(paymentLabels).forEach((language) => {
+    labels[language] = Object.assign(labels[language] || {}, paymentLabels[language]);
+  });
+
   const $ = (id) => document.getElementById(id);
   const statusText = $("statusText");
 
@@ -492,7 +618,8 @@
   $("refreshButton").addEventListener("click", loadAll);
   $("checkButton").addEventListener("click", () => sendToChat({ action: "check" }));
   $("reportButton").addEventListener("click", () => sendToChat({ action: "report" }));
-  $("plansButton").addEventListener("click", () => sendToChat({ action: "plans" }));
+  $("plansButton").addEventListener("click", () => activateTab("plans"));
+  $("plansRefreshButton").addEventListener("click", loadAll);
   $("sourcesFileButton").addEventListener("click", () => sendToChat({ action: "sources_file" }));
 
   $("languageSelect").addEventListener("change", (event) => {
@@ -690,6 +817,7 @@
     renderTermChips("stopChips", data.monitoring.stop_words || [], "remove_stop_word");
     renderTermChips("plusChips", data.monitoring.plus_words || [], "remove_plus_word");
     renderSources(data.sources);
+    renderPlans(data.payments);
   }
 
   function renderNews() {
@@ -774,6 +902,47 @@
         });
       });
       root.appendChild(row);
+    });
+  }
+
+  function renderPlans(payments) {
+    const root = $("plansGrid");
+    if (!root) return;
+    root.innerHTML = "";
+    const plans = payments && payments.plans || [];
+    if (!plans.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.style.display = "block";
+      empty.innerHTML = "<strong>" + escapeHtml(t("plansTitle")) + "</strong><span>-</span>";
+      root.appendChild(empty);
+      return;
+    }
+    plans.forEach((plan) => {
+      const card = document.createElement("article");
+      card.className = "plan-card" + (state.data && state.data.plan && state.data.plan.id === plan.id ? " is-current" : "");
+      const cryptoAvailable = Boolean(plan.crypto_amount);
+      card.innerHTML = [
+        "<header>",
+        "<h3>" + escapeHtml(plan.name) + "</h3>",
+        state.data && state.data.plan && state.data.plan.id === plan.id
+          ? '<small class="badge">' + escapeHtml(t("currentPlan")) + "</small>"
+          : '<small>' + escapeHtml(formatTemplate(t("validDays"), { days: plan.days })) + "</small>",
+        "</header>",
+        '<div class="plan-price-row">',
+        '<div class="plan-price"><span>Telegram Stars</span><strong>' + escapeHtml(plan.stars) + " ⭐</strong></div>",
+        '<div class="plan-price"><span>USDT</span><strong>' + (cryptoAvailable ? escapeHtml(plan.crypto_amount + " " + (payments.currency || "USD")) : escapeHtml(t("noCrypto"))) + "</strong></div>",
+        "</div>",
+        "<p>" + escapeHtml(plan.description || "") + "</p>",
+        '<div class="plan-actions">',
+        '<button class="primary-button" type="button" data-method="stars">' + escapeHtml(t("starsPay")) + "</button>",
+        '<button class="secondary-button" type="button" data-method="crypto"' + (cryptoAvailable ? "" : " disabled") + ">" + escapeHtml(t("cryptoPay")) + "</button>",
+        "</div>"
+      ].join("");
+      card.querySelectorAll("button[data-method]").forEach((button) => {
+        button.addEventListener("click", () => startCheckout(plan.id, button.dataset.method));
+      });
+      root.appendChild(card);
     });
   }
 
@@ -871,6 +1040,39 @@
     sendToChat(payload);
   }
 
+  async function startCheckout(planId, method) {
+    if (!tg || !tg.initData) {
+      setStatus(t("openTelegram"));
+      return;
+    }
+    try {
+      setStatus(t("paymentOpening"));
+      const result = await apiPost("/api/checkout", { plan_id: planId, method });
+      if (!result.ok || !result.url) {
+        setStatus(result.error || t("checkoutError"));
+        return;
+      }
+      if (result.open_with === "invoice" && tg && typeof tg.openInvoice === "function") {
+        tg.openInvoice(result.url, (status) => {
+          if (status === "paid") {
+            setStatus(t("paymentPaid"));
+            setTimeout(loadAll, 1200);
+          } else {
+            setStatus(t("paymentPending"));
+            setTimeout(loadAll, 1200);
+          }
+        });
+      } else {
+        openLink(result.url);
+        setStatus(t("paymentPending"));
+        setTimeout(loadAll, 1500);
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus(t("checkoutError"));
+    }
+  }
+
   function sendToChat(payload) {
     if (!tg || !tg.sendData) {
       setStatus(t("openTelegram"));
@@ -886,6 +1088,10 @@
 
   function setStatus(text) {
     statusText.textContent = text || "";
+  }
+
+  function formatTemplate(template, values) {
+    return String(template || "").replace(/\{(\w+)\}/g, (_, key) => values[key] == null ? "" : String(values[key]));
   }
 
   function sourceMeta(item) {

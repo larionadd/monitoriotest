@@ -42,6 +42,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
 .app-shell {
   width: 100%;
   max-width: 980px;
@@ -149,15 +154,21 @@ small,
   position: sticky;
   top: 0;
   z-index: 5;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
   gap: 4px;
+  overflow-x: auto;
   margin-bottom: 10px;
   padding: 5px;
   border-radius: 12px;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
+  flex: 1 0 94px;
   min-height: 42px;
   padding: 0 8px;
   color: var(--muted);
@@ -461,6 +472,71 @@ select {
   gap: 8px;
 }
 
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.plan-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.plan-card.is-current {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.plan-card h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.plan-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.plan-price-row {
+  display: grid;
+  gap: 6px;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 30px;
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.plan-price strong {
+  font-size: 15px;
+}
+
+.plan-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.plan-actions .primary-button,
+.plan-actions .secondary-button {
+  width: 100%;
+}
+
 .source-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -584,13 +660,20 @@ select {
     grid-template-columns: 1fr;
   }
 
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
   .summary-cell,
   .source-stats div {
     padding: 10px 8px;
   }
 
   .tab {
-    font-size: 13px;
+    flex-basis: 86px;
+    min-height: 38px;
+    padding: 0 4px;
+    font-size: 12px;
   }
 
   .block-row {
