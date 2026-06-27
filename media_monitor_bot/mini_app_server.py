@@ -8,6 +8,7 @@ import mimetypes
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
+from typing import Callable, Mapping
 from urllib.parse import parse_qsl, unquote, urlparse
 
 from .billing import plan_text
@@ -36,6 +37,7 @@ def start_static_server(
     db: Database | None = None,
     sources: list[Source] | None = None,
     require_business: bool = True,
+    nowpayments_ipn_handler: Callable[[bytes, Mapping[str, str]], tuple[int, dict]] | None = None,
 ) -> ThreadingHTTPServer:
     root = static_path.resolve()
     source_list = sources or []
@@ -80,6 +82,15 @@ def start_static_server(
             parsed = urlparse(self.path)
             if not parsed.path.startswith("/api/"):
                 self.send_error(404)
+                return
+            if parsed.path == "/api/nowpayments/ipn":
+                if not nowpayments_ipn_handler:
+                    self.send_json({"error": "crypto_unavailable"}, status=503)
+                    return
+                length = int(self.headers.get("Content-Length") or 0)
+                raw_body = self.rfile.read(min(length, 262144))
+                status, payload = nowpayments_ipn_handler(raw_body, dict(self.headers.items()))
+                self.send_json(payload, status=status)
                 return
             if not db or not bot_token:
                 self.send_json({"error": "api_unavailable"}, status=503)

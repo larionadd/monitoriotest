@@ -5,16 +5,19 @@ import csv
 import json
 import logging
 import re
+import secrets
 import shutil
 import sys
 import threading
 import time
 import unicodedata
+from decimal import Decimal
 from pathlib import Path
+from typing import Mapping
 from urllib.parse import parse_qs, urlparse
 
 from .billing import PLANS, Plan, paid_plans, plan_by_id
-from .config import Source, load_config
+from .config import Config, Source, load_config
 from .db import Database, normalize_url, source_allowed_for_plan
 from .locales import (
     COUNTRIES,
@@ -29,6 +32,7 @@ from .locales import (
 )
 from .mini_app_server import start_static_server
 from .monitor import Monitor, fetch_rss, fetch_telegram_channel, telegram_preview_url
+from .nowpayments import NowPaymentsClient, NowPaymentsError, PAID_PAYMENT_STATUSES
 from .reports import write_csv_report
 from .rss_discovery import RssDiscoveryError, discover_rss_feed
 from .sources import load_sources
@@ -140,6 +144,79 @@ MINI_APP_URL = ""
 REQUIRE_ONBOARDING = False
 TRIAL_PLAN_ID = ""
 TRIAL_DAYS = 7
+NOWPAYMENTS_CLIENT: NowPaymentsClient | None = None
+CRYPTO_PRICE_CURRENCY = "usd"
+CRYPTO_PLAN_PRICES: dict[str, Decimal] = {}
+NOWPAYMENTS_IPN_CALLBACK_URL = ""
+CRYPTO_SUCCESS_URL = ""
+CRYPTO_CANCEL_URL = ""
+
+CRYPTO_MESSAGES = {
+    "en": {
+        "choose": "Choose a paid plan: /crypto basic, /crypto pro or /crypto business.",
+        "unavailable": "Crypto payments are not available yet. Try Telegram Stars via /plans.",
+        "created": "Crypto invoice created for {plan}: {amount} {currency}.\n\nAfter payment, the plan activates automatically.",
+        "button": "Pay with crypto",
+        "failed": "Could not create a crypto invoice. Try again later or use Telegram Stars via /plans.",
+        "command": "Crypto",
+    },
+    "uk": {
+        "choose": "Оберіть платний тариф: /crypto basic, /crypto pro або /crypto business.",
+        "unavailable": "Оплата криптою ще не доступна. Спробуйте Telegram Stars через /plans.",
+        "created": "Створено crypto-invoice для {plan}: {amount} {currency}.\n\nПісля оплати тариф активується автоматично.",
+        "button": "Оплатити криптою",
+        "failed": "Не вдалося створити crypto-invoice. Спробуйте пізніше або оплатіть через Telegram Stars у /plans.",
+        "command": "Crypto",
+    },
+    "ru": {
+        "choose": "Выберите платный тариф: /crypto basic, /crypto pro или /crypto business.",
+        "unavailable": "Оплата криптовалютой пока недоступна. Попробуйте Telegram Stars через /plans.",
+        "created": "Создан crypto-invoice для {plan}: {amount} {currency}.\n\nПосле оплаты тариф активируется автоматически.",
+        "button": "Оплатить криптой",
+        "failed": "Не удалось создать crypto-invoice. Попробуйте позже или оплатите через Telegram Stars в /plans.",
+        "command": "Crypto",
+    },
+    "pl": {
+        "choose": "Wybierz płatny plan: /crypto basic, /crypto pro albo /crypto business.",
+        "unavailable": "Płatności kryptowalutą nie są jeszcze dostępne. Spróbuj Telegram Stars przez /plans.",
+        "created": "Utworzono crypto-invoice dla {plan}: {amount} {currency}.\n\nPo płatności plan aktywuje się automatycznie.",
+        "button": "Zapłać krypto",
+        "failed": "Nie udało się utworzyć crypto-invoice. Spróbuj później albo użyj Telegram Stars w /plans.",
+        "command": "Krypto",
+    },
+    "de": {
+        "choose": "Wählen Sie einen kostenpflichtigen Plan: /crypto basic, /crypto pro oder /crypto business.",
+        "unavailable": "Krypto-Zahlungen sind noch nicht verfügbar. Nutzen Sie Telegram Stars über /plans.",
+        "created": "Crypto-Invoice für {plan} erstellt: {amount} {currency}.\n\nNach der Zahlung wird der Plan automatisch aktiviert.",
+        "button": "Mit Krypto zahlen",
+        "failed": "Crypto-Invoice konnte nicht erstellt werden. Versuchen Sie es später oder nutzen Sie Telegram Stars über /plans.",
+        "command": "Krypto",
+    },
+    "es": {
+        "choose": "Elige un plan de pago: /crypto basic, /crypto pro o /crypto business.",
+        "unavailable": "Los pagos con cripto aún no están disponibles. Usa Telegram Stars en /plans.",
+        "created": "Crypto-invoice creado para {plan}: {amount} {currency}.\n\nDespués del pago, el plan se activa automáticamente.",
+        "button": "Pagar con cripto",
+        "failed": "No se pudo crear el crypto-invoice. Inténtalo más tarde o usa Telegram Stars en /plans.",
+        "command": "Cripto",
+    },
+    "it": {
+        "choose": "Scegli un piano a pagamento: /crypto basic, /crypto pro oppure /crypto business.",
+        "unavailable": "I pagamenti crypto non sono ancora disponibili. Usa Telegram Stars in /plans.",
+        "created": "Crypto-invoice creato per {plan}: {amount} {currency}.\n\nDopo il pagamento, il piano si attiva automaticamente.",
+        "button": "Paga con crypto",
+        "failed": "Impossibile creare il crypto-invoice. Riprova più tardi o usa Telegram Stars in /plans.",
+        "command": "Crypto",
+    },
+    "be": {
+        "choose": "Выберыце платны тарыф: /crypto basic, /crypto pro або /crypto business.",
+        "unavailable": "Аплата крыптавалютай пакуль недаступная. Скарыстайце Telegram Stars праз /plans.",
+        "created": "Crypto-invoice створаны для {plan}: {amount} {currency}.\n\nПасля аплаты тарыф актывуецца аўтаматычна.",
+        "button": "Аплаціць крыптай",
+        "failed": "Не ўдалося стварыць crypto-invoice. Паспрабуйце пазней або скарыстайце Telegram Stars у /plans.",
+        "command": "Крыпта",
+    },
+}
 
 
 def main_menu_for_chat(chat_id: int, db: Database) -> dict:
@@ -258,6 +335,7 @@ def main(argv: list[str] | None = None) -> int:
     REQUIRE_ONBOARDING = config.require_onboarding
     TRIAL_PLAN_ID = config.trial_plan_id
     TRIAL_DAYS = config.trial_days
+    configure_crypto(config)
     ADMIN_CHAT_IDS.clear()
     ADMIN_CHAT_IDS.update(config.admin_chat_ids)
     db = Database(config.database_path)
@@ -420,9 +498,44 @@ def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> 
             db=db,
             sources=sources,
             require_business=False,
+            nowpayments_ipn_handler=lambda raw_body, headers: handle_nowpayments_ipn(raw_body, headers, db, telegram),
         )
     except Exception:
         logging.exception("Не вдалося запустити Mini App server")
+
+
+def configure_crypto(config: Config) -> None:
+    global NOWPAYMENTS_CLIENT, CRYPTO_PRICE_CURRENCY, CRYPTO_PLAN_PRICES
+    global NOWPAYMENTS_IPN_CALLBACK_URL, CRYPTO_SUCCESS_URL, CRYPTO_CANCEL_URL
+    NOWPAYMENTS_CLIENT = NowPaymentsClient(
+        config.nowpayments_api_key,
+        config.nowpayments_ipn_secret,
+        config.nowpayments_api_base,
+    )
+    CRYPTO_PRICE_CURRENCY = config.crypto_price_currency or "usd"
+    CRYPTO_PLAN_PRICES = config.crypto_plan_prices_usd or {}
+    NOWPAYMENTS_IPN_CALLBACK_URL = (
+        config.nowpayments_ipn_callback_url
+        or public_api_url(config.mini_app_url, "/api/nowpayments/ipn")
+    )
+    CRYPTO_SUCCESS_URL = config.crypto_success_url or config.mini_app_url
+    CRYPTO_CANCEL_URL = config.crypto_cancel_url or config.mini_app_url
+
+
+def public_api_url(base_url: str, path: str) -> str:
+    parsed = urlparse(base_url)
+    if not parsed.scheme or not parsed.netloc:
+        return ""
+    return f"{parsed.scheme}://{parsed.netloc}{path}"
+
+
+def crypto_enabled() -> bool:
+    return bool(
+        NOWPAYMENTS_CLIENT
+        and NOWPAYMENTS_CLIENT.enabled
+        and NOWPAYMENTS_IPN_CALLBACK_URL
+        and CRYPTO_PLAN_PRICES
+    )
 
 
 def configure_bot_commands(telegram: TelegramApi) -> None:
@@ -437,6 +550,7 @@ COMMAND_ORDER = (
     "remove",
     "plans",
     "buy",
+    "crypto",
     "fulltext",
     "monitoring",
     "rss",
@@ -460,6 +574,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Remove a keyword",
         "plans": "Show plans",
         "buy": "Buy a plan",
+        "crypto": "Pay with crypto",
         "fulltext": "Manage full-text search",
         "monitoring": "Manual or automatic monitoring",
         "rss": "Manage sources",
@@ -481,6 +596,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Видалити ключове слово",
         "plans": "Показати тарифи",
         "buy": "Купити тариф",
+        "crypto": "Оплатити криптою",
         "fulltext": "Керувати пошуком по повному тексту",
         "monitoring": "Ручний або автоматичний моніторинг",
         "rss": "Керувати джерелами",
@@ -502,6 +618,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Usuń słowo kluczowe",
         "plans": "Pokaż plany",
         "buy": "Kup plan",
+        "crypto": "Zapłać krypto",
         "fulltext": "Zarządzaj wyszukiwaniem pełnotekstowym",
         "monitoring": "Monitoring ręczny lub automatyczny",
         "rss": "Zarządzaj źródłami",
@@ -523,6 +640,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Suchwort entfernen",
         "plans": "Tarife anzeigen",
         "buy": "Tarif kaufen",
+        "crypto": "Mit Krypto zahlen",
         "fulltext": "Volltextsuche verwalten",
         "monitoring": "Manuelles oder automatisches Monitoring",
         "rss": "Quellen verwalten",
@@ -544,6 +662,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Eliminar palabra clave",
         "plans": "Mostrar planes",
         "buy": "Comprar plan",
+        "crypto": "Pagar con cripto",
         "fulltext": "Gestionar búsqueda de texto completo",
         "monitoring": "Monitoreo manual o automático",
         "rss": "Gestionar fuentes",
@@ -565,6 +684,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Rimuovi parola chiave",
         "plans": "Mostra piani",
         "buy": "Acquista piano",
+        "crypto": "Paga con crypto",
         "fulltext": "Gestisci ricerca nel testo completo",
         "monitoring": "Monitoraggio manuale o automatico",
         "rss": "Gestisci fonti",
@@ -586,6 +706,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Выдаліць ключавое слова",
         "plans": "Паказаць тарыфы",
         "buy": "Купіць тарыф",
+        "crypto": "Аплаціць крыптай",
         "fulltext": "Кіраваць пошукам па поўным тэксце",
         "monitoring": "Ручны або аўтаматычны маніторынг",
         "rss": "Кіраваць крыніцамі",
@@ -607,6 +728,7 @@ COMMAND_DESCRIPTIONS = {
         "remove": "Удалить ключевое слово",
         "plans": "Показать тарифы",
         "buy": "Купить тариф",
+        "crypto": "Оплатить криптой",
         "fulltext": "Управлять поиском по полному тексту",
         "monitoring": "Ручной или автоматический мониторинг",
         "rss": "Управлять источниками",
@@ -1044,6 +1166,10 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         send_plan_invoice(chat_id, argument, db, telegram)
         return
 
+    if command == "/crypto":
+        send_crypto_invoice(chat_id, argument, db, telegram)
+        return
+
     if command == "/grant":
         handle_grant_command(chat_id, argument, db, telegram)
         return
@@ -1454,6 +1580,11 @@ def send_plans(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     for paid in paid_plans():
         lines.append(plan_text_localized(language_code, paid))
         lines.append(f"{locale_text(language_code, 'payment_command')}: /buy {paid.id}")
+        if crypto_enabled() and paid.id in CRYPTO_PLAN_PRICES:
+            lines.append(
+                f"{crypto_text(language_code, 'command')}: /crypto {paid.id} "
+                f"({CRYPTO_PLAN_PRICES[paid.id]} {CRYPTO_PRICE_CURRENCY.upper()})"
+            )
     lines.append("")
     lines.append(locale_text(language_code, "plan_activation_note"))
     telegram.send_message(
@@ -1498,6 +1629,136 @@ def send_plan_invoice(chat_id: int, plan_id: str, db: Database, telegram: Telegr
     )
 
 
+def send_crypto_invoice(chat_id: int, plan_id: str, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
+    plan = plan_by_id(plan_id.strip())
+    if plan.id == "free":
+        telegram.send_message(chat_id, crypto_text(language_code, "choose"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    if not crypto_enabled() or NOWPAYMENTS_CLIENT is None:
+        telegram.send_message(chat_id, crypto_text(language_code, "unavailable"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    amount = CRYPTO_PLAN_PRICES.get(plan.id)
+    if not amount:
+        telegram.send_message(chat_id, crypto_text(language_code, "unavailable"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    order_id = f"crypto-{chat_id}-{plan.id}-{int(time.time())}-{secrets.token_hex(4)}"
+    try:
+        invoice = NOWPAYMENTS_CLIENT.create_invoice(
+            price_amount=amount,
+            price_currency=CRYPTO_PRICE_CURRENCY,
+            order_id=order_id,
+            order_description=f"Monitorio {plan.name} plan for {plan.days} days",
+            ipn_callback_url=NOWPAYMENTS_IPN_CALLBACK_URL,
+            success_url=CRYPTO_SUCCESS_URL,
+            cancel_url=CRYPTO_CANCEL_URL,
+        )
+    except NowPaymentsError:
+        logging.exception("NOWPayments invoice failed for chat_id=%s plan=%s", chat_id, plan.id)
+        telegram.send_message(chat_id, crypto_text(language_code, "failed"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    db.record_crypto_invoice(
+        chat_id=chat_id,
+        plan_id=plan.id,
+        order_id=order_id,
+        price_amount=str(amount),
+        price_currency=CRYPTO_PRICE_CURRENCY,
+        provider_invoice_id=invoice.invoice_id,
+        invoice_url=invoice.invoice_url,
+        raw_payload=json.dumps(invoice.raw, ensure_ascii=False),
+    )
+    telegram.send_message(
+        chat_id,
+        crypto_text(
+            language_code,
+            "created",
+            plan=escape(plan.name),
+            amount=escape(str(amount)),
+            currency=escape(CRYPTO_PRICE_CURRENCY.upper()),
+        ),
+        disable_web_page_preview=True,
+        reply_markup={
+            "inline_keyboard": [
+                [{"text": crypto_text(language_code, "button"), "url": invoice.invoice_url}],
+            ]
+        },
+    )
+
+
+def handle_nowpayments_ipn(
+    raw_body: bytes,
+    headers: Mapping[str, str],
+    db: Database,
+    telegram: TelegramApi,
+) -> tuple[int, dict]:
+    if NOWPAYMENTS_CLIENT is None or not NOWPAYMENTS_CLIENT.enabled:
+        return 503, {"error": "crypto_unavailable"}
+    signature = header_value(headers, "x-nowpayments-sig")
+    try:
+        payload = NOWPAYMENTS_CLIENT.verify_ipn(raw_body, signature)
+    except NowPaymentsError as exc:
+        logging.warning("NOWPayments IPN rejected: %s", exc)
+        return 400, {"error": "bad_signature"}
+    order_id = str(payload.get("order_id") or "")
+    if not order_id:
+        return 400, {"error": "missing_order_id"}
+    status = str(payload.get("payment_status") or payload.get("invoice_status") or "").lower()
+    provider_payment_id = str(payload.get("payment_id") or payload.get("invoice_id") or "") or None
+    row, newly_paid = db.update_crypto_payment_status(
+        order_id=order_id,
+        status=status or "unknown",
+        provider_payment_id=provider_payment_id,
+        raw_payload=json.dumps(payload, ensure_ascii=False),
+        paid=status in PAID_PAYMENT_STATUSES,
+    )
+    if row is None:
+        logging.warning("NOWPayments IPN for unknown order_id=%s", order_id)
+        return 404, {"error": "unknown_order"}
+    if newly_paid:
+        plan = plan_by_id(row["plan_id"])
+        expires = db.activate_plan(int(row["chat_id"]), plan.id)
+        db.record_payment(
+            chat_id=int(row["chat_id"]),
+            plan_id=plan.id,
+            currency=str(row["price_currency"]).upper(),
+            total_amount=crypto_amount_minor_units(str(row["price_amount"])),
+            invoice_payload=f"crypto:{order_id}",
+            telegram_payment_charge_id=None,
+            provider_payment_charge_id=provider_payment_id or order_id,
+        )
+        threading.Thread(
+            target=notify_crypto_payment_success,
+            args=(int(row["chat_id"]), plan, expires, db.get_user_settings(int(row["chat_id"])).language_code, db, telegram),
+            daemon=True,
+            name="nowpayments-notify",
+        )
+    return 200, {"ok": True, "status": status, "activated": newly_paid}
+
+
+def notify_crypto_payment_success(
+    chat_id: int,
+    plan: Plan,
+    expires: str,
+    language_code: str,
+    db: Database,
+    telegram: TelegramApi,
+) -> None:
+    try:
+        telegram.send_message(
+            chat_id,
+            locale_text(
+                language_code,
+                "payment_success",
+                plan=escape(plan.name),
+                status=escape(locale_text(language_code, "payment_status_activated")),
+                expires=escape(expires),
+            ),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
+    except Exception:
+        logging.exception("Could not notify chat_id=%s about NOWPayments activation", chat_id)
+
+
 def handle_pre_checkout_query(query: dict, telegram: TelegramApi) -> None:
     payload = str(query.get("invoice_payload") or "")
     plan_id = parse_plan_payload(payload)
@@ -1536,6 +1797,27 @@ def handle_successful_payment(chat_id: int, payment: dict, db: Database, telegra
         locale_text(language_code, "payment_success", plan=escape(plan.name), status=escape(status), expires=escape(expires)),
         reply_markup=main_menu_for_chat(chat_id, db),
     )
+
+
+def crypto_text(language_code: str, key: str, **kwargs: object) -> str:
+    messages = CRYPTO_MESSAGES.get(language_code) or CRYPTO_MESSAGES["en"]
+    template = messages.get(key) or CRYPTO_MESSAGES["en"][key]
+    return template.format(**kwargs)
+
+
+def header_value(headers: Mapping[str, str], name: str) -> str | None:
+    needle = name.lower()
+    for key, value in headers.items():
+        if key.lower() == needle:
+            return value
+    return None
+
+
+def crypto_amount_minor_units(value: str) -> int:
+    try:
+        return int((Decimal(value) * 100).quantize(Decimal("1")))
+    except Exception:
+        return 0
 
 
 def parse_plan_payload(payload: str) -> str | None:

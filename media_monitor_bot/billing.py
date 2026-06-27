@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from decimal import Decimal
 
 
 @dataclass(frozen=True)
@@ -85,6 +86,12 @@ PLANS: dict[str, Plan] = {
             "⚡ моніторинг кожні 5 хвилин"
         ),
     ),
+}
+
+DEFAULT_CRYPTO_PRICES_USD: dict[str, Decimal] = {
+    "basic": Decimal("5.00"),
+    "pro": Decimal("15.00"),
+    "business": Decimal("35.00"),
 }
 
 

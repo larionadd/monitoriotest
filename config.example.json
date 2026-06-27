@@ -15,5 +15,17 @@
   "require_onboarding": false,
   "trial_plan_id": "",
   "trial_days": 7,
+  "nowpayments_api_key": "",
+  "nowpayments_ipn_secret": "",
+  "nowpayments_api_base": "https://api.nowpayments.io/v1",
+  "nowpayments_ipn_callback_url": "",
+  "crypto_price_currency": "usd",
+  "crypto_plan_prices_usd": {
+    "basic": "5.00",
+    "pro": "15.00",
+    "business": "35.00"
+  },
+  "crypto_success_url": "",
+  "crypto_cancel_url": "",
   "alert_template": "📰 Нова згадка\n\nКлюч: {keyword}\nДжерело: {source}\nЗаголовок: {title}\nДата: {published_at}\n\n{url}"
 }

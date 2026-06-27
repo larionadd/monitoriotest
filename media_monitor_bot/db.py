@@ -162,6 +162,25 @@ class Database:
                     paid_at TEXT NOT NULL,
                     UNIQUE(telegram_payment_charge_id)
                 );
+
+                CREATE TABLE IF NOT EXISTS crypto_payments (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    order_id TEXT NOT NULL UNIQUE,
+                    chat_id INTEGER NOT NULL,
+                    plan_id TEXT NOT NULL,
+                    provider TEXT NOT NULL,
+                    price_amount TEXT NOT NULL,
+                    price_currency TEXT NOT NULL,
+                    provider_invoice_id TEXT,
+                    invoice_url TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    provider_payment_id TEXT,
+                    raw_payload TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    paid_at TEXT,
+                    FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
+                );
                 """
             )
             columns = {
@@ -438,6 +457,100 @@ class Database:
                 ),
             )
             return cur.rowcount > 0
+
+    def record_crypto_invoice(
+        self,
+        chat_id: int,
+        plan_id: str,
+        order_id: str,
+        price_amount: str,
+        price_currency: str,
+        provider_invoice_id: str | None,
+        invoice_url: str,
+        raw_payload: str,
+    ) -> None:
+        self.touch_user(chat_id)
+        now = utcnow()
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO crypto_payments(
+                    order_id,
+                    chat_id,
+                    plan_id,
+                    provider,
+                    price_amount,
+                    price_currency,
+                    provider_invoice_id,
+                    invoice_url,
+                    status,
+                    raw_payload,
+                    created_at,
+                    updated_at
+                )
+                VALUES(?, ?, ?, 'nowpayments', ?, ?, ?, ?, 'created', ?, ?, ?)
+                ON CONFLICT(order_id) DO UPDATE SET
+                    provider_invoice_id = excluded.provider_invoice_id,
+                    invoice_url = excluded.invoice_url,
+                    raw_payload = excluded.raw_payload,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    order_id,
+                    chat_id,
+                    plan_id,
+                    price_amount,
+                    price_currency,
+                    provider_invoice_id,
+                    invoice_url,
+                    raw_payload,
+                    now,
+                    now,
+                ),
+            )
+
+    def get_crypto_payment_by_order_id(self, order_id: str) -> sqlite3.Row | None:
+        with self.connect() as conn:
+            return conn.execute(
+                "SELECT * FROM crypto_payments WHERE order_id = ?",
+                (order_id,),
+            ).fetchone()
+
+    def update_crypto_payment_status(
+        self,
+        order_id: str,
+        status: str,
+        provider_payment_id: str | None,
+        raw_payload: str,
+        paid: bool,
+    ) -> tuple[sqlite3.Row | None, bool]:
+        now = utcnow()
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM crypto_payments WHERE order_id = ?",
+                (order_id,),
+            ).fetchone()
+            if row is None:
+                return None, False
+            newly_paid = bool(paid and not row["paid_at"])
+            paid_at = now if newly_paid else row["paid_at"]
+            conn.execute(
+                """
+                UPDATE crypto_payments
+                SET status = ?,
+                    provider_payment_id = COALESCE(?, provider_payment_id),
+                    raw_payload = ?,
+                    updated_at = ?,
+                    paid_at = ?
+                WHERE order_id = ?
+                """,
+                (status, provider_payment_id, raw_payload, now, paid_at, order_id),
+            )
+            updated = conn.execute(
+                "SELECT * FROM crypto_payments WHERE order_id = ?",
+                (order_id,),
+            ).fetchone()
+            return updated, newly_paid
 
     def disable_source(self, chat_id: int, url: str) -> bool:
         source_url = normalize_url(url)

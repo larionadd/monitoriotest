@@ -89,7 +89,24 @@
 /buy basic
 /buy pro
 /buy business
+/crypto basic
+/crypto pro
+/crypto business
 ```
+
+Crypto payments use NOWPayments invoices. Configure these values in the server env file:
+
+```env
+NOWPAYMENTS_API_KEY=...
+NOWPAYMENTS_IPN_SECRET=...
+NOWPAYMENTS_IPN_CALLBACK_URL=https://app.monitorio.online/api/nowpayments/ipn
+CRYPTO_PRICE_CURRENCY=usd
+CRYPTO_PLAN_PRICES_USD=basic=5.00,pro=15.00,business=35.00
+CRYPTO_SUCCESS_URL=https://app.monitorio.online
+CRYPTO_CANCEL_URL=https://app.monitorio.online
+```
+
+The bot creates a NOWPayments invoice with `/crypto plan_id`, stores the order in `crypto_payments`, verifies the `x-nowpayments-sig` IPN signature, and activates the plan only once after a `confirmed` or `finished` payment status.
 
 Адмін-команда для ручної видачі доступу:
 
