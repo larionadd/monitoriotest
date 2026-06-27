@@ -89,9 +89,9 @@ PLANS: dict[str, Plan] = {
 }
 
 DEFAULT_CRYPTO_PRICES_USD: dict[str, Decimal] = {
-    "basic": Decimal("5.00"),
-    "pro": Decimal("15.00"),
-    "business": Decimal("35.00"),
+    "basic": Decimal("4.00"),
+    "pro": Decimal("10.00"),
+    "business": Decimal("25.00"),
 }
 
 

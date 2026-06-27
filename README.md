@@ -101,7 +101,7 @@ NOWPAYMENTS_API_KEY=...
 NOWPAYMENTS_IPN_SECRET=...
 NOWPAYMENTS_IPN_CALLBACK_URL=https://app.monitorio.online/api/nowpayments/ipn
 CRYPTO_PRICE_CURRENCY=usd
-CRYPTO_PLAN_PRICES_USD=basic=5.00,pro=15.00,business=35.00
+CRYPTO_PLAN_PRICES_USD=basic=4.00,pro=10.00,business=25.00
 CRYPTO_SUCCESS_URL=https://app.monitorio.online
 CRYPTO_CANCEL_URL=https://app.monitorio.online
 ```
