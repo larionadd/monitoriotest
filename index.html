@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitorio</title>
+  <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow" id="profileLine">Monitorio</p>
+        <h1>Monitorio</h1>
+      </div>
+      <button class="icon-button" id="closeButton" type="button" aria-label="Close">&times;</button>
+    </header>
+
+    <section class="summary-grid" aria-label="Account summary">
+      <div class="summary-cell">
+        <span id="planName">-</span>
+        <small id="planMeta" data-i18n="plan">Plan</small>
+      </div>
+      <div class="summary-cell">
+        <span id="activeSources">-</span>
+        <small id="sourcesMeta" data-i18n="sources">Sources</small>
+      </div>
+      <div class="summary-cell">
+        <span id="sentToday">-</span>
+        <small data-i18n="today">Today</small>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Mini App sections">
+      <button class="tab is-active" data-tab="news" data-i18n="tabNews" type="button">News</button>
+      <button class="tab" data-tab="settings" data-i18n="tabSettings" type="button">Settings</button>
+      <button class="tab" data-tab="filters" data-i18n="tabFilters" type="button">Filters</button>
+      <button class="tab" data-tab="sources" data-i18n="tabSources" type="button">Sources</button>
+      <button class="tab" data-tab="plans" data-i18n="tabPlans" type="button">Plans</button>
+      <button class="tab" data-tab="help" data-i18n="tabHelp" type="button">Help</button>
+    </nav>
+
+    <section class="tab-panel is-active" data-panel="news">
+      <div class="toolbar">
+        <h2 data-i18n="recentMentions">Recent mentions</h2>
+        <button class="compact-button" id="refreshButton" data-i18n="refresh" type="button">Refresh</button>
+      </div>
+      <div class="news-list" id="newsList"></div>
+      <div class="empty-state" id="emptyNews">
+        <strong></strong>
+        <span></span>
+      </div>
+      <div class="action-row">
+        <button class="primary-button" id="checkButton" data-i18n="checkNow" type="button">Check now</button>
+        <button class="secondary-button" id="reportButton" data-i18n="csvReport" type="button">CSV report</button>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-panel="settings">
+      <div class="settings-grid">
+        <label class="field">
+          <span data-i18n="language">Language</span>
+          <select id="languageSelect"></select>
+        </label>
+        <label class="field">
+          <span data-i18n="region">Monitoring region</span>
+          <select id="countrySelect"></select>
+        </label>
+      </div>
+
+      <div class="toggle-list">
+        <button class="toggle-row" id="autoToggle" type="button">
+          <span>
+            <strong data-i18n="autoMonitoring">Automatic monitoring</strong>
+            <small id="autoToggleText">-</small>
+          </span>
+          <b class="switch" aria-hidden="true"></b>
+        </button>
+        <button class="toggle-row" id="fullTextToggle" type="button">
+          <span>
+            <strong data-i18n="fullText">Full text</strong>
+            <small id="fullTextToggleText">-</small>
+          </span>
+          <b class="switch" aria-hidden="true"></b>
+        </button>
+      </div>
+
+      <div class="action-row">
+        <button class="secondary-button" id="plansButton" data-i18n="plans" type="button">Plans</button>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-panel="plans">
+      <div class="toolbar">
+        <div>
+          <h2 data-i18n="plansTitle">Choose a plan</h2>
+          <small data-i18n="plansHint">Pay with Telegram Stars or crypto without leaving the cabinet.</small>
+        </div>
+        <button class="compact-button" id="plansRefreshButton" data-i18n="refresh" type="button">Refresh</button>
+      </div>
+      <div class="plans-grid" id="plansGrid"></div>
+    </section>
+
+    <section class="tab-panel help-panel" data-panel="help">
+      <div class="toolbar">
+        <div>
+          <h2 data-i18n="helpTitle">Help</h2>
+          <small data-i18n="helpIntro">Monitorio tracks mentions in media, RSS feeds, and public Telegram channels.</small>
+        </div>
+      </div>
+      <div class="help-grid">
+        <article class="help-card">
+          <strong data-i18n="helpQuickTitle">Quick start</strong>
+          <p data-i18n="helpQuickText">Choose a region, add keywords in Filters, then run a manual check or enable automatic monitoring.</p>
+        </article>
+        <article class="help-card">
+          <strong data-i18n="helpRegionTitle">Region logic</strong>
+          <p data-i18n="helpRegionText">Each keyword is linked to the monitoring region selected when you add it.</p>
+        </article>
+        <article class="help-card">
+          <strong data-i18n="helpFiltersTitle">Filter logic</strong>
+          <p data-i18n="helpFiltersText">Keywords work as OR logic. Stop words block results. Required words add an extra condition.</p>
+        </article>
+        <article class="help-card">
+          <strong data-i18n="helpSourcesTitle">Sources and reports</strong>
+          <p data-i18n="helpSourcesText">In Sources you can add RSS or Telegram channels, manage TG packages, and request a CSV source file.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-panel="filters">
+      <div class="input-card">
+        <label class="field">
+          <span data-i18n="keyword">Keyword</span>
+          <input id="keywordInput" type="text" autocomplete="off" placeholder="for example: bitcoin" data-i18n-placeholder="keywordPlaceholder">
+        </label>
+        <button class="primary-button" id="addKeywordButton" data-i18n="addKeyword" type="button">Add keyword</button>
+      </div>
+      <div class="chips" id="keywordChips"></div>
+
+      <div class="filter-columns">
+        <div class="input-card">
+          <label class="field">
+            <span data-i18n="stopWord">Stop word</span>
+            <input id="stopInput" type="text" autocomplete="off" placeholder="word to exclude" data-i18n-placeholder="stopPlaceholder">
+          </label>
+          <button class="secondary-button" id="addStopButton" data-i18n="add" type="button">Add</button>
+          <div class="chips compact" id="stopChips"></div>
+        </div>
+
+        <div class="input-card">
+          <label class="field">
+            <span data-i18n="plusWord">Required word</span>
+            <input id="plusInput" type="text" autocomplete="off" placeholder="extra condition" data-i18n-placeholder="plusPlaceholder">
+          </label>
+          <button class="secondary-button" id="addPlusButton" data-i18n="add" type="button">Add</button>
+          <div class="chips compact" id="plusChips"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-panel="sources">
+      <div class="source-stats">
+        <div><strong id="standardSources">-</strong><small>RSS/standard</small></div>
+        <div><strong id="paidSources">-</strong><small>TG</small></div>
+        <div><strong id="customSources">-</strong><small>Custom</small></div>
+      </div>
+
+      <div class="toolbar">
+        <h2 data-i18n="sourceOverview">Source overview</h2>
+      </div>
+      <div class="source-list" id="sourceList"></div>
+
+      <div class="input-card">
+        <label class="field">
+          <span data-i18n="addRss">Add RSS</span>
+          <input id="rssInput" type="text" autocomplete="off" placeholder="https://example.com or https://example.com/rss.xml" data-i18n-placeholder="rssPlaceholder">
+        </label>
+        <button class="secondary-button" id="addRssButton" data-i18n="addRss" type="button">Add RSS</button>
+      </div>
+
+      <div class="input-card">
+        <label class="field">
+          <span data-i18n="addTelegram">Add Telegram</span>
+          <input id="tgInput" type="text" autocomplete="off" placeholder="@channel or https://t.me/channel" data-i18n-placeholder="tgPlaceholder">
+        </label>
+        <button class="secondary-button" id="addTgButton" data-i18n="addTg" type="button">Add TG</button>
+      </div>
+
+      <div class="toolbar">
+        <h2 data-i18n="tgBlocks">TG packages</h2>
+        <button class="compact-button" id="sourcesFileButton" data-i18n="sourcesFile" type="button">Sources file</button>
+      </div>
+      <div class="block-list" id="tgBlocks"></div>
+    </section>
+
+    <p class="status-line" id="statusText" data-i18n="opening">Opening cabinet...</p>
+  </main>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
