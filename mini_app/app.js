@@ -4,7 +4,8 @@
   const state = {
     data: null,
     recent: [],
-    language: "en"
+    language: "en",
+    pendingLanguage: ""
   };
 
   const labels = {
@@ -623,10 +624,12 @@
   $("sourcesFileButton").addEventListener("click", () => sendToChat({ action: "sources_file" }));
 
   $("languageSelect").addEventListener("change", (event) => {
-    state.language = event.target.value;
+    const language = event.target.value;
+    state.language = language;
+    state.pendingLanguage = language;
     applyTranslations();
     if (state.data) renderState();
-    send({ action: "set_language", language: event.target.value });
+    send({ action: "set_language", language });
   });
 
   $("countrySelect").addEventListener("change", (event) => {
@@ -718,7 +721,7 @@
       ]);
       state.data = statePayload;
       state.recent = recentPayload.items || [];
-      state.language = statePayload.language && statePayload.language.code || "en";
+      state.language = state.pendingLanguage || (statePayload.language && statePayload.language.code) || state.language || "en";
       applyTranslations();
       renderState();
       renderNews();
@@ -747,7 +750,7 @@
     if (!tg) return;
     const safeTop = Number(tg.safeAreaInset && tg.safeAreaInset.top) || 0;
     const contentTop = Number(tg.contentSafeAreaInset && tg.contentSafeAreaInset.top) || 0;
-    const top = Math.max(46, safeTop, contentTop);
+    const top = Math.max(82, safeTop, contentTop);
     document.documentElement.style.setProperty("--tg-safe-top", top + "px");
   }
 
@@ -794,7 +797,8 @@
   function renderState() {
     const data = state.data;
     if (!data) return;
-    $("profileLine").textContent = data.country.label + " - " + data.language.name;
+    const languageCode = activeLanguageCode(data);
+    $("profileLine").textContent = data.country.label + " - " + languageNameFor(languageCode, data);
     $("planName").textContent = data.plan.name;
     $("planMeta").textContent = data.locked ? t("locked") : t("plan") + " " + data.plan.name;
     const activeSources = Number(data.monitoring.active_sources || 0);
@@ -805,7 +809,7 @@
       : t("sources");
     $("sentToday").textContent = data.monitoring.sent_today + "/" + data.plan.alerts_per_day;
 
-    fillSelect($("languageSelect"), data.languages, data.language.code);
+    fillSelect($("languageSelect"), data.languages, languageCode);
     fillSelect($("countrySelect"), data.countries, data.country.code);
 
     setToggle($("autoToggle"), data.monitoring.auto);
@@ -1029,6 +1033,14 @@
         const result = await apiPost("/api/action", payload);
         if (result.state) {
           state.data = result.state;
+          if (payload.action === "set_language") {
+            const serverLanguage = result.state.language && result.state.language.code;
+            state.language = payload.language || serverLanguage || state.language;
+            if (!serverLanguage || serverLanguage === state.language) {
+              state.pendingLanguage = "";
+            }
+            applyTranslations();
+          }
           renderState();
         }
         setStatus(result.ok === false ? (result.error || t("loadError")) : t("sent"));
@@ -1116,6 +1128,18 @@
     document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
       node.setAttribute("placeholder", t(node.dataset.i18nPlaceholder));
     });
+  }
+
+  function activeLanguageCode(data) {
+    const languages = data.languages || [];
+    const preferred = state.pendingLanguage || state.language || (data.language && data.language.code) || "en";
+    if (languages.some((row) => row.code === preferred)) return preferred;
+    return data.language && data.language.code || "en";
+  }
+
+  function languageNameFor(code, data) {
+    const row = (data.languages || []).find((item) => item.code === code);
+    return row && (row.label || row.name) || code;
   }
 
   function t(key) {

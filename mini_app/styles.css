@@ -57,7 +57,11 @@ button:disabled {
 }
 
 body.in-telegram .app-shell {
-  padding-top: calc(var(--tg-safe-top, 46px) + max(14px, env(safe-area-inset-top)));
+  padding-top: calc(var(--tg-safe-top, 82px) + max(18px, env(safe-area-inset-top)));
+}
+
+body.in-telegram .app-header .icon-button {
+  display: none;
 }
 
 .app-header {
@@ -168,7 +172,8 @@ small,
 }
 
 .tab {
-  flex: 1 0 94px;
+  flex: 0 0 auto;
+  min-width: 104px;
   min-height: 42px;
   padding: 0 8px;
   color: var(--muted);
@@ -176,6 +181,11 @@ small,
   border: 0;
   border-radius: 9px;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.tab[data-tab="settings"] {
+  min-width: 132px;
 }
 
 .tab.is-active {
@@ -670,10 +680,14 @@ select {
   }
 
   .tab {
-    flex-basis: 86px;
+    min-width: 96px;
     min-height: 38px;
-    padding: 0 4px;
-    font-size: 12px;
+    padding: 0 8px;
+    font-size: 13px;
+  }
+
+  .tab[data-tab="settings"] {
+    min-width: 136px;
   }
 
   .block-row {
