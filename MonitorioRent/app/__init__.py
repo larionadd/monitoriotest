@@ -1,0 +1,1 @@
+"""MonitorioRent application package."""
