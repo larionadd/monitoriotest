@@ -11,14 +11,19 @@ import sys
 import threading
 import time
 import unicodedata
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 from typing import Mapping
 from urllib.parse import parse_qs, urlparse
 
-from .billing import PLANS, Plan, paid_plans, plan_by_id
+from requests.exceptions import ReadTimeout
+
+from .billing import PLANS, Plan, clamp_monitor_interval_minutes, paid_plans, plan_by_id
+from .ai_digest import AiDigestError, DigestMention, create_ai_digest
 from .config import Config, Source, clean_source_display_name, load_config
-from .db import Database, normalize_url, source_allowed_for_plan
+from .db import Database, free_source_urls, normalize_url, source_allowed_for_plan
+from .datetime_format import display_datetime_line
 from .locales import (
     COUNTRIES,
     LANGUAGES,
@@ -28,6 +33,8 @@ from .locales import (
     language_button_text,
     language_from_button,
     language_name,
+    normalize_country,
+    normalize_language,
     text as locale_text,
 )
 from .mini_app_server import start_static_server
@@ -151,6 +158,17 @@ NOWPAYMENTS_IPN_CALLBACK_URL = ""
 CRYPTO_SUCCESS_URL = ""
 CRYPTO_CANCEL_URL = ""
 
+CABINET_PROMPT_TEXT = {
+    "en": "\U0001f4bc Open the Cabinet to easily configure sources, keywords, filters, and monitoring mode.",
+    "uk": "\U0001f4bc \u0412\u0456\u0434\u043a\u0440\u0438\u0439\u0442\u0435 \u041a\u0430\u0431\u0456\u043d\u0435\u0442, \u0449\u043e\u0431 \u0437\u0440\u0443\u0447\u043d\u043e \u043d\u0430\u043b\u0430\u0448\u0442\u0443\u0432\u0430\u0442\u0438 \u0434\u0436\u0435\u0440\u0435\u043b\u0430, \u043a\u043b\u044e\u0447\u043e\u0432\u0456 \u0441\u043b\u043e\u0432\u0430, \u0444\u0456\u043b\u044c\u0442\u0440\u0438 \u0442\u0430 \u0440\u0435\u0436\u0438\u043c \u043c\u043e\u043d\u0456\u0442\u043e\u0440\u0438\u043d\u0433\u0443.",
+    "pl": "\U0001f4bc Otwórz Panel, aby wygodnie skonfigurować źródła, słowa kluczowe, filtry i tryb monitoringu.",
+    "de": "\U0001f4bc Öffne das Kabinett, um Quellen, Keywords, Filter und den Monitoring-Modus bequem einzurichten.",
+    "es": "\U0001f4bc Abre el Panel para configurar fácilmente fuentes, palabras clave, filtros y el modo de monitoreo.",
+    "it": "\U0001f4bc Apri il Pannello per configurare facilmente fonti, parole chiave, filtri e modalità di monitoraggio.",
+    "be": "\U0001f4bc \u0410\u0434\u043a\u0440\u044b\u0439\u0446\u0435 \u041a\u0430\u0431\u0456\u043d\u0435\u0442, \u043a\u0430\u0431 \u0437\u0440\u0443\u0447\u043d\u0430 \u043d\u0430\u043b\u0430\u0434\u0437\u0456\u0446\u044c \u043a\u0440\u044b\u043d\u0456\u0446\u044b, \u043a\u043b\u044e\u0447\u0430\u0432\u044b\u044f \u0441\u043b\u043e\u0432\u044b, \u0444\u0456\u043b\u044c\u0442\u0440\u044b \u0456 \u0440\u044d\u0436\u044b\u043c \u043c\u0430\u043d\u0456\u0442\u043e\u0440\u044b\u043d\u0433\u0443.",
+    "ru": "\U0001f4bc \u041e\u0442\u043a\u0440\u043e\u0439\u0442\u0435 \u041a\u0430\u0431\u0438\u043d\u0435\u0442, \u0447\u0442\u043e\u0431\u044b \u0443\u0434\u043e\u0431\u043d\u043e \u043d\u0430\u0441\u0442\u0440\u043e\u0438\u0442\u044c \u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a\u0438, \u043a\u043b\u044e\u0447\u0435\u0432\u044b\u0435 \u0441\u043b\u043e\u0432\u0430, \u0444\u0438\u043b\u044c\u0442\u0440\u044b \u0438 \u0440\u0435\u0436\u0438\u043c \u043c\u043e\u043d\u0438\u0442\u043e\u0440\u0438\u043d\u0433\u0430.",
+}
+
 CRYPTO_MESSAGES = {
     "en": {
         "choose": "Choose a paid plan: /crypto basic, /crypto pro or /crypto business.",
@@ -215,6 +233,57 @@ CRYPTO_MESSAGES = {
         "button": "Аплаціць крыптай",
         "failed": "Не ўдалося стварыць crypto-invoice. Паспрабуйце пазней або скарыстайце Telegram Stars у /plans.",
         "command": "Крыпта",
+    },
+}
+
+SUBSCRIPTION_MESSAGES = {
+    "en": {
+        "reminder_1d": (
+            "⏳ <b>Your Monitorio {plan} plan expires in about 1 day.</b>\n\n"
+            "Valid until: {expires}\n\n"
+            "Renew it via /plans to keep your current limits, full source access, and monitoring interval."
+        ),
+        "expired": (
+            "⚠️ <b>Your Monitorio {plan} plan has expired.</b>\n\n"
+            "The bot has switched your account to Free limits. You can renew access via /plans."
+        ),
+        "promo_usage": "Use the promo code like this: /promo MONITORIO3",
+        "promo_unknown": "This promo code is invalid or expired.",
+        "promo_used": "This promo code has already been used on your account.",
+        "promo_paid_active": "A paid plan is already active on your account. Promo codes can be used only from the Free plan.",
+        "promo_activated": "🎁 Promo code activated. Pro plan is valid until {expires}.",
+    },
+    "uk": {
+        "reminder_1d": (
+            "⏳ <b>Ваш тариф Monitorio {plan} закінчується приблизно через 1 день.</b>\n\n"
+            "Діє до: {expires}\n\n"
+            "Продовжіть тариф через /plans, щоб зберегти поточні ліміти, повну базу джерел і частоту моніторингу."
+        ),
+        "expired": (
+            "⚠️ <b>Ваш тариф Monitorio {plan} закінчився.</b>\n\n"
+            "Бот перевів акаунт на ліміти Free. Ви можете продовжити доступ через /plans."
+        ),
+        "promo_usage": "Використайте промокод так: /promo MONITORIO3",
+        "promo_unknown": "Цей промокод недійсний або вже неактивний.",
+        "promo_used": "Цей промокод уже був використаний у вашому акаунті.",
+        "promo_paid_active": "У вашому акаунті вже активний платний тариф. Промокод можна використати тільки з тарифу Free.",
+        "promo_activated": "🎁 Промокод активовано. Тариф Pro діє до {expires}.",
+    },
+    "ru": {
+        "reminder_1d": (
+            "⏳ <b>Ваш тариф Monitorio {plan} заканчивается примерно через 1 день.</b>\n\n"
+            "Действует до: {expires}\n\n"
+            "Продлите тариф через /plans, чтобы сохранить текущие лимиты, полную базу источников и частоту мониторинга."
+        ),
+        "expired": (
+            "⚠️ <b>Ваш тариф Monitorio {plan} закончился.</b>\n\n"
+            "Бот перевел аккаунт на лимиты Free. Вы можете продлить доступ через /plans."
+        ),
+        "promo_usage": "Используйте промокод так: /promo MONITORIO3",
+        "promo_unknown": "Этот промокод недействителен или больше не активен.",
+        "promo_used": "Этот промокод уже был использован в вашем аккаунте.",
+        "promo_paid_active": "В вашем аккаунте уже активен платный тариф. Промокод можно использовать только с тарифа Free.",
+        "promo_activated": "🎁 Промокод активирован. Тариф Pro действует до {expires}.",
     },
 }
 
@@ -292,15 +361,13 @@ def normalize_button_text(value: str) -> str:
 PENDING_ACTIONS: dict[int, str] = {}
 MONITOR_LOCK = threading.Lock()
 ADMIN_CHAT_IDS: set[int] = set()
-PLAN_MONITOR_INTERVAL_SECONDS = {
-    "free": 3600,
-    "basic": 1800,
-    "pro": 1800,
-    "business": 300,
-}
 MONITOR_IDLE_SECONDS = 10
+SUBSCRIPTION_NOTICE_INTERVAL_SECONDS = 3600
 MANUAL_CHECK_WAIT_SECONDS = 60
 TG_BLOCK_SIZE = 50
+PROMO_CODES: dict[str, tuple[str, int]] = {
+    "MONITORIO3": ("pro", 3),
+}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -361,7 +428,7 @@ def run_bot_loop(
 ) -> None:
     offset: int | None = None
     logging.info(
-        "Бот запущений. Автоматичний моніторинг: Free 3600 с, Basic/Pro 1800 с, Business 300 с"
+        "Бот запущений. Автоматичний моніторинг: Free 3600 с, Basic/Pro 1800 с, Business 60 с"
     )
     threading.Thread(
         target=run_monitor_loop,
@@ -369,10 +436,20 @@ def run_bot_loop(
         daemon=True,
         name="media-monitor-loop",
     ).start()
+    threading.Thread(
+        target=run_subscription_notice_loop,
+        args=(db, telegram),
+        daemon=True,
+        name="subscription-notice-loop",
+    ).start()
 
     while True:
         try:
             updates = telegram.get_updates(offset=offset, timeout=20)
+        except ReadTimeout:
+            logging.warning("Telegram getUpdates timed out; retrying")
+            time.sleep(2)
+            continue
         except Exception:
             logging.exception("Не вдалося отримати оновлення Telegram")
             time.sleep(5)
@@ -407,7 +484,15 @@ def run_bot_loop(
             if not text:
                 continue
             try:
-                handle_message(int(chat_id), text, db, telegram, monitor, sources)
+                handle_message(
+                    int(chat_id),
+                    text,
+                    db,
+                    telegram,
+                    monitor,
+                    sources,
+                    telegram_user_language_code(message),
+                )
             except Exception:
                 logging.exception("Не вдалося обробити повідомлення від %s", chat_id)
                 language_code = db.get_user_settings(int(chat_id)).language_code
@@ -419,41 +504,122 @@ def run_bot_loop(
 
 
 def run_monitor_loop(monitor: Monitor) -> None:
-    last_checked_at: dict[int, float] = {}
     while True:
-        due_chat_ids, has_business = due_monitoring_chat_ids(monitor, last_checked_at)
+        due_chat_ids, has_business = due_monitoring_chat_ids(monitor)
         if not due_chat_ids:
             time.sleep(MONITOR_IDLE_SECONDS)
             continue
-        sent = run_monitor_safely(monitor, due_chat_ids)
+        checked_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        try:
+            sent = run_monitor_safely(monitor, due_chat_ids)
+        except Exception:
+            logging.exception("Автоматична перевірка завершилась помилкою")
+            time.sleep(MONITOR_IDLE_SECONDS)
+            continue
         if sent is None:
             time.sleep(MONITOR_IDLE_SECONDS)
             continue
         if sent is not None:
-            checked_at = time.time()
-            for chat_id in due_chat_ids:
-                last_checked_at[chat_id] = checked_at
+            monitor.db.mark_auto_checked(due_chat_ids, checked_at=checked_at)
             logging.info(
                 "Автоматичну перевірку завершено. Користувачів: %s. Надіслано сповіщень: %s",
                 len(due_chat_ids),
                 sent,
             )
+            stats = monitor.last_run_stats
+            logging.info(
+                "Auto monitor stats: due_users=%s duration=%.1fs fetch_duration=%.1fs full_text_duration=%.1fs sources=%s attempted=%s ok=%s failed=%s skipped=%s articles=%s full_text_attempted=%s full_text_ok=%s full_text_failed=%s full_text_skipped=%s alerts=%s queues=%s slowest=%s",
+                len(due_chat_ids),
+                stats.duration_seconds,
+                stats.fetch_duration_seconds,
+                stats.full_text_duration_seconds,
+                stats.sources_total,
+                stats.sources_attempted,
+                stats.sources_succeeded,
+                stats.sources_failed,
+                stats.sources_skipped,
+                stats.articles,
+                stats.full_text_attempted,
+                stats.full_text_succeeded,
+                stats.full_text_failed,
+                stats.full_text_skipped,
+                stats.alerts_sent,
+                stats.queue_summary(),
+                stats.slowest_summary(),
+            )
         time.sleep(MONITOR_IDLE_SECONDS)
 
 
-def due_monitoring_chat_ids(monitor: Monitor, last_checked_at: dict[int, float]) -> tuple[set[int], bool]:
-    now = time.time()
+def run_subscription_notice_loop(db: Database, telegram: TelegramApi) -> None:
+    while True:
+        try:
+            send_subscription_notices(db, telegram)
+        except Exception:
+            logging.exception("Не вдалося перевірити завершення тарифів")
+        time.sleep(SUBSCRIPTION_NOTICE_INTERVAL_SECONDS)
+
+
+def send_subscription_notices(db: Database, telegram: TelegramApi) -> None:
+    now_dt = datetime.now(timezone.utc).replace(microsecond=0)
+    now = now_dt.isoformat()
+    reminder_until = (now_dt + timedelta(days=1)).isoformat()
+    expired_since = (now_dt - timedelta(days=2)).isoformat()
+
+    for row in db.subscriptions_expiring_for_reminder(now, reminder_until):
+        send_subscription_notice(db, telegram, row, "reminder_1d")
+
+    for row in db.subscriptions_expired_for_notice(expired_since, now):
+        send_subscription_notice(db, telegram, row, "expired")
+
+
+def send_subscription_notice(db: Database, telegram: TelegramApi, row, kind: str) -> None:
+    chat_id = int(row["chat_id"])
+    plan = plan_by_id(str(row["plan_id"]))
+    settings = db.get_user_settings(chat_id)
+    text = subscription_message(
+        settings.language_code,
+        kind,
+        plan=plan.name,
+        expires=format_subscription_expires(str(row["expires_at"])),
+    )
+    telegram.send_message(chat_id, text, reply_markup=main_menu_for_chat(chat_id, db))
+    db.mark_subscription_notification(chat_id, plan.id, str(row["expires_at"]), kind)
+
+
+def subscription_message(language_code: str, key: str, **kwargs: str) -> str:
+    messages = SUBSCRIPTION_MESSAGES.get(normalize_language(language_code), SUBSCRIPTION_MESSAGES["en"])
+    template = messages.get(key) or SUBSCRIPTION_MESSAGES["en"][key]
+    return template.format(**{name: escape(value) for name, value in kwargs.items()})
+
+
+def format_subscription_expires(value: str) -> str:
+    try:
+        expires = datetime.fromisoformat(value)
+    except ValueError:
+        return value
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    return expires.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def due_monitoring_chat_ids(monitor: Monitor) -> tuple[set[int], bool]:
+    now_dt = datetime.now(timezone.utc)
     due_chat_ids: set[int] = set()
     has_business = False
     for user in monitor.db.iter_monitoring_users():
         if not user.auto_monitoring_enabled:
             continue
         plan = monitor.db.get_active_plan(user.chat_id)
-        interval = PLAN_MONITOR_INTERVAL_SECONDS.get(plan.id, 3600)
+        interval = clamp_monitor_interval_minutes(user.monitor_interval_minutes or None, plan.id) * 60
         if plan.id == "business":
             has_business = True
-        last_checked = last_checked_at.get(user.chat_id)
-        if last_checked is None or interval <= 0 or now - last_checked >= interval:
+        try:
+            last_checked_dt = datetime.fromisoformat(user.last_auto_check_at) if user.last_auto_check_at else None
+        except ValueError:
+            last_checked_dt = None
+        if last_checked_dt and last_checked_dt.tzinfo is None:
+            last_checked_dt = last_checked_dt.replace(tzinfo=timezone.utc)
+        if last_checked_dt is None or (now_dt - last_checked_dt).total_seconds() >= interval:
             due_chat_ids.add(user.chat_id)
     return due_chat_ids, has_business
 
@@ -495,9 +661,37 @@ def configure_mini_app(config, telegram: TelegramApi, db: Database, sources) -> 
             nowpayments_ipn_handler=lambda raw_body, headers: handle_nowpayments_ipn(raw_body, headers, db, telegram),
             payment_options_handler=lambda chat_id: mini_app_payment_options(chat_id, db),
             checkout_handler=lambda chat_id, payload: mini_app_checkout(chat_id, payload, db, telegram),
+            ai_digest_handler=lambda chat_id, payload: mini_app_ai_digest(chat_id, payload, db, config, sources),
+            ai_digest_enabled=(
+                config.ai_digest_enabled
+                and config.ai_digest_provider == "deepseek"
+                and bool(config.deepseek_api_key)
+            ),
+            ai_digest_plan_ids=config.ai_digest_plan_ids,
         )
     except Exception:
         logging.exception("Не вдалося запустити Mini App server")
+
+def send_cabinet_prompt(chat_id: int, language_code: str, telegram: TelegramApi) -> bool:
+    if not MINI_APP_URL:
+        return False
+    normalized_language = normalize_language(language_code)
+    prompt = CABINET_PROMPT_TEXT.get(normalized_language) or CABINET_PROMPT_TEXT["en"]
+    button_text = button_label(normalized_language, "app")
+    try:
+        telegram.send_message(
+            chat_id,
+            prompt,
+            reply_markup={
+                "inline_keyboard": [
+                    [{"text": button_text, "web_app": {"url": MINI_APP_URL}}],
+                ],
+            },
+        )
+        return True
+    except Exception:
+        logging.exception("Could not send Mini App cabinet prompt")
+        return False
 
 
 def configure_crypto(config: Config) -> None:
@@ -895,8 +1089,25 @@ def handle_web_app_data(
     telegram.send_message(chat_id, locale_text(language_code, "mini_app_unknown_action"), reply_markup=main_menu_for_chat(chat_id, db))
 
 
-def handle_message(chat_id: int, text: str, db: Database, telegram: TelegramApi, monitor: Monitor, sources) -> None:
-    db.touch_user(chat_id, onboarding_completed_default=not REQUIRE_ONBOARDING)
+def telegram_user_language_code(message: dict) -> str:
+    user = message.get("from") or {}
+    return normalize_language(user.get("language_code") or "")
+
+
+def handle_message(
+    chat_id: int,
+    text: str,
+    db: Database,
+    telegram: TelegramApi,
+    monitor: Monitor,
+    sources,
+    user_language_code: str = "",
+) -> None:
+    db.touch_user(
+        chat_id,
+        onboarding_completed_default=not REQUIRE_ONBOARDING,
+        preferred_language_code=user_language_code,
+    )
 
     pending = PENDING_ACTIONS.get(chat_id)
     if pending in {"set_language", "set_country"} and text and not text.startswith("/"):
@@ -1129,10 +1340,19 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
     command, argument = split_command(text)
     language_code = db.get_user_settings(chat_id).language_code
 
-    if command in {"/start", "/help", "/menu"}:
-        if command == "/start" and REQUIRE_ONBOARDING and not db.get_user_settings(chat_id).onboarding_completed:
+    if command == "/start":
+        if REQUIRE_ONBOARDING and not db.get_user_settings(chat_id).onboarding_completed:
             send_language_choice(chat_id, db, telegram)
             return
+        if not send_cabinet_prompt(chat_id, language_code, telegram):
+            telegram.send_message(
+                chat_id,
+                locale_text(language_code, "main_menu_title"),
+                reply_markup=main_menu_for_chat(chat_id, db),
+            )
+        return
+
+    if command in {"/help", "/menu"}:
         send_help(chat_id, db, telegram)
         return
 
@@ -1166,12 +1386,28 @@ def handle_command(chat_id: int, text: str, db: Database, telegram: TelegramApi,
         send_crypto_invoice(chat_id, argument, db, telegram)
         return
 
+    if command == "/promo":
+        handle_promo_command(chat_id, argument, db, telegram)
+        return
+
     if command == "/grant":
         handle_grant_command(chat_id, argument, db, telegram)
         return
 
     if command == "/users":
         send_users(chat_id, db, telegram)
+        return
+
+    if command == "/userkeys":
+        send_user_keys(chat_id, db, telegram)
+        return
+
+    if command == "/paymentstar":
+        send_star_payments(chat_id, db, telegram)
+        return
+
+    if command == "/paymentusdt":
+        send_crypto_payments(chat_id, db, telegram)
         return
 
     if command == "/add":
@@ -1412,6 +1648,8 @@ def send_language_choice(chat_id: int, db: Database, telegram: TelegramApi) -> N
         message,
         reply_markup=language_menu(),
     )
+    if REQUIRE_ONBOARDING and not settings.onboarding_completed:
+        send_cabinet_prompt(chat_id, settings.language_code, telegram)
 
 
 def send_country_choice(chat_id: int, db: Database, telegram: TelegramApi) -> None:
@@ -1673,6 +1911,47 @@ def send_crypto_invoice(chat_id: int, plan_id: str, db: Database, telegram: Tele
     )
 
 
+def handle_promo_command(chat_id: int, argument: str, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
+    code = argument.strip().upper()
+    if not code:
+        telegram.send_message(
+            chat_id,
+            subscription_message(language_code, "promo_usage"),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
+        return
+    promo = PROMO_CODES.get(code)
+    if not promo:
+        telegram.send_message(
+            chat_id,
+            subscription_message(language_code, "promo_unknown"),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
+        return
+    if db.get_active_plan(chat_id).id != "free":
+        telegram.send_message(
+            chat_id,
+            subscription_message(language_code, "promo_paid_active"),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
+        return
+    plan_id, days = promo
+    expires = db.activate_promo_plan(chat_id, code, plan_id, days)
+    if not expires:
+        telegram.send_message(
+            chat_id,
+            subscription_message(language_code, "promo_used"),
+            reply_markup=main_menu_for_chat(chat_id, db),
+        )
+        return
+    telegram.send_message(
+        chat_id,
+        subscription_message(language_code, "promo_activated", expires=format_subscription_expires(expires)),
+        reply_markup=main_menu_for_chat(chat_id, db),
+    )
+
+
 def create_crypto_invoice(chat_id: int, plan: Plan, db: Database):
     if not crypto_enabled() or NOWPAYMENTS_CLIENT is None:
         raise NowPaymentsError("NOWPayments is not configured")
@@ -1759,6 +2038,160 @@ def mini_app_checkout(chat_id: int, payload: dict, db: Database, telegram: Teleg
             logging.exception("Could not create NOWPayments invoice for chat_id=%s plan=%s", chat_id, plan.id)
             return {"ok": False, "error": "crypto_checkout_failed"}
     return {"ok": False, "error": "unknown_payment_method"}
+
+
+def mini_app_ai_digest(chat_id: int, payload: dict, db: Database, config: Config, sources: list[Source]) -> dict:
+    plan = db.get_active_plan(chat_id)
+    allowed_plans = {item.strip().lower() for item in config.ai_digest_plan_ids}
+    if allowed_plans and plan.id not in allowed_plans:
+        return {"ok": False, "error": "ai_digest_plan_required"}
+    hours = digest_period_hours(payload.get("period") or payload.get("hours"))
+    settings = db.get_user_settings(chat_id)
+    language = normalize_language(settings.language_code)
+    options = digest_options(payload, settings.country_code, config.ai_digest_max_mentions)
+    since_dt = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(hours=hours)
+    rows = db.digest_rows(chat_id, since_dt.isoformat(), limit=max(300, options["max_mentions"] * 4))
+    period_label = digest_period_label(hours)
+    source_country = digest_source_country_lookup(db, chat_id, sources)
+    mentions = [
+        DigestMention(
+            sent_at=row["sent_at"] or "",
+            keyword=row["keyword"] or "",
+            source=row["source"] or "",
+            source_type=row["source_type"] or "",
+            title=row["title"] or "",
+            published_at=row["published_at"] or "",
+            url=row["url"] or "",
+            summary=row["summary"] or "",
+        )
+        for row in filter_digest_rows(rows, source_country, options)
+    ]
+    try:
+        digest = create_ai_digest(
+            config,
+            mentions[: options["max_mentions"]],
+            period_label=period_label,
+            language_code=language,
+            digest_focus=options["focus"],
+        )
+    except AiDigestError as exc:
+        logging.warning("AI digest failed for chat_id=%s: %s", chat_id, exc)
+        error = str(exc)
+        if error.startswith("deepseek_http_402"):
+            error = "deepseek_insufficient_balance"
+        return {"ok": False, "error": error}
+    except Exception as exc:
+        logging.exception("Unexpected AI digest failure for chat_id=%s", chat_id)
+        return {"ok": False, "error": "ai_digest_failed"}
+    params = {
+        "period_hours": hours,
+        "period_label": period_label,
+        "country": options["country"],
+        "keyword": options["keyword"],
+        "source_type": options["source_type"],
+        "focus": options["focus"],
+        "max_mentions": options["max_mentions"],
+        "language": language,
+    }
+    digest["params"] = params
+    digest["created_at"] = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    db.save_ai_digest(chat_id, digest, params)
+    return {"ok": True, "digest": digest}
+
+
+def digest_options(payload: dict, default_country: str, configured_limit: int) -> dict:
+    country_value = str(payload.get("country") or "").strip().lower()
+    if country_value in {"", "all"}:
+        country = "all"
+    else:
+        country = normalize_country(country_value)
+        if country not in COUNTRIES:
+            country = normalize_country(default_country)
+    keyword = " ".join(str(payload.get("keyword") or "").strip().split())
+    source_type = normalize_digest_source_type(str(payload.get("source_type") or ""))
+    focus = normalize_digest_focus(payload.get("focus"))
+    try:
+        requested_limit = int(payload.get("max_mentions") or configured_limit)
+    except (TypeError, ValueError):
+        requested_limit = configured_limit
+    max_mentions = max(10, min(100, configured_limit, requested_limit))
+    return {
+        "country": country,
+        "keyword": keyword,
+        "source_type": source_type,
+        "focus": focus,
+        "max_mentions": max_mentions,
+    }
+
+
+def normalize_digest_focus(value: object) -> str:
+    text = str(value or "").strip().lower()
+    if text in {"risks", "risk"}:
+        return "risks"
+    if text in {"important", "priority", "top"}:
+        return "important"
+    if text in {"sources", "source"}:
+        return "sources"
+    if text in {"actions", "next_steps", "steps"}:
+        return "actions"
+    return "overview"
+
+
+def normalize_digest_source_type(value: object) -> str:
+    text = str(value or "").strip().lower()
+    if text in {"telegram", "telegram_paid", "tg"}:
+        return "telegram"
+    if text in {"prozorro", "registry", "registries", "register", "prozorro_plan", "prozorro_sale", "rada_bills"}:
+        return "prozorro"
+    if text == "rss":
+        return "rss"
+    return ""
+
+
+def digest_source_country_lookup(db: Database, chat_id: int, sources: list[Source]) -> dict[str, str]:
+    lookup: dict[str, str] = {}
+    for source in [*sources, *db.get_user_monitoring(chat_id).custom_sources]:
+        country = normalize_country(source.country)
+        lookup[normalize_url(source.url)] = country
+        lookup.setdefault(clean_source_display_name(source.name).lower(), country)
+    return lookup
+
+
+def filter_digest_rows(rows, source_country: dict[str, str], options: dict) -> list:
+    filtered = []
+    for row in rows:
+        source_type = normalize_digest_source_type(row["source_type"])
+        if source_type not in {"rss", "telegram", "prozorro"}:
+            continue
+        if options["source_type"] and source_type != options["source_type"]:
+            continue
+        if options["keyword"] and str(row["keyword"] or "").strip() != options["keyword"]:
+            continue
+        country = source_country.get(normalize_url(row["url"])) or source_country.get(
+            clean_source_display_name(row["source"] or "").lower(),
+            "",
+        )
+        if options["country"] != "all" and country != options["country"]:
+            continue
+        filtered.append(row)
+    return filtered
+
+
+def digest_period_hours(value: object) -> int:
+    text = str(value or "").strip().lower()
+    if text in {"12", "12h", "12_hours"}:
+        return 12
+    if text in {"7", "7d", "week", "168", "168h"}:
+        return 168
+    return 24
+
+
+def digest_period_label(hours: int) -> str:
+    if hours == 12:
+        return "12 hours"
+    if hours == 168:
+        return "7 days"
+    return "24 hours"
 
 
 def crypto_payment_status_payload(row) -> dict:
@@ -1892,6 +2325,32 @@ def handle_successful_payment(chat_id: int, payment: dict, db: Database, telegra
         locale_text(language_code, "payment_success", plan=escape(plan.name), status=escape(status), expires=escape(expires)),
         reply_markup=main_menu_for_chat(chat_id, db),
     )
+    if recorded:
+        notify_admin_stars_payment(chat_id, plan, payment, expires, telegram)
+
+
+def notify_admin_stars_payment(chat_id: int, plan: Plan, payment: dict, expires: str, telegram: TelegramApi) -> None:
+    if not ADMIN_CHAT_IDS:
+        return
+    currency = str(payment.get("currency") or "XTR")
+    amount = int(payment.get("total_amount") or 0)
+    telegram_charge_id = str(payment.get("telegram_payment_charge_id") or "-")
+    provider_charge_id = str(payment.get("provider_payment_charge_id") or "-")
+    user_link = f'<a href="tg://user?id={chat_id}">{chat_id}</a>'
+    text = (
+        "💳 <b>Нова оплата Telegram Stars</b>\n\n"
+        f"Користувач: {user_link}\n"
+        f"Тариф: <b>{escape(plan.name)}</b>\n"
+        f"Сума: <b>{amount} {escape(currency)}</b>\n"
+        f"Діє до: <code>{escape(expires)}</code>\n"
+        f"Telegram charge ID: <code>{escape(telegram_charge_id)}</code>\n"
+        f"Provider charge ID: <code>{escape(provider_charge_id)}</code>"
+    )
+    for admin_chat_id in ADMIN_CHAT_IDS:
+        try:
+            telegram.send_message(admin_chat_id, text, disable_web_page_preview=True)
+        except Exception:
+            logging.exception("Could not notify admin=%s about Stars payment from chat_id=%s", admin_chat_id, chat_id)
 
 
 def crypto_text(language_code: str, key: str, **kwargs: object) -> str:
@@ -1966,7 +2425,8 @@ def send_users(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     for index, row in enumerate(users, start=1):
         user_chat_id = int(row["chat_id"])
         plan = db.get_active_plan(user_chat_id)
-        expires = row["expires_at"] if plan.id != "free" and row["expires_at"] else "-"
+        last_seen = display_datetime_line(row["last_seen_at"])
+        expires = display_datetime_line(row["expires_at"]) if plan.id != "free" and row["expires_at"] else "-"
         lines.extend(
             [
                 f"{index}. ID: <code>{user_chat_id}</code>",
@@ -1977,16 +2437,217 @@ def send_users(chat_id: int, db: Database, telegram: TelegramApi) -> None:
                     keywords=row["keyword_count"],
                     sources=row["custom_source_count"],
                 ),
-                locale_text(language_code, "users_last_seen", last_seen=escape(row["last_seen_at"])),
+                locale_text(language_code, "users_last_seen", last_seen=escape(last_seen)),
                 locale_text(language_code, "users_expires", expires=escape(expires)),
             ]
         )
     telegram.send_message(chat_id, "\n".join(lines), reply_markup=main_menu_for_chat(chat_id, db))
 
 
+def send_user_keys(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
+    if chat_id not in ADMIN_CHAT_IDS:
+        telegram.send_message(chat_id, locale_text(language_code, "admin_only"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    report_dir = Path("reports")
+    report_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    path = report_dir / f"user_keywords_{timestamp}.csv"
+    rows = db.list_user_keywords()
+    with path.open("w", encoding="utf-8-sig", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(
+            [
+                "chat_id",
+                "active_plan",
+                "subscription_expires_at",
+                "user_language",
+                "user_region",
+                "user_created_at",
+                "last_seen_at",
+                "keyword",
+                "keyword_country",
+                "keyword_country_name",
+                "paused",
+                "silent",
+                "keyword_created_at",
+            ]
+        )
+        for row in rows:
+            user_chat_id = int(row["chat_id"])
+            plan = db.get_active_plan(user_chat_id)
+            keyword_country = normalize_country(row["keyword_country_code"])
+            writer.writerow(
+                [
+                    user_chat_id,
+                    plan.name,
+                    row["expires_at"] or "",
+                    normalize_language(row["language_code"]),
+                    normalize_country(row["user_country_code"]),
+                    row["user_created_at"] or "",
+                    row["last_seen_at"] or "",
+                    row["phrase"] or "",
+                    keyword_country,
+                    country_name(keyword_country, "uk"),
+                    "yes" if row["paused"] else "no",
+                    "yes" if row["silent"] else "no",
+                    row["keyword_created_at"] or "",
+                ]
+            )
+    telegram.send_document(
+        chat_id,
+        path,
+        f"Ключі користувачів: {len(rows)} записів. Тільки для адміністратора.",
+    )
+
+
+def send_star_payments(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
+    if chat_id not in ADMIN_CHAT_IDS:
+        telegram.send_message(chat_id, locale_text(language_code, "admin_only"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    rows = db.list_star_payments()
+    total_stars = sum(int(row["total_amount"] or 0) for row in rows)
+    path = write_star_payments_report(rows)
+    telegram.send_message(
+        chat_id,
+        (
+            "⭐ <b>Оплати Telegram Stars</b>\n\n"
+            f"Платежів: <b>{len(rows)}</b>\n"
+            f"Усього Stars: <b>{total_stars}</b>\n"
+            "Файл зі списком оплат надсилаю нижче."
+        ),
+        reply_markup=main_menu_for_chat(chat_id, db),
+    )
+    telegram.send_document(chat_id, path, f"Telegram Stars payments: {len(rows)} records")
+
+
+def send_crypto_payments(chat_id: int, db: Database, telegram: TelegramApi) -> None:
+    language_code = db.get_user_settings(chat_id).language_code
+    if chat_id not in ADMIN_CHAT_IDS:
+        telegram.send_message(chat_id, locale_text(language_code, "admin_only"), reply_markup=main_menu_for_chat(chat_id, db))
+        return
+    rows = db.list_crypto_payments()
+    paid_rows = [row for row in rows if row["paid_at"]]
+    pending_rows = [row for row in rows if not row["paid_at"]]
+    path = write_crypto_payments_report(rows)
+    telegram.send_message(
+        chat_id,
+        (
+            "💵 <b>Оплати USDT / crypto</b>\n\n"
+            f"Інвойсів: <b>{len(rows)}</b>\n"
+            f"Оплачено: <b>{len(paid_rows)}</b>\n"
+            f"Очікують/не завершені: <b>{len(pending_rows)}</b>\n"
+            "Файл зі списком інвойсів надсилаю нижче."
+        ),
+        reply_markup=main_menu_for_chat(chat_id, db),
+    )
+    telegram.send_document(chat_id, path, f"Crypto payments: {len(rows)} records")
+
+
+def write_star_payments_report(rows) -> Path:
+    report_dir = Path("reports")
+    report_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    path = report_dir / f"telegram_stars_payments_{timestamp}.csv"
+    with path.open("w", encoding="utf-8-sig", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(
+            [
+                "payment_id",
+                "chat_id",
+                "plan_id",
+                "currency",
+                "stars_amount",
+                "invoice_payload",
+                "telegram_payment_charge_id",
+                "provider_payment_charge_id",
+                "paid_at",
+                "active_plan_id",
+                "subscription_expires_at",
+                "user_created_at",
+                "last_seen_at",
+            ]
+        )
+        for row in rows:
+            writer.writerow(
+                [
+                    row["id"],
+                    row["chat_id"],
+                    row["plan_id"],
+                    row["currency"],
+                    row["total_amount"],
+                    row["invoice_payload"],
+                    row["telegram_payment_charge_id"] or "",
+                    row["provider_payment_charge_id"] or "",
+                    row["paid_at"],
+                    row["active_plan_id"] or "",
+                    row["subscription_expires_at"] or "",
+                    row["user_created_at"] or "",
+                    row["last_seen_at"] or "",
+                ]
+            )
+    return path
+
+
+def write_crypto_payments_report(rows) -> Path:
+    report_dir = Path("reports")
+    report_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    path = report_dir / f"crypto_payments_{timestamp}.csv"
+    with path.open("w", encoding="utf-8-sig", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow(
+            [
+                "invoice_id",
+                "order_id",
+                "chat_id",
+                "plan_id",
+                "provider",
+                "price_amount",
+                "price_currency",
+                "provider_invoice_id",
+                "status",
+                "provider_payment_id",
+                "invoice_url",
+                "created_at",
+                "updated_at",
+                "paid_at",
+                "active_plan_id",
+                "subscription_expires_at",
+                "user_created_at",
+                "last_seen_at",
+            ]
+        )
+        for row in rows:
+            writer.writerow(
+                [
+                    row["id"],
+                    row["order_id"],
+                    row["chat_id"],
+                    row["plan_id"],
+                    row["provider"],
+                    row["price_amount"],
+                    row["price_currency"],
+                    row["provider_invoice_id"] or "",
+                    row["status"],
+                    row["provider_payment_id"] or "",
+                    row["invoice_url"],
+                    row["created_at"],
+                    row["updated_at"],
+                    row["paid_at"] or "",
+                    row["active_plan_id"] or "",
+                    row["subscription_expires_at"] or "",
+                    row["user_created_at"] or "",
+                    row["last_seen_at"] or "",
+                ]
+            )
+    return path
+
+
 def can_add_keyword(chat_id: int, db: Database, telegram: TelegramApi) -> bool:
     plan = db.get_active_plan(chat_id)
-    current = len(db.get_user_monitoring(chat_id).keywords)
+    current = db.active_keyword_count(chat_id)
     if current >= plan.max_keywords:
         language_code = db.get_user_settings(chat_id).language_code
         telegram.send_message(
@@ -2400,12 +3061,29 @@ def remove_custom_rss_by_number(chat_id: int, value: str, db: Database, telegram
 
 def send_help(chat_id: int, db: Database, telegram: TelegramApi) -> None:
     language_code = db.get_user_settings(chat_id).language_code
+    text = locale_text(language_code, "help_text")
+    personal_note = personal_plan_help_note(language_code)
+    if personal_note and personal_note not in text:
+        text = f"{text}\n\n{personal_note}"
     telegram.send_message(
         chat_id,
-        locale_text(language_code, "help_text"),
+        text,
         disable_web_page_preview=True,
         reply_markup=main_menu_for_chat(chat_id, db),
     )
+
+
+def personal_plan_help_note(language_code: str) -> str:
+    notes = {
+        "uk": "💼 <b>Персональний тариф</b>\nЯкщо стандартних лімітів тарифу недостатньо, зверніться в підтримку — ми підготуємо персональні умови під вашу задачу.",
+        "ru": "💼 <b>Персональный тариф</b>\nЕсли стандартных лимитов тарифа недостаточно, обратитесь в поддержку — мы подготовим персональные условия под вашу задачу.",
+        "pl": "💼 <b>Plan indywidualny</b>\nJeśli standardowe limity planu nie wystarczą, skontaktuj się ze wsparciem — przygotujemy warunki indywidualne.",
+        "de": "💼 <b>Individueller Tarif</b>\nWenn die Standardlimits nicht ausreichen, kontaktieren Sie den Support — wir bereiten individuelle Konditionen vor.",
+        "es": "💼 <b>Plan personalizado</b>\nSi los límites estándar no son suficientes, contacta con soporte — prepararemos condiciones personalizadas.",
+        "it": "💼 <b>Piano personalizzato</b>\nSe i limiti standard non bastano, contatta il supporto — prepareremo condizioni personalizzate.",
+        "be": "💼 <b>Персанальны тарыф</b>\nКалі стандартных лімітаў недастаткова, звярніцеся ў падтрымку — мы падрыхтуем персанальныя ўмовы.",
+    }
+    return notes.get(language_code, "💼 <b>Personal plan</b>\nIf the standard plan limits are not enough, contact support — we will prepare personal terms for your task.")
 
 
 def send_info(chat_id: int, db: Database, telegram: TelegramApi, sources) -> None:
@@ -2638,10 +3316,12 @@ def source_rows(chat_id: int, db: Database, sources) -> list[dict]:
     settings = db.get_user_settings(chat_id)
     rows: list[dict] = []
     number = 1
-    for source in sources:
-        if source.country != settings.country_code:
-            continue
-        if not source_allowed_for_plan(source, plan.id):
+    country_matched = [
+        source for source in sources if normalize_country(source.country) == settings.country_code
+    ]
+    free_urls = free_source_urls(country_matched) if plan.id == "free" else None
+    for source in country_matched:
+        if not source_allowed_for_plan(source, plan.id, free_urls):
             continue
         rows.append(
             {

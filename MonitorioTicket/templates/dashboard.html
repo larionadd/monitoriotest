@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_name }} Cabinet</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/styles.css') }}">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark">TP</span>
+            <div>
+                <strong>{{ app_name }}</strong>
+                <span>operator cabinet</span>
+            </div>
+        </div>
+        <nav>
+            <a href="#overview">Огляд</a>
+            <a href="#setup">Налаштування</a>
+            <a href="#searches">Пошуки</a>
+            <a href="#alerts">Алерти</a>
+            <a href="#sources">Джерела</a>
+            <a href="#plans">Тарифи</a>
+            <a href="#users">Користувачі</a>
+        </nav>
+    </aside>
+
+    <main class="shell">
+        <section id="overview" class="topbar">
+            <div>
+                <p class="eyebrow">MVP кабінет</p>
+                <h1>Операційна панель моніторингу авіаквитків</h1>
+            </div>
+            <div class="status-pill">SQLite local</div>
+        </section>
+
+        <section class="stats-grid" aria-label="Ключові метрики">
+            <article class="stat">
+                <span>Користувачі</span>
+                <strong>{{ stats.users }}</strong>
+            </article>
+            <article class="stat">
+                <span>Активні пошуки</span>
+                <strong>{{ stats.active_searches }}</strong>
+            </article>
+            <article class="stat">
+                <span>Алерти сьогодні</span>
+                <strong>{{ stats.alerts_today }}</strong>
+            </article>
+            <article class="stat">
+                <span>Увімкнені джерела</span>
+                <strong>{{ stats.enabled_sources }}</strong>
+            </article>
+        </section>
+
+        <section id="setup" class="panel">
+            <div class="panel-head">
+                <h2>Налаштування запуску</h2>
+                <span>Секрети не показуються в кабінеті і не зберігаються в git</span>
+            </div>
+            <div class="setup-grid">
+                <article class="setup-item">
+                    <span>Telegram bot token</span>
+                    <strong class="{{ 'ok' if setup.telegram_bot_token else 'missing' }}">{{ "set" if setup.telegram_bot_token else "missing" }}</strong>
+                </article>
+                <article class="setup-item">
+                    <span>Travelpayouts token</span>
+                    <strong class="{{ 'ok' if setup.travelpayouts_token else 'missing' }}">{{ "set" if setup.travelpayouts_token else "missing" }}</strong>
+                </article>
+                <article class="setup-item">
+                    <span>Travelpayouts marker</span>
+                    <strong class="{{ 'ok' if setup.travelpayouts_marker else 'missing' }}">{{ "set" if setup.travelpayouts_marker else "missing" }}</strong>
+                </article>
+                <article class="setup-item">
+                    <span>Skyscanner API key</span>
+                    <strong class="{{ 'ok' if setup.skyscanner_api_key else 'missing' }}">{{ "set" if setup.skyscanner_api_key else "missing" }}</strong>
+                </article>
+                <article class="setup-item">
+                    <span>Kiwi Tequila API key</span>
+                    <strong class="{{ 'ok' if setup.kiwi_tequila_api_key else 'missing' }}">{{ "set" if setup.kiwi_tequila_api_key else "missing" }}</strong>
+                </article>
+            </div>
+        </section>
+
+        <section id="searches" class="panel">
+            <div class="panel-head">
+                <h2>Активні пошуки</h2>
+                <span>Перший контрольний маршрут: BUS → TLV</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Користувач</th>
+                            <th>Маршрут</th>
+                            <th>Дати</th>
+                            <th>Бюджет</th>
+                            <th>Фільтри</th>
+                            <th>Статус</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for search in searches %}
+                        <tr>
+                            <td>#{{ search.id }}</td>
+                            <td>{{ search.username or search.first_name or "unknown" }}</td>
+                            <td><strong>{{ search.origin }} → {{ search.destination }}</strong></td>
+                            <td>{{ search.date_from or "будь-коли" }}{% if search.date_to and search.date_to != search.date_from %} - {{ search.date_to }}{% endif %}</td>
+                            <td>{{ search.budget or "auto" }} {{ search.currency }}</td>
+                            <td>{{ search.passengers }} pax · {{ search.baggage }} · {{ search.stops }}</td>
+                            <td><span class="badge">{{ search.status }}</span></td>
+                            <td>
+                                <form method="post" action="/searches/{{ search.id }}/status" class="inline-form">
+                                    {% if search.status == "active" %}
+                                    <input type="hidden" name="status" value="paused">
+                                    <button type="submit" class="btn">Pause</button>
+                                    {% else %}
+                                    <input type="hidden" name="status" value="active">
+                                    <button type="submit" class="btn">Resume</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="alerts" class="panel">
+            <div class="panel-head">
+                <h2>Останні алерти</h2>
+                <span>Точний варіант, сусідня дата, альтернативне місто</span>
+            </div>
+            <div class="alert-grid">
+                {% for alert in alerts %}
+                <article class="alert-card">
+                    <div>
+                        <span class="badge badge-soft">{{ alert.kind }}</span>
+                        <h3>{{ alert.title }}</h3>
+                        <p>{{ alert.route }} · {{ alert.depart_at or "date unknown" }}</p>
+                    </div>
+                    <strong>{{ alert.price }} {{ alert.currency }}</strong>
+                    <small>{{ alert.source }} · {{ alert.created_at }}</small>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="sources" class="panel">
+            <div class="panel-head">
+                <h2>Джерела даних</h2>
+                <span>Прямий парсинг авіакомпаній залишений як research-only</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Джерело</th>
+                            <th>Тип</th>
+                            <th>Статус</th>
+                            <th>Priority</th>
+                            <th>Enabled</th>
+                            <th>Коментар</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for source in sources %}
+                        <tr>
+                            <td><strong>{{ source.name }}</strong></td>
+                            <td>{{ source.type }}</td>
+                            <td><span class="badge">{{ source.status }}</span></td>
+                            <td>{{ source.priority }}</td>
+                            <td>{{ "yes" if source.enabled else "no" }}</td>
+                            <td>{{ source.last_error or source.last_ok_at or "-" }}</td>
+                            <td>
+                                <form method="post" action="/sources/{{ source.id }}/toggle" class="inline-form">
+                                    <button type="submit" class="btn">{{ "Disable" if source.enabled else "Enable" }}</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="plans" class="panel">
+            <div class="panel-head">
+                <h2>Тарифи</h2>
+                <span>Ліміти потрібні з першого дня, оплату можна підключити пізніше</span>
+            </div>
+            <div class="plan-grid">
+                {% for plan in plans %}
+                <article class="plan">
+                    <h3>{{ plan.name }}</h3>
+                    <strong>${{ plan.price_month }}/mo</strong>
+                    <p>{{ plan.search_limit }} пошуків · кожні {{ plan.check_interval_minutes }} хв</p>
+                    <span>{{ plan.features }}</span>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="users" class="panel">
+            <div class="panel-head">
+                <h2>Користувачі</h2>
+                <span>Запис створюється тільки після /start або повідомлення боту</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Telegram</th>
+                            <th>Username</th>
+                            <th>План</th>
+                            <th>Створено</th>
+                            <th>Остання дія</th>
+                            <th>Змінити план</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>#{{ user.id }}</td>
+                            <td>{{ user.telegram_id }}</td>
+                            <td>{{ user.username or user.first_name or "-" }}</td>
+                            <td><span class="badge badge-soft">{{ user.plan }}</span></td>
+                            <td>{{ user.created_at }}</td>
+                            <td>{{ user.last_seen_at or "-" }}</td>
+                            <td>
+                                <form method="post" action="/users/{{ user.id }}/plan" class="inline-form">
+                                    <select name="plan" aria-label="План користувача">
+                                        {% for plan in plans %}
+                                        <option value="{{ plan.name }}" {% if plan.name == user.plan %}selected{% endif %}>{{ plan.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

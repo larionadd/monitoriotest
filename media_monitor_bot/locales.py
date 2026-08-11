@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from dataclasses import dataclass
 
@@ -173,6 +173,31 @@ COUNTRIES: dict[str, Country] = {
             "ru": "Узбекистан",
         },
     ),
+    "lv": Country(
+        "lv",
+        "Latvia",
+        {"en": "Latvia", "uk": "Латвія", "pl": "Łotwa", "de": "Lettland", "es": "Letonia", "it": "Lettonia", "be": "Латвія", "ru": "Латвия"},
+    ),
+    "lt": Country(
+        "lt",
+        "Lithuania",
+        {"en": "Lithuania", "uk": "Литва", "pl": "Litwa", "de": "Litauen", "es": "Lituania", "it": "Lituania", "be": "Літва", "ru": "Литва"},
+    ),
+    "ee": Country(
+        "ee",
+        "Estonia",
+        {"en": "Estonia", "uk": "Естонія", "pl": "Estonia", "de": "Estland", "es": "Estonia", "it": "Estonia", "be": "Эстонія", "ru": "Эстония"},
+    ),
+    "fr": Country(
+        "fr",
+        "France",
+        {"en": "France", "uk": "Франція", "pl": "Francja", "de": "Frankreich", "es": "Francia", "it": "Francia", "be": "Францыя", "ru": "Франция"},
+    ),
+    "pt": Country(
+        "pt",
+        "Portugal",
+        {"en": "Portugal", "uk": "Португалія", "pl": "Portugalia", "de": "Portugal", "es": "Portugal", "it": "Portogallo", "be": "Партугалія", "ru": "Португалия"},
+    ),
 }
 
 LANGUAGE_FLAGS: dict[str, str] = {
@@ -193,8 +218,14 @@ COUNTRY_FLAGS: dict[str, str] = {
     "es": "🇪🇸",
     "it": "🇮🇹",
     "by": "🇧🇾",
+    "ru": "🇷🇺",
     "kz": "🇰🇿",
     "uz": "🇺🇿",
+    "lv": "🇱🇻",
+    "lt": "🇱🇹",
+    "ee": "🇪🇪",
+    "fr": "🇫🇷",
+    "pt": "🇵🇹",
 }
 
 
@@ -229,7 +260,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Change text mode",
         "unknown_language": "Unknown language. Choose an option using the button.",
         "unknown_country": "Unknown region. Choose an option using the button.",
-        "alert_template": "📰 New mention\n\nKeyword: {keyword}\nSource: {source}\nTitle: {title}\nDate: {published_at}\n\n{url}",
+        "alert_template": "📰 New mention\n\nKeyword: {keyword}\nSource: {source}\nTitle: {title}\n📅 Date: {published_date}\n🕒 Time: {published_time}\n\n{url}",
     },
     "uk": {
         "welcome": (
@@ -261,7 +292,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Змінити режим тексту",
         "unknown_language": "Невідома мова. Оберіть варіант кнопкою.",
         "unknown_country": "Невідомий регіон. Оберіть варіант кнопкою.",
-        "alert_template": "📰 Нова згадка\n\nКлюч: {keyword}\nДжерело: {source}\nЗаголовок: {title}\nДата: {published_at}\n\n{url}",
+        "alert_template": "📰 Нова згадка\n\nКлюч: {keyword}\nДжерело: {source}\nЗаголовок: {title}\n📅 Дата: {published_date}\n🕒 Час: {published_time}\n\n{url}",
     },
     "pl": {
         "welcome": (
@@ -293,7 +324,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Zmień tryb tekstu",
         "unknown_language": "Nieznany język. Wybierz opcję przyciskiem.",
         "unknown_country": "Nieznany region. Wybierz opcję przyciskiem.",
-        "alert_template": "📰 Nowa wzmianka\n\nSłowo kluczowe: {keyword}\nŹródło: {source}\nTytuł: {title}\nData: {published_at}\n\n{url}",
+        "alert_template": "📰 Nowa wzmianka\n\nSłowo kluczowe: {keyword}\nŹródło: {source}\nTytuł: {title}\n📅 Data: {published_date}\n🕒 Czas: {published_time}\n\n{url}",
     },
     "de": {
         "welcome": (
@@ -325,7 +356,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Textmodus ändern",
         "unknown_language": "Unbekannte Sprache. Bitte wähle eine Option per Button.",
         "unknown_country": "Unbekannte Region. Bitte wähle eine Option per Button.",
-        "alert_template": "📰 Neue Erwähnung\n\nKeyword: {keyword}\nQuelle: {source}\nTitel: {title}\nDatum: {published_at}\n\n{url}",
+        "alert_template": "📰 Neue Erwähnung\n\nKeyword: {keyword}\nQuelle: {source}\nTitel: {title}\n📅 Datum: {published_date}\n🕒 Zeit: {published_time}\n\n{url}",
     },
     "es": {
         "welcome": (
@@ -357,7 +388,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Cambiar modo de texto",
         "unknown_language": "Idioma desconocido. Elige una opción con el botón.",
         "unknown_country": "Región desconocida. Elige una opción con el botón.",
-        "alert_template": "📰 Nueva mención\n\nPalabra clave: {keyword}\nFuente: {source}\nTítulo: {title}\nFecha: {published_at}\n\n{url}",
+        "alert_template": "📰 Nueva mención\n\nPalabra clave: {keyword}\nFuente: {source}\nTítulo: {title}\n📅 Fecha: {published_date}\n🕒 Hora: {published_time}\n\n{url}",
     },
     "it": {
         "welcome": (
@@ -389,7 +420,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Cambia modalità testo",
         "unknown_language": "Lingua sconosciuta. Scegli un'opzione con il pulsante.",
         "unknown_country": "Regione sconosciuta. Scegli un'opzione con il pulsante.",
-        "alert_template": "📰 Nuova menzione\n\nParola chiave: {keyword}\nFonte: {source}\nTitolo: {title}\nData: {published_at}\n\n{url}",
+        "alert_template": "📰 Nuova menzione\n\nParola chiave: {keyword}\nFonte: {source}\nTitolo: {title}\n📅 Data: {published_date}\n🕒 Ora: {published_time}\n\n{url}",
     },
     "be": {
         "welcome": (
@@ -421,7 +452,7 @@ MESSAGES: dict[str, dict[str, str]] = {
         "change_text_mode": "Змяніць рэжым тэксту",
         "unknown_language": "Невядомая мова. Выберыце варыянт кнопкай.",
         "unknown_country": "Невядомы рэгіён. Выберыце варыянт кнопкай.",
-        "alert_template": "📰 Новая згадка\n\nКлюч: {keyword}\nКрыніца: {source}\nЗагаловак: {title}\nДата: {published_at}\n\n{url}",
+        "alert_template": "📰 Новая згадка\n\nКлюч: {keyword}\nКрыніца: {source}\nЗагаловак: {title}\n📅 Дата: {published_date}\n🕒 Час: {published_time}\n\n{url}",
     },
 }
 
@@ -476,7 +507,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
             "• Hidden links under Telegram/RSS text are also checked, so a domain inside a hidden hyperlink can trigger an alert.\n\n"
             "🧾 <b>Text mode</b>\n"
             "• Fast mode: headline, RSS summary, Telegram post text, and hidden links.\n"
-            "• Full-text mode: the bot also opens the article page and checks the article body. This is available in Pro and Business plans and depends on site availability.\n\n"
+            "• Full-text mode: the bot also opens the article page and checks the article body. This is available only in the Business plan and depends on site availability.\n\n"
             "⚙️ <b>Filter logic</b>\n"
             "• Keywords are OR logic: any keyword can trigger a result.\n"
             "• Stop words block a result if at least one stop word is found.\n"
@@ -484,7 +515,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
             "📰 <b>Sources</b>\n"
             "Use 📰 Sources to view, enable, disable, or add sources. Paid Telegram channel packages are managed in blocks of 50. Use 📎 Sources file to get a CSV table with source numbers.\n\n"
             "⏱ <b>Automatic checks</b>\n"
-            "Free: once per hour. Basic/Pro: every 30 minutes. Business: every 5 minutes. Public Telegram channels are checked only for posts from the last 24 hours.\n\n"
+            "Free: once per hour. Basic/Pro: every 30 minutes. Business: every 1 minute. Public Telegram channels are checked only for posts from the last 24 hours.\n\n"
             "⌨️ <b>Useful commands</b>\n"
             "/add keyword - add a keyword\n"
             "/remove keyword - remove a keyword\n"
@@ -520,7 +551,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "removed": "removed",
         "not_found": "not found",
         "empty_terms": "none",
-        "fulltext_unavailable": "Full-text search is available in Pro and Business plans.",
+        "fulltext_unavailable": "Full-text search is available only in the Business plan.",
         "fulltext_enabled": "Full-text mode is enabled. The bot will search in the title, RSS summary, and article page text.",
         "fast_mode_enabled": "Fast mode is enabled. The bot will search only in the title and RSS summary.",
         "info_title": "My monitoring",
@@ -535,7 +566,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "monitoring_mode_auto": "automatic",
         "monitoring_mode_manual": "manual",
         "change_monitoring_mode": "Change monitoring mode",
-        "interval_business": "every 5 minutes",
+        "interval_business": "every 1 minute",
         "interval_paid": "every 30 minutes",
         "interval_free": "once per hour",
         "monitoring_mode_intro": "Monitoring mode defines whether the bot checks sources automatically or only when you start a manual check.",
@@ -629,10 +660,10 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "paid_tg_manage_hint": "Manage them in blocks of 50 with the TG packages button or /tgblocks.",
         "rss_commands_hint": "Commands: /rss off number, /rss on number, /rss add URL, /rss remove number",
         "default_source_name": "My source",
-        "plan_free_description": "🔑 1 keyword • 📰 standard RSS • 🚫 no TG channel database • 🔔 15 alerts/day • ⏱ monitoring once per hour",
-        "plan_basic_description": "🔑 10 keywords • 🧩 3 custom RSS/TG sources • 📡 TG channel database • 🔔 100 alerts/day • ⏱ monitoring every 30 minutes",
-        "plan_pro_description": "🔑 50 keywords • 🧩 15 custom RSS/TG sources • 📡 TG channel database • 🧾 full-text search • 🔔 500 alerts/day • ⏱ monitoring every 30 minutes",
-        "plan_business_description": "♾ unlimited keywords • ♾ unlimited RSS/TG sources • 📡 TG channel database • 🧾 full-text search • 🔔 unlimited alerts • ⚡ monitoring every 5 minutes",
+        "plan_free_description": "🔑 1 keyword • 📰 top 20 RSS + top 20 TG channels from any selected country • 🔔 15 alerts/day • ⏱ monitoring once per hour • 💬 support in paid plans",
+        "plan_basic_description": "🔑 10 keywords • 🧩 3 custom RSS/TG sources • 📡 full TG channel database • 💬 support • 🔔 100 alerts/day • ⏱ monitoring every 30 minutes",
+        "plan_pro_description": "🔑 50 keywords • 🧩 15 custom RSS/TG sources • 📡 full TG channel database • 💬 support • 🔔 250 alerts/day • ⏱ monitoring every 30 minutes",
+        "plan_business_description": "🔑 250 keywords • 🧩 500 custom RSS/TG sources • 📡 full TG channel database • 🧾 full-text search • 🏛 registry search • 💬 support • 🔔 1000 alerts/day • ⚡ monitoring every 1 minute",
         "plan_paid_template": "{name}: {stars} Stars / {days} days. {description}",
         "plan_free_template": "{name}: {description}",
     },
@@ -694,7 +725,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
             "📰 <b>Джерела</b>\n"
             "У розділі 📰 Джерела можна дивитися, вимикати, вмикати або додавати джерела. Платні Telegram-канали керуються пакетами по 50. Через 📎 Файл джерел можна отримати CSV-таблицю з номерами джерел.\n\n"
             "⏱ <b>Автоматичні перевірки</b>\n"
-            "Free: раз на годину. Basic/Pro: кожні 30 хвилин. Business: кожні 5 хвилин. Публічні Telegram-канали перевіряються тільки за останні 24 години.\n\n"
+            "Free: раз на годину. Basic/Pro: кожні 30 хвилин. Business: кожну 1 хвилину. Публічні Telegram-канали перевіряються тільки за останні 24 години.\n\n"
             "⌨️ <b>Корисні команди</b>\n"
             "/add ключ - додати ключ\n"
             "/remove ключ - видалити ключ\n"
@@ -730,7 +761,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "removed": "видалено",
         "not_found": "не знайдено",
         "empty_terms": "немає",
-        "fulltext_unavailable": "Пошук у повному тексті доступний у тарифах Pro та Business.",
+        "fulltext_unavailable": "Пошук у повному тексті доступний тільки в тарифі Business.",
         "fulltext_enabled": "Режим повного тексту увімкнено. Бот шукатиме в заголовку, RSS-анонсі та тексті сторінки.",
         "fast_mode_enabled": "Швидкий режим увімкнено. Бот шукатиме тільки в заголовку та RSS-анонсі.",
         "info_title": "Мій моніторинг",
@@ -745,7 +776,7 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "monitoring_mode_auto": "автоматичний",
         "monitoring_mode_manual": "ручний",
         "change_monitoring_mode": "Змінити режим моніторингу",
-        "interval_business": "кожні 5 хвилин",
+        "interval_business": "кожну 1 хвилину",
         "interval_paid": "кожні 30 хвилин",
         "interval_free": "раз на годину",
         "monitoring_mode_intro": "Режим моніторингу визначає, чи бот перевіряє джерела автоматично, чи тільки після ручного запуску.",
@@ -839,10 +870,10 @@ EXTRA_MESSAGES: dict[str, dict[str, str]] = {
         "paid_tg_manage_hint": "Керуйте ними блоками по 50 через кнопку TG-пакети або команду /tgblocks.",
         "rss_commands_hint": "Команди: /rss off номер, /rss on номер, /rss add URL, /rss remove номер",
         "default_source_name": "Моє джерело",
-        "plan_free_description": "🔑 1 ключ • 📰 стандартні RSS • 🚫 без бази TG-каналів • 🔔 15 сповіщень/день • ⏱ моніторинг раз на годину",
-        "plan_basic_description": "🔑 10 ключів • 🧩 3 власні RSS/TG • 📡 база TG-каналів • 🔔 100 сповіщень/день • ⏱ моніторинг кожні 30 хвилин",
-        "plan_pro_description": "🔑 50 ключів • 🧩 15 власних RSS/TG • 📡 база TG-каналів • 🧾 пошук по повному тексту • 🔔 500 сповіщень/день • ⏱ моніторинг кожні 30 хвилин",
-        "plan_business_description": "♾ безлімітні ключі • ♾ безлімітні RSS/TG • 📡 база TG-каналів • 🧾 пошук по повному тексту • 🔔 безлімітні сповіщення • ⚡ моніторинг кожні 5 хвилин",
+        "plan_free_description": "🔑 1 ключ • 📰 топ-20 RSS + топ-20 TG-каналів з будь-якої обраної країни • 🔔 15 сповіщень/день • ⏱ моніторинг раз на годину • 💬 підтримка у платних тарифах",
+        "plan_basic_description": "🔑 10 ключів • 🧩 3 власні RSS/TG • 📡 повна база TG-каналів • 💬 підтримка • 🔔 100 сповіщень/день • ⏱ моніторинг кожні 30 хвилин",
+        "plan_pro_description": "🔑 50 ключів • 🧩 15 власних RSS/TG • 📡 повна база TG-каналів • 💬 підтримка • 🔔 250 сповіщень/день • ⏱ моніторинг кожні 30 хвилин",
+        "plan_business_description": "🔑 250 ключів • 🧩 500 власних RSS/TG • 📡 повна база TG-каналів • 🧾 пошук по повному тексту • 🏛 пошук по реєстрах • 💬 підтримка • 🔔 1000 сповіщень/день • ⚡ моніторинг кожну 1 хвилину",
         "plan_paid_template": "{name}: {stars} Stars / {days} днів. {description}",
         "plan_free_template": "{name}: {description}",
     },
@@ -896,7 +927,7 @@ EXTRA_MESSAGES["pl"].update(
             "📰 <b>Źródła</b>\n"
             "W sekcji 📰 Źródła można przeglądać, wyłączać, włączać i dodawać źródła. Płatne pakiety Telegram są zarządzane blokami po 50. 📎 Plik źródeł wysyła tabelę CSV z numerami źródeł.\n\n"
             "⏱ <b>Automatyczne sprawdzanie</b>\n"
-            "Free: raz na godzinę. Basic/Pro: co 30 minut. Business: co 5 minut. Publiczne kanały Telegram są sprawdzane tylko za ostatnie 24 godziny.\n\n"
+            "Free: raz na godzinę. Basic/Pro: co 30 minut. Business: co 1 minutę. Publiczne kanały Telegram są sprawdzane tylko za ostatnie 24 godziny.\n\n"
             "⌨️ <b>Przydatne komendy</b>\n"
             "/add keyword - dodaj słowo kluczowe\n"
             "/remove keyword - usuń słowo kluczowe\n"
@@ -927,7 +958,7 @@ EXTRA_MESSAGES["pl"].update(
         "removed": "usunięto",
         "not_found": "nie znaleziono",
         "empty_terms": "brak",
-        "fulltext_unavailable": "Wyszukiwanie w pełnym tekście jest dostępne w planach Pro i Business.",
+        "fulltext_unavailable": "Wyszukiwanie w pełnym tekście jest dostępne tylko w planie Business.",
         "fulltext_enabled": "Tryb pełnego tekstu jest włączony.",
         "fast_mode_enabled": "Szybki tryb jest włączony.",
         "info_title": "Mój monitoring",
@@ -985,7 +1016,7 @@ EXTRA_MESSAGES["de"].update(
             "• Versteckte Links in Telegram/RSS werden ebenfalls geprüft, daher kann eine Domain in einem Hyperlink einen Alert auslösen.\n\n"
             "🧾 <b>Textmodus</b>\n"
             "• Schnellmodus: Titel, RSS-Zusammenfassung, Telegram-Post und versteckte Links.\n"
-            "• Volltext: Der Bot öffnet zusätzlich die Artikelseite und prüft den Artikeltext. Verfügbar in Pro und Business, abhängig von der Website.\n\n"
+            "• Volltext: Der Bot öffnet zusätzlich die Artikelseite und prüft den Artikeltext. Nur im Business-Tarif verfügbar, abhängig von der Website.\n\n"
             "⚙️ <b>Filterlogik</b>\n"
             "• Keywords arbeiten mit OR-Logik: ein Treffer reicht.\n"
             "• Stoppwörter blockieren ein Ergebnis, wenn mindestens eines gefunden wird.\n"
@@ -993,7 +1024,7 @@ EXTRA_MESSAGES["de"].update(
             "📰 <b>Quellen</b>\n"
             "Unter 📰 Quellen kannst du Quellen ansehen, deaktivieren, aktivieren oder hinzufügen. Bezahlte Telegram-Pakete werden in Blöcken zu 50 verwaltet. 📎 Quelldatei sendet eine CSV-Tabelle mit Quellnummern.\n\n"
             "⏱ <b>Automatische Prüfungen</b>\n"
-            "Free: einmal pro Stunde. Basic/Pro: alle 30 Minuten. Business: alle 5 Minuten. Öffentliche Telegram-Kanäle werden nur für die letzten 24 Stunden geprüft.\n\n"
+            "Free: einmal pro Stunde. Basic/Pro: alle 30 Minuten. Business: jede Minute. Öffentliche Telegram-Kanäle werden nur für die letzten 24 Stunden geprüft.\n\n"
             "⌨️ <b>Nützliche Befehle</b>\n"
             "/add keyword - Keyword hinzufügen\n"
             "/remove keyword - Keyword entfernen\n"
@@ -1024,7 +1055,7 @@ EXTRA_MESSAGES["de"].update(
         "removed": "entfernt",
         "not_found": "nicht gefunden",
         "empty_terms": "keine",
-        "fulltext_unavailable": "Volltextsuche ist in Pro und Business verfügbar.",
+        "fulltext_unavailable": "Volltextsuche ist nur im Business-Tarif verfügbar.",
         "fulltext_enabled": "Volltextmodus ist aktiviert.",
         "fast_mode_enabled": "Schnellmodus ist aktiviert.",
         "info_title": "Mein Monitoring",
@@ -1090,7 +1121,7 @@ EXTRA_MESSAGES["es"].update(
             "📰 <b>Fuentes</b>\n"
             "En 📰 Fuentes puedes ver, desactivar, activar o añadir fuentes. Los paquetes de Telegram de pago se gestionan en bloques de 50. 📎 Archivo de fuentes envía una tabla CSV con números de fuentes.\n\n"
             "⏱ <b>Comprobaciones automáticas</b>\n"
-            "Free: una vez por hora. Basic/Pro: cada 30 minutos. Business: cada 5 minutos. Los canales públicos de Telegram se revisan solo durante las últimas 24 horas.\n\n"
+            "Free: una vez por hora. Basic/Pro: cada 30 minutos. Business: cada 1 minuto. Los canales públicos de Telegram se revisan solo durante las últimas 24 horas.\n\n"
             "⌨️ <b>Comandos útiles</b>\n"
             "/add keyword - añadir palabra clave\n"
             "/remove keyword - eliminar palabra clave\n"
@@ -1121,7 +1152,7 @@ EXTRA_MESSAGES["es"].update(
         "removed": "eliminada",
         "not_found": "no encontrada",
         "empty_terms": "ninguna",
-        "fulltext_unavailable": "La búsqueda de texto completo está disponible en Pro y Business.",
+        "fulltext_unavailable": "La búsqueda de texto completo está disponible solo en Business.",
         "fulltext_enabled": "El modo de texto completo está activado.",
         "fast_mode_enabled": "El modo rápido está activado.",
         "info_title": "Mi monitoreo",
@@ -1187,7 +1218,7 @@ EXTRA_MESSAGES["it"].update(
             "📰 <b>Fonti</b>\n"
             "In 📰 Fonti puoi vedere, disattivare, attivare o aggiungere fonti. I pacchetti Telegram a pagamento si gestiscono in blocchi da 50. 📎 File fonti invia una tabella CSV con i numeri delle fonti.\n\n"
             "⏱ <b>Controlli automatici</b>\n"
-            "Free: una volta all'ora. Basic/Pro: ogni 30 minuti. Business: ogni 5 minuti. I canali Telegram pubblici vengono controllati solo per le ultime 24 ore.\n\n"
+            "Free: una volta all'ora. Basic/Pro: ogni 30 minuti. Business: ogni 1 minuto. I canali Telegram pubblici vengono controllati solo per le ultime 24 ore.\n\n"
             "⌨️ <b>Comandi utili</b>\n"
             "/add keyword - aggiungi parola chiave\n"
             "/remove keyword - rimuovi parola chiave\n"
@@ -1218,7 +1249,7 @@ EXTRA_MESSAGES["it"].update(
         "removed": "rimossa",
         "not_found": "non trovata",
         "empty_terms": "nessuna",
-        "fulltext_unavailable": "La ricerca nel testo completo è disponibile nei piani Pro e Business.",
+        "fulltext_unavailable": "La ricerca nel testo completo è disponibile solo nel piano Business.",
         "fulltext_enabled": "La modalità testo completo è attiva.",
         "fast_mode_enabled": "La modalità rapida è attiva.",
         "info_title": "Il mio monitoraggio",
@@ -1284,7 +1315,7 @@ EXTRA_MESSAGES["be"].update(
             "📰 <b>Крыніцы</b>\n"
             "У раздзеле 📰 Крыніцы можна глядзець, выключаць, уключаць або дадаваць крыніцы. Платныя Telegram-пакеты кіруюцца блокамі па 50. 📎 Файл крыніц дасылае CSV-табліцу з нумарамі крыніц.\n\n"
             "⏱ <b>Аўтаматычныя праверкі</b>\n"
-            "Free: раз на гадзіну. Basic/Pro: кожныя 30 хвілін. Business: кожныя 5 хвілін. Публічныя Telegram-каналы правяраюцца толькі за апошнія 24 гадзіны.\n\n"
+            "Free: раз на гадзіну. Basic/Pro: кожныя 30 хвілін. Business: кожную 1 хвіліну. Публічныя Telegram-каналы правяраюцца толькі за апошнія 24 гадзіны.\n\n"
             "⌨️ <b>Карысныя каманды</b>\n"
             "/add keyword - дадаць ключ\n"
             "/remove keyword - выдаліць ключ\n"
@@ -1315,7 +1346,7 @@ EXTRA_MESSAGES["be"].update(
         "removed": "выдалена",
         "not_found": "не знойдзена",
         "empty_terms": "няма",
-        "fulltext_unavailable": "Пошук у поўным тэксце даступны ў тарыфах Pro і Business.",
+        "fulltext_unavailable": "Пошук у поўным тэксце даступны толькі ў тарыфе Business.",
         "fulltext_enabled": "Рэжым поўнага тэксту ўключаны.",
         "fast_mode_enabled": "Хуткі рэжым уключаны.",
         "info_title": "Мой маніторынг",
@@ -1375,7 +1406,7 @@ RU_MESSAGES.update(
         "change_text_mode": "Изменить режим текста",
         "unknown_language": "Неизвестный язык. Выберите вариант кнопкой.",
         "unknown_country": "Неизвестный регион. Выберите вариант кнопкой.",
-        "alert_template": "📰 Новое упоминание\n\nКлюч: {keyword}\nИсточник: {source}\nЗаголовок: {title}\nДата: {published_at}\n\n{url}",
+        "alert_template": "📰 Новое упоминание\n\nКлюч: {keyword}\nИсточник: {source}\nЗаголовок: {title}\n📅 Дата: {published_date}\n🕒 Время: {published_time}\n\n{url}",
         "button_add": "➕ Добавить ключ",
         "button_remove": "➖ Удалить ключ",
         "button_info": "📋 Мой мониторинг",
@@ -1425,7 +1456,7 @@ RU_MESSAGES.update(
             "• Скрытые ссылки под текстом в Telegram/RSS тоже проверяются, поэтому домен в скрытой гиперссылке может дать срабатывание.\n\n"
             "🧾 <b>Режим текста</b>\n"
             "• Быстрый режим: заголовок, RSS-анонс, текст Telegram-поста и скрытые ссылки.\n"
-            "• Полный текст: бот дополнительно открывает страницу новости и проверяет текст статьи. Доступно в тарифах Pro и Business и зависит от доступности сайта.\n\n"
+            "• Полный текст: бот дополнительно открывает страницу новости и проверяет текст статьи. Доступно только в тарифе Business и зависит от доступности сайта.\n\n"
             "⚙️ <b>Логика фильтров</b>\n"
             "• Ключи работают по логике OR: достаточно совпадения с любым ключом.\n"
             "• Стоп-слова блокируют результат, если найдено хотя бы одно стоп-слово.\n"
@@ -1469,7 +1500,7 @@ RU_MESSAGES.update(
         "removed": "удалено",
         "not_found": "не найдено",
         "empty_terms": "нет",
-        "fulltext_unavailable": "Поиск по полному тексту доступен в тарифах Pro и Business.",
+        "fulltext_unavailable": "Поиск по полному тексту доступен только в тарифе Business.",
         "fulltext_enabled": "Режим полного текста включен. Бот будет искать в заголовке, RSS-анонсе и тексте страницы новости.",
         "fast_mode_enabled": "Быстрый режим включен. Бот будет искать только в заголовке и RSS-анонсе.",
         "info_title": "Мой мониторинг",
@@ -1484,7 +1515,7 @@ RU_MESSAGES.update(
         "monitoring_mode_auto": "автоматический",
         "monitoring_mode_manual": "ручной",
         "change_monitoring_mode": "Изменить режим мониторинга",
-        "interval_business": "каждые 5 минут",
+        "interval_business": "каждую 1 минуту",
         "interval_paid": "каждые 30 минут",
         "interval_free": "раз в час",
         "monitoring_mode_intro": "Режим мониторинга определяет, проверяет ли бот источники автоматически или только после ручного запуска.",
@@ -1578,10 +1609,10 @@ RU_MESSAGES.update(
         "paid_tg_manage_hint": "Управляйте ими блоками по 50 через кнопку TG-пакеты или /tgblocks.",
         "rss_commands_hint": "Команды: /rss off номер, /rss on номер, /rss add URL, /rss remove номер",
         "default_source_name": "Мой источник",
-        "plan_free_description": "🔑 1 ключ • 📰 стандартные RSS • 🚫 без базы TG-каналов • 🔔 15 уведомлений/день • ⏱ мониторинг раз в час",
-        "plan_basic_description": "🔑 10 ключей • 🧩 3 своих RSS/TG источника • 📡 база TG-каналов • 🔔 100 уведомлений/день • ⏱ мониторинг каждые 30 минут",
-        "plan_pro_description": "🔑 50 ключей • 🧩 15 своих RSS/TG источников • 📡 база TG-каналов • 🧾 поиск по полному тексту • 🔔 500 уведомлений/день • ⏱ мониторинг каждые 30 минут",
-        "plan_business_description": "♾ безлимитные ключи • ♾ безлимитные RSS/TG источники • 📡 база TG-каналов • 🧾 поиск по полному тексту • 🔔 безлимитные уведомления • ⚡ мониторинг каждые 5 минут",
+        "plan_free_description": "🔑 1 ключ • 📰 топ-20 RSS + топ-20 TG-каналов из любой выбранной страны • 🔔 15 уведомлений/день • ⏱ мониторинг раз в час • 💬 поддержка в платных тарифах",
+        "plan_basic_description": "🔑 10 ключей • 🧩 3 своих RSS/TG источника • 📡 полная база TG-каналов • 💬 поддержка • 🔔 100 уведомлений/день • ⏱ мониторинг каждые 30 минут",
+        "plan_pro_description": "🔑 50 ключей • 🧩 15 своих RSS/TG источников • 📡 полная база TG-каналов • 💬 поддержка • 🔔 250 уведомлений/день • ⏱ мониторинг каждые 30 минут",
+        "plan_business_description": "🔑 250 ключей • 🧩 500 своих RSS/TG источников • 📡 полная база TG-каналов • 🧾 поиск по полному тексту • 🏛 поиск по реестрам • 💬 поддержка • 🔔 1000 уведомлений/день • ⚡ мониторинг каждую 1 минуту",
         "plan_paid_template": "{name}: {stars} Stars / {days} дней. {description}",
         "plan_free_template": "{name}: {description}",
     }
@@ -1617,7 +1648,9 @@ def country_button_text(code: str, language_code: str) -> str:
 
 
 def normalize_language(value: str | None) -> str:
-    code = (value or "").strip().lower()
+    code = (value or "").strip().lower().replace("_", "-")
+    if "-" in code:
+        code = code.split("-", 1)[0]
     return code if code in LANGUAGES else DEFAULT_LANGUAGE
 
 
@@ -1674,3 +1707,4 @@ def template_text(language_code: str, key: str) -> str:
     if template is None:
         template = MESSAGES[DEFAULT_LANGUAGE][key]
     return template
+

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import requests
+from requests import RequestException
 
 from .telegram_api import escape
 
@@ -28,9 +29,30 @@ class SupportTelegram:
         self.base_url = f"https://api.telegram.org/bot{token}"
         self.timeout = timeout
 
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        attempts: int = 3,
+        **kwargs: Any,
+    ) -> requests.Response:
+        last_error: RequestException | None = None
+        for attempt in range(1, attempts + 1):
+            try:
+                response = requests.request(method, f"{self.base_url}/{endpoint}", **kwargs)
+                response.raise_for_status()
+                return response
+            except RequestException as exc:
+                last_error = exc
+                if attempt >= attempts:
+                    break
+                log.warning("Support bot Telegram %s failed for %s (attempt %s/%s): %s", method, endpoint, attempt, attempts, exc)
+                time.sleep(min(2 * attempt, 5))
+        assert last_error is not None
+        raise last_error
+
     def request(self, method: str, payload: dict[str, Any]) -> dict[str, Any]:
-        response = requests.post(f"{self.base_url}/{method}", json=payload, timeout=self.timeout)
-        response.raise_for_status()
+        response = self._request("POST", method, json=payload, timeout=self.timeout)
         result = response.json()
         if not result.get("ok"):
             raise RuntimeError(result)
@@ -40,8 +62,7 @@ class SupportTelegram:
         payload: dict[str, Any] = {"timeout": timeout, "allowed_updates": ["message"]}
         if offset is not None:
             payload["offset"] = offset
-        response = requests.get(f"{self.base_url}/getUpdates", params=payload, timeout=timeout + 5)
-        response.raise_for_status()
+        response = self._request("GET", "getUpdates", attempts=2, params=payload, timeout=timeout + 5)
         result = response.json()
         if not result.get("ok"):
             raise RuntimeError(result)

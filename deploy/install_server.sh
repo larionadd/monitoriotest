@@ -27,6 +27,7 @@ rsync -a --delete \
   --exclude ".git" \
   --exclude ".venv" \
   --exclude "config.json" \
+  --exclude "data/*.csv" \
   --exclude "data/*.sqlite3*" \
   --exclude "logs" \
   --exclude "reports" \

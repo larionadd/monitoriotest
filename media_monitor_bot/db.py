@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Iterable
 from contextlib import contextmanager
@@ -20,6 +21,8 @@ def utcnow() -> str:
 class KeywordTerm:
     phrase: str
     country_code: str
+    paused: bool = False
+    silent: bool = False
 
 
 @dataclass(frozen=True)
@@ -29,10 +32,19 @@ class UserMonitoring:
     country_code: str
     onboarding_completed: bool
     auto_monitoring_enabled: bool
+    monitor_interval_minutes: int
+    last_auto_check_at: str
     keywords: tuple[KeywordTerm, ...]
     stop_words: tuple[str, ...]
     plus_words: tuple[str, ...]
     full_text_enabled: bool
+    importance_rating_enabled: bool
+    threads_search_enabled: bool
+    threads_search_hours: int
+    threads_media_filter: str
+    threads_link_filter: str
+    threads_result_limit: int
+    threads_search_type: str
     disabled_source_urls: tuple[str, ...]
     custom_sources: tuple[Source, ...]
 
@@ -44,6 +56,9 @@ class UserSettings:
     country_code: str
     onboarding_completed: bool
     auto_monitoring_enabled: bool
+    monitor_interval_minutes: int
+    last_auto_check_at: str
+    importance_rating_enabled: bool
 
 
 class Database:
@@ -104,10 +119,18 @@ class Database:
                 CREATE TABLE IF NOT EXISTS articles (
                     url TEXT PRIMARY KEY,
                     source TEXT NOT NULL,
+                    source_type TEXT NOT NULL DEFAULT '',
                     title TEXT NOT NULL,
                     published_at TEXT,
                     summary TEXT,
                     first_seen_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS article_full_texts (
+                    url TEXT PRIMARY KEY,
+                    text TEXT NOT NULL,
+                    fetched_at TEXT NOT NULL,
+                    FOREIGN KEY(url) REFERENCES articles(url) ON DELETE CASCADE
                 );
 
                 CREATE TABLE IF NOT EXISTS matches (
@@ -182,6 +205,32 @@ class Database:
                     paid_at TEXT,
                     FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
                 );
+
+                CREATE TABLE IF NOT EXISTS subscription_notifications (
+                    chat_id INTEGER NOT NULL,
+                    plan_id TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    kind TEXT NOT NULL,
+                    sent_at TEXT NOT NULL,
+                    PRIMARY KEY(chat_id, plan_id, expires_at, kind),
+                    FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
+                );
+
+                CREATE TABLE IF NOT EXISTS promo_redemptions (
+                    chat_id INTEGER NOT NULL,
+                    code TEXT NOT NULL,
+                    redeemed_at TEXT NOT NULL,
+                    PRIMARY KEY(chat_id, code),
+                    FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
+                );
+
+                CREATE TABLE IF NOT EXISTS ai_digests (
+                    chat_id INTEGER PRIMARY KEY,
+                    digest_json TEXT NOT NULL,
+                    params_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
+                );
                 """
             )
             columns = {
@@ -208,6 +257,50 @@ class Database:
                 conn.execute(
                     "ALTER TABLE users ADD COLUMN auto_monitoring_enabled INTEGER NOT NULL DEFAULT 1"
                 )
+            if "monitor_interval_minutes" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN monitor_interval_minutes INTEGER NOT NULL DEFAULT 0"
+                )
+            if "last_auto_check_at" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN last_auto_check_at TEXT NOT NULL DEFAULT ''"
+                )
+            if "threads_search_enabled" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN threads_search_enabled INTEGER NOT NULL DEFAULT 0"
+                )
+            if "importance_rating_enabled" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN importance_rating_enabled INTEGER NOT NULL DEFAULT 0"
+                )
+            if "threads_search_hours" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN threads_search_hours INTEGER NOT NULL DEFAULT 24"
+                )
+            if "threads_media_filter" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN threads_media_filter TEXT NOT NULL DEFAULT 'any'"
+                )
+            if "threads_link_filter" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN threads_link_filter TEXT NOT NULL DEFAULT 'any'"
+                )
+            if "threads_result_limit" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN threads_result_limit INTEGER NOT NULL DEFAULT 15"
+                )
+            if "threads_search_type" not in columns:
+                conn.execute(
+                    "ALTER TABLE users ADD COLUMN threads_search_type TEXT NOT NULL DEFAULT 'RECENT'"
+                )
+            article_columns = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(articles)")
+            }
+            if "source_type" not in article_columns:
+                conn.execute(
+                    "ALTER TABLE articles ADD COLUMN source_type TEXT NOT NULL DEFAULT ''"
+                )
             user_source_columns = {
                 row["name"]
                 for row in conn.execute("PRAGMA table_info(user_sources)")
@@ -222,6 +315,18 @@ class Database:
             }
             if "country_code" not in keyword_columns or not self._keywords_unique_has_country(conn):
                 self._rebuild_keywords_table(conn)
+                keyword_columns = {
+                    row["name"]
+                    for row in conn.execute("PRAGMA table_info(keywords)")
+                }
+            if "paused" not in keyword_columns:
+                conn.execute(
+                    "ALTER TABLE keywords ADD COLUMN paused INTEGER NOT NULL DEFAULT 0"
+                )
+            if "silent" not in keyword_columns:
+                conn.execute(
+                    "ALTER TABLE keywords ADD COLUMN silent INTEGER NOT NULL DEFAULT 0"
+                )
 
     def _keywords_unique_has_country(self, conn: sqlite3.Connection) -> bool:
         for index in conn.execute("PRAGMA index_list(keywords)"):
@@ -244,6 +349,8 @@ class Database:
                 phrase TEXT NOT NULL,
                 country_code TEXT NOT NULL DEFAULT 'ua',
                 created_at TEXT NOT NULL,
+                paused INTEGER NOT NULL DEFAULT 0,
+                silent INTEGER NOT NULL DEFAULT 0,
                 UNIQUE(chat_id, phrase, country_code),
                 FOREIGN KEY(chat_id) REFERENCES users(chat_id) ON DELETE CASCADE
             )
@@ -258,10 +365,12 @@ class Database:
             if "country_code" in keyword_columns
             else "COALESCE(NULLIF(u.country_code, ''), 'ua')"
         )
+        paused_expr = "COALESCE(k.paused, 0)" if "paused" in keyword_columns else "0"
+        silent_expr = "COALESCE(k.silent, 0)" if "silent" in keyword_columns else "0"
         conn.execute(
             f"""
-            INSERT OR IGNORE INTO keywords_new(chat_id, phrase, country_code, created_at)
-            SELECT k.chat_id, k.phrase, {country_expr}, k.created_at
+            INSERT OR IGNORE INTO keywords_new(chat_id, phrase, country_code, created_at, paused, silent)
+            SELECT k.chat_id, k.phrase, {country_expr}, k.created_at, {paused_expr}, {silent_expr}
             FROM keywords k
             LEFT JOIN users u ON u.chat_id = k.chat_id
             """
@@ -269,8 +378,14 @@ class Database:
         conn.execute("DROP TABLE keywords")
         conn.execute("ALTER TABLE keywords_new RENAME TO keywords")
 
-    def touch_user(self, chat_id: int, onboarding_completed_default: bool = True) -> None:
+    def touch_user(
+        self,
+        chat_id: int,
+        onboarding_completed_default: bool = True,
+        preferred_language_code: str | None = None,
+    ) -> None:
         now = utcnow()
+        language_code = normalize_language(preferred_language_code or DEFAULT_LANGUAGE)
         with self.connect() as conn:
             conn.execute(
                 """
@@ -281,19 +396,23 @@ class Database:
                     language_code,
                     country_code,
                     onboarding_completed,
-                    auto_monitoring_enabled
+                    auto_monitoring_enabled,
+                    monitor_interval_minutes,
+                    last_auto_check_at
                 )
-                VALUES(?, ?, ?, ?, ?, ?, ?)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(chat_id) DO UPDATE SET last_seen_at = excluded.last_seen_at
                 """,
                 (
                     chat_id,
                     now,
                     now,
-                    DEFAULT_LANGUAGE,
+                    language_code,
                     DEFAULT_COUNTRY,
                     1 if onboarding_completed_default else 0,
                     1,
+                    0,
+                    "",
                 ),
             )
 
@@ -302,7 +421,7 @@ class Database:
         with self.connect() as conn:
             row = conn.execute(
                 """
-                SELECT language_code, country_code, onboarding_completed, auto_monitoring_enabled
+                SELECT language_code, country_code, onboarding_completed, auto_monitoring_enabled, monitor_interval_minutes, last_auto_check_at, importance_rating_enabled
                 FROM users
                 WHERE chat_id = ?
                 """,
@@ -314,6 +433,9 @@ class Database:
             country_code=normalize_country(row["country_code"] if row else DEFAULT_COUNTRY),
             onboarding_completed=bool(row["onboarding_completed"]) if row else True,
             auto_monitoring_enabled=bool(row["auto_monitoring_enabled"]) if row else True,
+            monitor_interval_minutes=int(row["monitor_interval_minutes"] or 0) if row else 0,
+            last_auto_check_at=str(row["last_auto_check_at"] or "") if row else "",
+            importance_rating_enabled=bool(row["importance_rating_enabled"]) if row else False,
         )
 
     def set_language(self, chat_id: int, language_code: str) -> None:
@@ -348,6 +470,26 @@ class Database:
                 (1 if enabled else 0, chat_id),
             )
 
+    def set_monitor_interval_minutes(self, chat_id: int, minutes: int) -> None:
+        self.touch_user(chat_id)
+        safe_minutes = max(5, min(1440, int(minutes)))
+        with self.connect() as conn:
+            conn.execute(
+                "UPDATE users SET monitor_interval_minutes = ? WHERE chat_id = ?",
+                (safe_minutes, chat_id),
+            )
+
+    def mark_auto_checked(self, chat_ids: Iterable[int], checked_at: str | None = None) -> None:
+        ids = [int(chat_id) for chat_id in chat_ids]
+        if not ids:
+            return
+        timestamp = checked_at or utcnow()
+        with self.connect() as conn:
+            conn.executemany(
+                "UPDATE users SET last_auto_check_at = ? WHERE chat_id = ?",
+                [(timestamp, chat_id) for chat_id in ids],
+            )
+
     def add_keyword(self, chat_id: int, phrase: str, country_code: str | None = None) -> bool:
         term = normalize_term(phrase)
         if not term:
@@ -364,12 +506,137 @@ class Database:
             )
             return cur.rowcount > 0
 
+    def active_keyword_count(self, chat_id: int) -> int:
+        self.touch_user(chat_id)
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS count FROM keywords WHERE chat_id = ? AND paused = 0",
+                (chat_id,),
+            ).fetchone()
+            return int(row["count"] if row else 0)
+
+    def set_keyword_paused(
+        self,
+        chat_id: int,
+        phrase: str,
+        country_code: str | None,
+        paused: bool,
+    ) -> bool:
+        return self._set_keyword_flag(chat_id, phrase, country_code, "paused", paused)
+
+    def set_keyword_silent(
+        self,
+        chat_id: int,
+        phrase: str,
+        country_code: str | None,
+        silent: bool,
+    ) -> bool:
+        return self._set_keyword_flag(chat_id, phrase, country_code, "silent", silent)
+
+    def keyword_is_silent(
+        self,
+        chat_id: int,
+        phrase: str,
+        country_code: str | None = None,
+    ) -> bool:
+        term = normalize_term(phrase)
+        if not term:
+            return False
+        params: list[object] = [chat_id, term]
+        country_clause = ""
+        if country_code:
+            country_clause = " AND country_code = ?"
+            params.append(normalize_country(country_code))
+        with self.connect() as conn:
+            row = conn.execute(
+                f"""
+                SELECT 1
+                FROM keywords
+                WHERE chat_id = ?
+                  AND phrase = ?
+                  AND silent = 1
+                  {country_clause}
+                LIMIT 1
+                """,
+                params,
+            ).fetchone()
+            return row is not None
+
+    def _set_keyword_flag(
+        self,
+        chat_id: int,
+        phrase: str,
+        country_code: str | None,
+        column: str,
+        enabled: bool,
+    ) -> bool:
+        if column not in {"paused", "silent"}:
+            raise ValueError(f"Unsupported keyword flag: {column}")
+        term = normalize_term(phrase)
+        if not term:
+            return False
+        country = normalize_country(country_code or self.get_user_settings(chat_id).country_code)
+        with self.connect() as conn:
+            cur = conn.execute(
+                f"UPDATE keywords SET {column} = ? WHERE chat_id = ? AND phrase = ? AND country_code = ?",
+                (1 if enabled else 0, chat_id, term, country),
+            )
+            return cur.rowcount > 0
+
     def set_full_text_enabled(self, chat_id: int, enabled: bool) -> None:
         self.touch_user(chat_id)
         with self.connect() as conn:
             conn.execute(
                 "UPDATE users SET full_text_enabled = ? WHERE chat_id = ?",
                 (1 if enabled else 0, chat_id),
+            )
+
+    def set_importance_rating_enabled(self, chat_id: int, enabled: bool) -> None:
+        self.touch_user(chat_id)
+        with self.connect() as conn:
+            conn.execute(
+                "UPDATE users SET importance_rating_enabled = ? WHERE chat_id = ?",
+                (1 if enabled else 0, chat_id),
+            )
+
+    def set_threads_settings(
+        self,
+        chat_id: int,
+        enabled: bool | None = None,
+        hours: int | None = None,
+        media_filter: str | None = None,
+        link_filter: str | None = None,
+        result_limit: int | None = None,
+        search_type: str | None = None,
+    ) -> None:
+        self.touch_user(chat_id)
+        assignments: list[str] = []
+        params: list[object] = []
+        if enabled is not None:
+            assignments.append("threads_search_enabled = ?")
+            params.append(1 if enabled else 0)
+        if hours is not None:
+            assignments.append("threads_search_hours = ?")
+            params.append(clamp_int(hours, 1, 24, 24))
+        if media_filter is not None:
+            assignments.append("threads_media_filter = ?")
+            params.append(normalize_choice(media_filter, {"any", "media", "no_media"}, "any"))
+        if link_filter is not None:
+            assignments.append("threads_link_filter = ?")
+            params.append(normalize_choice(link_filter, {"any", "link", "no_link"}, "any"))
+        if result_limit is not None:
+            assignments.append("threads_result_limit = ?")
+            params.append(clamp_int(result_limit, 1, 100, 15))
+        if search_type is not None:
+            assignments.append("threads_search_type = ?")
+            params.append(normalize_choice(search_type, {"RECENT", "TOP"}, "RECENT"))
+        if not assignments:
+            return
+        params.append(chat_id)
+        with self.connect() as conn:
+            conn.execute(
+                f"UPDATE users SET {', '.join(assignments)} WHERE chat_id = ?",
+                params,
             )
 
     def get_active_plan(self, chat_id: int) -> Plan:
@@ -419,6 +686,109 @@ class Database:
                 (chat_id, plan.id, now, expires, now),
             )
         return expires
+
+    def activate_promo_plan(self, chat_id: int, code: str, plan_id: str, days: int) -> str | None:
+        plan = plan_by_id(plan_id)
+        if plan.id == "free":
+            raise ValueError("free plan cannot be activated as a paid subscription")
+        normalized_code = code.strip().upper()
+        if not normalized_code:
+            return None
+        self.touch_user(chat_id)
+        now_dt = datetime.now(timezone.utc).replace(microsecond=0)
+        now = now_dt.isoformat()
+        with self.connect() as conn:
+            try:
+                conn.execute(
+                    """
+                    INSERT INTO promo_redemptions(chat_id, code, redeemed_at)
+                    VALUES(?, ?, ?)
+                    """,
+                    (chat_id, normalized_code, now),
+                )
+            except sqlite3.IntegrityError:
+                return None
+            current = conn.execute(
+                "SELECT plan_id, expires_at FROM subscriptions WHERE chat_id = ?",
+                (chat_id,),
+            ).fetchone()
+            if current and current["plan_id"] == plan.id and is_subscription_active(current["expires_at"]):
+                starts_dt = datetime.fromisoformat(current["expires_at"])
+                if starts_dt.tzinfo is None:
+                    starts_dt = starts_dt.replace(tzinfo=timezone.utc)
+            else:
+                starts_dt = now_dt
+            expires_dt = starts_dt + timedelta(days=days)
+            expires = expires_dt.isoformat()
+            conn.execute(
+                """
+                INSERT INTO subscriptions(chat_id, plan_id, starts_at, expires_at, updated_at)
+                VALUES(?, ?, ?, ?, ?)
+                ON CONFLICT(chat_id) DO UPDATE SET
+                    plan_id = excluded.plan_id,
+                    starts_at = excluded.starts_at,
+                    expires_at = excluded.expires_at,
+                    updated_at = excluded.updated_at
+                """,
+                (chat_id, plan.id, now, expires, now),
+            )
+        return expires
+
+    def subscriptions_expiring_for_reminder(self, now: str, until: str) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT s.chat_id, s.plan_id, s.expires_at
+                    FROM subscriptions s
+                    WHERE s.plan_id != 'free'
+                      AND s.expires_at > ?
+                      AND s.expires_at <= ?
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM subscription_notifications n
+                          WHERE n.chat_id = s.chat_id
+                            AND n.plan_id = s.plan_id
+                            AND n.expires_at = s.expires_at
+                            AND n.kind = 'reminder_1d'
+                      )
+                    """,
+                    (now, until),
+                )
+            )
+
+    def subscriptions_expired_for_notice(self, since: str, now: str) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT s.chat_id, s.plan_id, s.expires_at
+                    FROM subscriptions s
+                    WHERE s.plan_id != 'free'
+                      AND s.expires_at >= ?
+                      AND s.expires_at <= ?
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM subscription_notifications n
+                          WHERE n.chat_id = s.chat_id
+                            AND n.plan_id = s.plan_id
+                            AND n.expires_at = s.expires_at
+                            AND n.kind = 'expired'
+                      )
+                    """,
+                    (since, now),
+                )
+            )
+
+    def mark_subscription_notification(self, chat_id: int, plan_id: str, expires_at: str, kind: str) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO subscription_notifications(chat_id, plan_id, expires_at, kind, sent_at)
+                VALUES(?, ?, ?, ?, ?)
+                """,
+                (chat_id, plan_id, expires_at, kind, utcnow()),
+            )
 
     def record_payment(
         self,
@@ -651,12 +1021,19 @@ class Database:
             )
             return cur.rowcount > 0
 
-    def remove_keyword(self, chat_id: int, phrase: str) -> bool:
+    def remove_keyword(self, chat_id: int, phrase: str, country_code: str | None = None) -> bool:
         with self.connect() as conn:
-            cur = conn.execute(
-                "DELETE FROM keywords WHERE chat_id = ? AND phrase = ?",
-                (chat_id, normalize_term(phrase)),
-            )
+            term = normalize_term(phrase)
+            if country_code:
+                cur = conn.execute(
+                    "DELETE FROM keywords WHERE chat_id = ? AND phrase = ? AND country_code = ?",
+                    (chat_id, term, normalize_country(country_code)),
+                )
+            else:
+                cur = conn.execute(
+                    "DELETE FROM keywords WHERE chat_id = ? AND phrase = ?",
+                    (chat_id, term),
+                )
             return cur.rowcount > 0
 
     def add_stop_word(self, chat_id: int, word: str) -> bool:
@@ -705,21 +1082,56 @@ class Database:
                     language_code,
                     country_code,
                     onboarding_completed,
-                    auto_monitoring_enabled
+                    auto_monitoring_enabled,
+                    monitor_interval_minutes,
+                    last_auto_check_at,
+                    importance_rating_enabled,
+                    threads_search_enabled,
+                    threads_search_hours,
+                    threads_media_filter,
+                    threads_link_filter,
+                    threads_result_limit,
+                    threads_search_type
                 FROM users
                 WHERE chat_id = ?
                 """,
                 (chat_id,),
             ).fetchone()
             full_text_enabled = bool(row["full_text_enabled"]) if row else False
+            importance_rating_enabled = bool(row["importance_rating_enabled"]) if row else False
             language_code = normalize_language(row["language_code"] if row else DEFAULT_LANGUAGE)
             country_code = normalize_country(row["country_code"] if row else DEFAULT_COUNTRY)
             onboarding_completed = bool(row["onboarding_completed"]) if row else True
             auto_monitoring_enabled = bool(row["auto_monitoring_enabled"]) if row else True
+            monitor_interval_minutes = int(row["monitor_interval_minutes"] or 0) if row else 0
+            last_auto_check_at = str(row["last_auto_check_at"] or "") if row else ""
+            threads_search_enabled = bool(row["threads_search_enabled"]) if row else False
+            threads_search_hours = clamp_int(row["threads_search_hours"] if row else 24, 1, 24, 24)
+            threads_media_filter = normalize_choice(
+                row["threads_media_filter"] if row else "any",
+                {"any", "media", "no_media"},
+                "any",
+            )
+            threads_link_filter = normalize_choice(
+                row["threads_link_filter"] if row else "any",
+                {"any", "link", "no_link"},
+                "any",
+            )
+            threads_result_limit = clamp_int(row["threads_result_limit"] if row else 15, 1, 100, 15)
+            threads_search_type = normalize_choice(
+                row["threads_search_type"] if row else "RECENT",
+                {"RECENT", "TOP"},
+                "RECENT",
+            )
             keywords = tuple(
-                KeywordTerm(row["phrase"], normalize_country(row["country_code"]))
+                KeywordTerm(
+                    row["phrase"],
+                    normalize_country(row["country_code"]),
+                    bool(row["paused"]),
+                    bool(row["silent"]),
+                )
                 for row in conn.execute(
-                    "SELECT phrase, country_code FROM keywords WHERE chat_id = ? ORDER BY country_code, phrase",
+                    "SELECT phrase, country_code, paused, silent FROM keywords WHERE chat_id = ? ORDER BY paused, country_code, phrase",
                     (chat_id,),
                 )
             )
@@ -765,10 +1177,19 @@ class Database:
             country_code,
             onboarding_completed,
             auto_monitoring_enabled,
+            monitor_interval_minutes,
+            last_auto_check_at,
             keywords,
             stop_words,
             plus_words,
             full_text_enabled,
+            importance_rating_enabled,
+            threads_search_enabled,
+            threads_search_hours,
+            threads_media_filter,
+            threads_link_filter,
+            threads_result_limit,
+            threads_search_type,
             disabled_source_urls,
             custom_sources,
         )
@@ -787,17 +1208,23 @@ class Database:
             if country_codes
             else {monitoring.country_code}
         )
-        sources = [
+        in_country = [
             source
             for source in default_sources
+            if normalize_country(source.country) in countries
+        ]
+        free_urls = free_source_urls(in_country) if plan.id == "free" else None
+        sources = [
+            source
+            for source in in_country
             if normalize_url(source.url) not in disabled
-            and source_allowed_for_plan(source, plan.id)
-            and normalize_country(source.country) in countries
+            and source_allowed_for_plan(source, plan.id, free_urls)
         ]
         sources.extend(
             source
             for source in monitoring.custom_sources[: plan.max_custom_sources]
             if normalize_country(source.country) in countries
+            and normalize_url(source.url) not in disabled
         )
         return dedupe_sources(sources)
 
@@ -844,14 +1271,134 @@ class Database:
                 )
             )
 
-    def save_article(self, url: str, source: str, title: str, published_at: str, summary: str) -> None:
+    def list_user_keywords(self) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT
+                        u.chat_id,
+                        u.created_at AS user_created_at,
+                        u.last_seen_at,
+                        u.language_code,
+                        u.country_code AS user_country_code,
+                        s.plan_id,
+                        s.expires_at,
+                        k.phrase,
+                        k.country_code AS keyword_country_code,
+                        k.paused,
+                        k.silent,
+                        k.created_at AS keyword_created_at
+                    FROM keywords k
+                    JOIN users u ON u.chat_id = k.chat_id
+                    LEFT JOIN subscriptions s ON s.chat_id = u.chat_id
+                    ORDER BY u.last_seen_at DESC, k.paused, k.country_code, k.phrase
+                    """
+                )
+            )
+
+    def list_star_payments(self) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT
+                        p.id,
+                        p.chat_id,
+                        p.plan_id,
+                        p.currency,
+                        p.total_amount,
+                        p.invoice_payload,
+                        p.telegram_payment_charge_id,
+                        p.provider_payment_charge_id,
+                        p.paid_at,
+                        u.created_at AS user_created_at,
+                        u.last_seen_at,
+                        s.plan_id AS active_plan_id,
+                        s.expires_at AS subscription_expires_at
+                    FROM payments p
+                    LEFT JOIN users u ON u.chat_id = p.chat_id
+                    LEFT JOIN subscriptions s ON s.chat_id = p.chat_id
+                    WHERE UPPER(p.currency) = 'XTR'
+                    ORDER BY p.paid_at DESC, p.id DESC
+                    """
+                )
+            )
+
+    def list_crypto_payments(self) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT
+                        cp.id,
+                        cp.order_id,
+                        cp.chat_id,
+                        cp.plan_id,
+                        cp.provider,
+                        cp.price_amount,
+                        cp.price_currency,
+                        cp.provider_invoice_id,
+                        cp.invoice_url,
+                        cp.status,
+                        cp.provider_payment_id,
+                        cp.created_at,
+                        cp.updated_at,
+                        cp.paid_at,
+                        u.created_at AS user_created_at,
+                        u.last_seen_at,
+                        s.plan_id AS active_plan_id,
+                        s.expires_at AS subscription_expires_at
+                    FROM crypto_payments cp
+                    LEFT JOIN users u ON u.chat_id = cp.chat_id
+                    LEFT JOIN subscriptions s ON s.chat_id = cp.chat_id
+                    ORDER BY COALESCE(cp.paid_at, cp.updated_at, cp.created_at) DESC, cp.id DESC
+                    """
+                )
+            )
+
+    def save_article(
+        self,
+        url: str,
+        source: str,
+        title: str,
+        published_at: str,
+        summary: str,
+        source_type: str = "",
+    ) -> None:
         with self.connect() as conn:
             conn.execute(
                 """
-                INSERT OR IGNORE INTO articles(url, source, title, published_at, summary, first_seen_at)
-                VALUES(?, ?, ?, ?, ?, ?)
+                INSERT INTO articles(url, source, source_type, title, published_at, summary, first_seen_at)
+                VALUES(?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(url) DO UPDATE SET
+                    source_type = CASE
+                        WHEN articles.source_type = '' THEN excluded.source_type
+                        ELSE articles.source_type
+                    END
                 """,
-                (url, source, title, published_at, summary, utcnow()),
+                (url, source, normalize_source_type(source_type), title, published_at, summary, utcnow()),
+            )
+
+    def get_article_full_text(self, url: str) -> str | None:
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT text FROM article_full_texts WHERE url = ?",
+                (url,),
+            ).fetchone()
+            return None if row is None else str(row["text"])
+
+    def save_article_full_text(self, url: str, text: str) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO article_full_texts(url, text, fetched_at)
+                VALUES(?, ?, ?)
+                ON CONFLICT(url) DO UPDATE SET
+                    text = excluded.text,
+                    fetched_at = excluded.fetched_at
+                """,
+                (url, text, utcnow()),
             )
 
     def already_sent(self, chat_id: int, keyword: str, url: str) -> bool:
@@ -881,19 +1428,25 @@ class Database:
             ).fetchone()
             return int(row["c"])
 
-    def report_rows(self, chat_id: int, limit: int = 500) -> list[sqlite3.Row]:
+    def report_rows(self, chat_id: int, limit: int = 500, since: str | None = None) -> list[sqlite3.Row]:
+        where = "WHERE m.chat_id = ?"
+        params: list[object] = [chat_id]
+        if since:
+            where += " AND m.sent_at >= ?"
+            params.append(since)
+        params.append(limit)
         with self.connect() as conn:
             return list(
                 conn.execute(
-                    """
-                    SELECT m.sent_at, m.keyword, a.source, a.title, a.published_at, a.url
+                    f"""
+                    SELECT m.sent_at, m.keyword, a.source, a.source_type, a.title, a.published_at, a.url
                     FROM matches m
                     JOIN articles a ON a.url = m.url
-                    WHERE m.chat_id = ?
+                    {where}
                     ORDER BY m.sent_at DESC
                     LIMIT ?
                     """,
-                    (chat_id, limit),
+                    params,
                 )
             )
 
@@ -906,6 +1459,7 @@ class Database:
                         m.sent_at,
                         m.keyword,
                         a.source,
+                        a.source_type,
                         a.title,
                         a.published_at,
                         a.url,
@@ -920,6 +1474,111 @@ class Database:
                 )
             )
 
+    def filtered_matches(
+        self,
+        chat_id: int,
+        *,
+        limit: int = 500,
+        since: str | None = None,
+        keyword: str | None = None,
+        source: str | None = None,
+        source_types: Iterable[str] | None = None,
+    ) -> list[sqlite3.Row]:
+        where = ["m.chat_id = ?"]
+        params: list[object] = [chat_id]
+        if since:
+            where.append("m.sent_at >= ?")
+            params.append(since)
+        if keyword:
+            where.append("m.keyword = ?")
+            params.append(keyword)
+        if source:
+            where.append("a.source = ?")
+            params.append(source)
+        types = [normalize_source_type(value) for value in source_types or []]
+        types = [value for value in types if value]
+        if types:
+            placeholders = ",".join("?" for _ in types)
+            where.append(f"a.source_type IN ({placeholders})")
+            params.extend(types)
+        params.append(limit)
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    f"""
+                    SELECT
+                        m.sent_at,
+                        m.keyword,
+                        a.source,
+                        a.source_type,
+                        a.title,
+                        a.published_at,
+                        a.url,
+                        a.summary
+                    FROM matches m
+                    JOIN articles a ON a.url = m.url
+                    WHERE {" AND ".join(where)}
+                    ORDER BY m.sent_at DESC
+                    LIMIT ?
+                    """,
+                    params,
+                )
+            )
+
+    def digest_rows(self, chat_id: int, since: str, limit: int = 100) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    """
+                    SELECT
+                        m.sent_at,
+                        m.keyword,
+                        a.source,
+                        a.source_type,
+                        a.title,
+                        a.published_at,
+                        a.url,
+                        a.summary
+                    FROM matches m
+                    JOIN articles a ON a.url = m.url
+                    WHERE m.chat_id = ? AND m.sent_at >= ?
+                    ORDER BY m.sent_at DESC
+                    LIMIT ?
+                    """,
+                    (chat_id, since, limit),
+                )
+            )
+
+    def save_ai_digest(self, chat_id: int, digest: dict, params: dict) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO ai_digests(chat_id, digest_json, params_json, created_at)
+                VALUES(?, ?, ?, ?)
+                ON CONFLICT(chat_id) DO UPDATE SET
+                    digest_json = excluded.digest_json,
+                    params_json = excluded.params_json,
+                    created_at = excluded.created_at
+                """,
+                (
+                    chat_id,
+                    json.dumps(digest, ensure_ascii=False),
+                    json.dumps(params, ensure_ascii=False),
+                    utcnow(),
+                ),
+            )
+
+    def latest_ai_digest(self, chat_id: int) -> sqlite3.Row | None:
+        with self.connect() as conn:
+            return conn.execute(
+                """
+                SELECT digest_json, params_json, created_at
+                FROM ai_digests
+                WHERE chat_id = ?
+                """,
+                (chat_id,),
+            ).fetchone()
+
 
 def normalize_term(value: str) -> str:
     return " ".join(value.strip().lower().split())
@@ -927,6 +1586,34 @@ def normalize_term(value: str) -> str:
 
 def normalize_url(value: str) -> str:
     return value.strip()
+
+
+def clamp_int(value: object, minimum: int, maximum: int, fallback: int) -> int:
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        number = fallback
+    return max(minimum, min(maximum, number))
+
+
+def normalize_choice(value: object, allowed: set[str], fallback: str) -> str:
+    text = str(value or "").strip()
+    if text in allowed:
+        return text
+    upper_allowed = {item for item in allowed if item.upper() == item}
+    if text.upper() in upper_allowed:
+        return text.upper()
+    lower_allowed = {item.lower() for item in allowed}
+    if text.lower() in lower_allowed:
+        return text.lower()
+    return fallback
+
+
+def normalize_source_type(value: object) -> str:
+    text = str(value or "").strip().lower()
+    if text in {"rss", "telegram", "telegram_paid", "threads", "reddit"}:
+        return "telegram" if text == "telegram_paid" else text
+    return ""
 
 
 def dedupe_sources(sources: Iterable[Source]) -> list[Source]:
@@ -951,5 +1638,41 @@ def dedupe_sources(sources: Iterable[Source]) -> list[Source]:
     return result
 
 
-def source_allowed_for_plan(source: Source, plan_id: str) -> bool:
-    return source.type != "telegram_paid" or plan_id != "free"
+FREE_SOURCE_TOP_LIMIT = 20
+
+
+def _source_kind(source: Source) -> str:
+    if source.type in {"registry", "prozorro", "prozorro_plan", "prozorro_sale", "rada_bills"}:
+        return "registry"
+    return "tg" if source.type in {"telegram", "telegram_paid"} else "rss"
+
+
+def _source_quality_key(source: Source) -> tuple[int, int]:
+    rank = source.rank if source.rank is not None else 10**9
+    subscribers = source.subscribers or 0
+    return (rank, -subscribers)
+
+
+def free_source_urls(sources: Iterable[Source], limit: int = FREE_SOURCE_TOP_LIMIT) -> set[str]:
+    """URLs available on the free plan: top `limit` sources per (country, kind), ranked by quality."""
+    groups: dict[tuple[str, str], list[Source]] = {}
+    for source in sources:
+        key = (normalize_country(source.country), _source_kind(source))
+        groups.setdefault(key, []).append(source)
+    allowed: set[str] = set()
+    for items in groups.values():
+        for source in sorted(items, key=_source_quality_key)[:limit]:
+            allowed.add(normalize_url(source.url))
+    return allowed
+
+
+def source_allowed_for_plan(source: Source, plan_id: str, free_urls: set[str] | None = None) -> bool:
+    """Business sees every source. Registries are Business-only; Free is limited to top sources."""
+    if _source_kind(source) == "registry":
+        return plan_id == "business"
+    if plan_id != "free":
+        return True
+    if free_urls is not None:
+        return normalize_url(source.url) in free_urls
+    # Fallback when the ranked free set is not supplied (kept for backwards compatibility).
+    return source.type != "telegram_paid"

@@ -5,9 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Monitorio</title>
   <script src="https://telegram.org/js/telegram-web-app.js?62"></script>
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=20260722-newsfilters1">
 </head>
 <body>
+  <div class="app-loader" id="appLoader" role="status" aria-live="polite" aria-label="Loading Monitorio">
+    <div class="app-loader-card">
+      <div class="loader-brand">
+        <span class="loader-mark" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+        <strong>Monitorio</strong>
+      </div>
+      <div class="loader-signal" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <p id="appLoaderText" data-i18n="opening">Opening cabinet...</p>
+      <div class="loader-progress" aria-hidden="true"><span></span></div>
+    </div>
+  </div>
   <main class="app-shell">
     <header class="app-header">
       <div>
@@ -22,29 +42,66 @@
         <span id="planName">-</span>
         <small id="planMeta" data-i18n="plan">Plan</small>
       </div>
-      <div class="summary-cell">
+      <button class="summary-cell summary-button" id="sourceSummaryButton" type="button" aria-expanded="false" aria-controls="sourceBreakdownPanel">
         <span id="activeSources">-</span>
         <small id="sourcesMeta" data-i18n="sources">Sources</small>
-      </div>
+      </button>
       <div class="summary-cell">
         <span id="sentToday">-</span>
         <small data-i18n="today">Today</small>
       </div>
     </section>
+    <section class="source-breakdown-panel" id="sourceBreakdownPanel" hidden>
+      <div class="source-breakdown-head">
+        <strong data-i18n="sourceBreakdownTitle">Sources by country</strong>
+        <button class="compact-button" id="sourceBreakdownClose" data-i18n="closeSmall" type="button">Close</button>
+      </div>
+      <div class="source-breakdown-list" id="sourceBreakdownList"></div>
+    </section>
 
-    <nav class="tabs" aria-label="Mini App sections">
-      <button class="tab is-active" data-tab="news" data-i18n="tabNews" type="button">News</button>
-      <button class="tab" data-tab="settings" data-i18n="tabSettings" type="button">Settings</button>
-      <button class="tab" data-tab="filters" data-i18n="tabFilters" type="button">Filters</button>
-      <button class="tab" data-tab="sources" data-i18n="tabSources" type="button">Sources</button>
-      <button class="tab" data-tab="plans" data-i18n="tabPlans" type="button">Plans</button>
-      <button class="tab" data-tab="help" data-i18n="tabHelp" type="button">Help</button>
-    </nav>
+    <div class="tabs-shell" id="tabsShell">
+      <nav class="tabs" id="tabsNav" aria-label="Mini App sections">
+        <button class="tab is-active" data-tab="news" data-i18n="tabNews" type="button">News</button>
+        <button class="tab" data-tab="monitoring" data-i18n="tabMonitoring" type="button">Monitoring</button>
+        <button class="tab" data-tab="sources" data-i18n="tabSources" type="button">Sources</button>
+        <button class="tab" data-tab="report" data-i18n="tabReport" type="button">Report</button>
+        <button class="tab" data-tab="plans" data-i18n="tabPlans" type="button">Plans</button>
+      </nav>
+      <div class="tabs-scroll-cue" aria-hidden="true">›</div>
+    </div>
 
     <section class="tab-panel is-active" data-panel="news">
       <div class="toolbar">
         <h2 data-i18n="recentMentions">Recent mentions</h2>
-        <button class="compact-button" id="refreshButton" data-i18n="refresh" type="button">Refresh</button>
+        <button class="compact-button" id="newsFiltersButton" data-i18n="filterButton" type="button" aria-expanded="false" aria-controls="newsControls">Filters</button>
+      </div>
+      <div class="news-controls" id="newsControls" hidden>
+        <label class="mini-field">
+          <span data-i18n="filterCountry">Country</span>
+          <select id="newsCountryFilter"></select>
+        </label>
+        <label class="mini-field">
+          <span data-i18n="filterDate">Date</span>
+          <select id="newsDateFilter">
+            <option value="" data-i18n="allDates">All dates</option>
+            <option value="day" data-i18n="dateDay">Last 24 hours</option>
+            <option value="week" data-i18n="dateWeek">Last 7 days</option>
+          </select>
+        </label>
+        <label class="mini-field">
+          <span data-i18n="filterKeyword">Keyword</span>
+          <select id="newsKeywordFilter"></select>
+        </label>
+        <label class="mini-field">
+          <span data-i18n="filterSource">Source</span>
+          <select id="newsSourceFilter"></select>
+        </label>
+        <div class="source-type-tabs" aria-label="Source type">
+          <button class="source-type-tab is-active" data-source-type="" type="button"><span aria-hidden="true">◎</span><b data-i18n="sourceTypeAll">All</b></button>
+          <button class="source-type-tab" data-source-type="rss" type="button"><span aria-hidden="true">RSS</span><b data-i18n="sourceTypeRss">RSS</b></button>
+          <button class="source-type-tab" data-source-type="telegram" type="button"><span aria-hidden="true">TG</span><b data-i18n="sourceTypeTelegram">Telegram</b></button>
+          <button class="source-type-tab" data-source-type="prozorro" type="button"><span aria-hidden="true">REG</span><b data-i18n="sourceTypeRegistry">Registries</b></button>
+        </div>
       </div>
       <div class="news-list" id="newsList"></div>
       <div class="empty-state" id="emptyNews">
@@ -53,20 +110,42 @@
       </div>
       <div class="action-row">
         <button class="primary-button" id="checkButton" data-i18n="checkNow" type="button">Check now</button>
-        <button class="secondary-button" id="reportButton" data-i18n="csvReport" type="button">CSV report</button>
       </div>
     </section>
 
-    <section class="tab-panel" data-panel="settings">
-      <div class="settings-grid">
-        <label class="field">
-          <span data-i18n="language">Language</span>
-          <select id="languageSelect"></select>
-        </label>
-        <label class="field">
-          <span data-i18n="region">Monitoring region</span>
-          <select id="countrySelect"></select>
-        </label>
+    <section class="tab-panel" data-panel="monitoring">
+      <div class="toolbar">
+        <div>
+          <h2 data-i18n="monitoringTitle">Monitoring setup</h2>
+          <small data-i18n="monitoringHint">Add keywords, choose a region, and control how often Monitorio checks sources.</small>
+        </div>
+      </div>
+      <div class="setup-steps-card">
+        <div class="setup-step">
+          <span class="step-number" aria-hidden="true">1</span>
+          <label class="field">
+            <span data-i18n="stepRegionTitle">Choose monitoring region</span>
+            <select id="countrySelect"></select>
+          </label>
+          <small data-i18n="stepRegionHint">The keyword will be linked to this country.</small>
+        </div>
+        <div class="setup-step">
+          <span class="step-number" aria-hidden="true">2</span>
+          <div class="step-content">
+            <label class="field">
+              <span data-i18n="stepKeywordTitle">Add keyword</span>
+              <input id="keywordInput" type="text" autocomplete="off" placeholder="for example: bitcoin" data-i18n-placeholder="keywordPlaceholder">
+            </label>
+            <button class="primary-button" id="addKeywordButton" data-i18n="addKeyword" type="button">Add keyword</button>
+          </div>
+          <small data-i18n="stepKeywordHint">Use a brand, person, company, topic, or domain.</small>
+        </div>
+        <div class="chips" id="keywordChips"></div>
+      </div>
+
+      <div class="setup-status-card" id="setupStatusCard">
+        <strong id="setupStatusTitle">-</strong>
+        <p id="setupStatusText">-</p>
       </div>
 
       <div class="toggle-list">
@@ -84,10 +163,214 @@
           </span>
           <b class="switch" aria-hidden="true"></b>
         </button>
+        <button class="toggle-row" id="importanceToggleCard" type="button" hidden>
+          <span>
+            <strong data-i18n="importanceRating">Importance rating</strong>
+            <small id="importanceToggleText">-</small>
+          </span>
+          <b class="switch" id="importanceToggle" aria-hidden="true"></b>
+        </button>
       </div>
 
-      <div class="action-row">
-        <button class="secondary-button" id="plansButton" data-i18n="plans" type="button">Plans</button>
+      <div class="input-card interval-card">
+        <div class="interval-head">
+          <div>
+            <strong data-i18n="monitorInterval">News delivery interval</strong>
+            <small id="intervalHint">-</small>
+          </div>
+          <b id="intervalValue">-</b>
+        </div>
+        <input id="intervalRange" type="range" min="1" max="1440" step="1" value="1">
+      </div>
+
+      <div class="input-card threads-card" hidden>
+        <div class="interval-head">
+          <div>
+            <strong data-i18n="threadsSettings">Threads search</strong>
+            <small id="threadsHint">Business only</small>
+          </div>
+          <button class="compact-button" id="threadsToggle" type="button" data-i18n="off">Off</button>
+        </div>
+        <div class="settings-grid threads-settings-grid">
+          <label class="mini-field">
+            <span data-i18n="threadsHours">Time range</span>
+            <input id="threadsHoursRange" type="range" min="1" max="24" step="1" value="24">
+            <b id="threadsHoursValue">24 h</b>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="threadsResultLimit">Results</span>
+            <input id="threadsResultLimit" type="number" min="1" max="100" step="1" value="15">
+          </label>
+          <label class="mini-field">
+            <span data-i18n="threadsMediaFilter">Media</span>
+            <select id="threadsMediaFilter">
+              <option value="any" data-i18n="threadsAny">Any</option>
+              <option value="media" data-i18n="threadsOnlyMedia">Only with media</option>
+              <option value="no_media" data-i18n="threadsWithoutMedia">Without media</option>
+            </select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="threadsLinkFilter">Links</span>
+            <select id="threadsLinkFilter">
+              <option value="any" data-i18n="threadsAny">Any</option>
+              <option value="link" data-i18n="threadsOnlyLinks">Only with link</option>
+              <option value="no_link" data-i18n="threadsWithoutLinks">Without link</option>
+            </select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="threadsSearchType">Priority</span>
+            <select id="threadsSearchType">
+              <option value="RECENT" data-i18n="threadsRecent">Newest</option>
+              <option value="TOP" data-i18n="threadsTop">Most popular</option>
+            </select>
+          </label>
+        </div>
+        <button class="secondary-button" id="threadsSaveButton" data-i18n="saveThreadsSettings" type="button">Save Threads settings</button>
+      </div>
+
+      <div class="section-divider">
+        <strong data-i18n="keywordsTitle">Keywords and filters</strong>
+        <small data-i18n="keywordsHint">Keywords find mentions. Stop words remove noise. Required words make results stricter.</small>
+      </div>
+      <div class="filter-columns">
+        <div class="input-card">
+          <label class="field">
+            <span data-i18n="stopWord">Stop word</span>
+            <input id="stopInput" type="text" autocomplete="off" placeholder="word to exclude" data-i18n-placeholder="stopPlaceholder">
+          </label>
+          <small class="field-hint" data-i18n="stopWordHint">If this word appears in a result, Monitorio will skip it.</small>
+          <button class="secondary-button" id="addStopButton" data-i18n="add" type="button">Add</button>
+          <div class="chips compact" id="stopChips"></div>
+        </div>
+
+        <div class="input-card">
+          <label class="field">
+            <span data-i18n="plusWord">Required word</span>
+            <input id="plusInput" type="text" autocomplete="off" placeholder="extra condition" data-i18n-placeholder="plusPlaceholder">
+          </label>
+          <small class="field-hint" data-i18n="plusWordHint">A result must contain this word together with one of your keywords.</small>
+          <button class="secondary-button" id="addPlusButton" data-i18n="add" type="button">Add</button>
+          <div class="chips compact" id="plusChips"></div>
+        </div>
+      </div>
+      <div class="language-settings">
+        <label class="field">
+          <span data-i18n="language">Language</span>
+          <select id="languageSelect"></select>
+        </label>
+      </div>
+    </section>
+
+    <section class="tab-panel" data-panel="report">
+      <div class="toolbar">
+        <div>
+          <h2 data-i18n="reportTitle">Report</h2>
+          <small data-i18n="reportHint">Choose a period and download the report in a convenient format.</small>
+        </div>
+      </div>
+      <div class="input-card report-card">
+        <div class="report-controls">
+          <label class="mini-field report-period-field">
+            <span data-i18n="reportPeriod">Report period</span>
+            <select id="reportPeriodSelect">
+              <option value="1" data-i18n="csvDay">Previous day</option>
+              <option value="7" data-i18n="csvWeek">Last 7 days</option>
+            </select>
+          </label>
+          <div class="report-filter-grid">
+            <label class="mini-field">
+              <span data-i18n="filterCountry">Country</span>
+              <select id="reportCountryFilter">
+                <option value="" data-i18n="allCountries">All countries</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span data-i18n="filterKeyword">Keyword</span>
+              <select id="reportKeywordFilter">
+                <option value="" data-i18n="allKeywords">All keywords</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span data-i18n="filterSource">Source</span>
+              <select id="reportSourceFilter">
+                <option value="" data-i18n="allSources">All sources</option>
+              </select>
+            </label>
+            <label class="mini-field">
+              <span data-i18n="aiDigestSourceType">Source type</span>
+              <select id="reportSourceTypeFilter">
+                <option value="" data-i18n="sourceTypeAll">All</option>
+                <option value="rss" data-i18n="sourceTypeRss">RSS</option>
+                <option value="telegram" data-i18n="sourceTypeTelegram">Telegram</option>
+                <option value="prozorro" data-i18n="sourceTypeRegistry">Registries</option>
+              </select>
+            </label>
+          </div>
+          <div class="report-format-grid">
+            <button class="secondary-button" id="reportCsvButton" data-format="csv" data-i18n="downloadCsv" type="button">Download CSV</button>
+            <button class="secondary-button" id="reportXlsxButton" data-format="xlsx" data-i18n="downloadXlsx" type="button">Download Excel</button>
+            <button class="secondary-button" id="reportPdfButton" data-format="pdf" data-i18n="downloadPdf" type="button">Download PDF</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-digest-card input-card" id="aiDigestCard" hidden>
+        <div class="section-divider compact-divider">
+          <strong data-i18n="aiDigestTitle">AI digest</strong>
+          <small data-i18n="aiDigestHint">Test feature. Create a short smart summary from your latest mentions.</small>
+        </div>
+        <div class="ai-digest-method">
+          <strong data-i18n="aiDigestMethodTitle">How it is formed</strong>
+          <small data-i18n="aiDigestMethodText">The digest uses only mentions already found by Monitorio for the selected period and filters.</small>
+        </div>
+        <div class="settings-grid ai-digest-settings">
+          <label class="mini-field">
+            <span data-i18n="aiDigestPeriod">Digest period</span>
+            <select id="aiDigestPeriodSelect">
+              <option value="12" data-i18n="aiDigest12h">Last 12 hours</option>
+              <option value="24" data-i18n="aiDigest24h">Last 24 hours</option>
+              <option value="168" data-i18n="aiDigestWeek">Last 7 days</option>
+            </select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="aiDigestCountry">Country</span>
+            <select id="aiDigestCountrySelect"></select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="aiDigestKeyword">Keyword</span>
+            <select id="aiDigestKeywordSelect"></select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="aiDigestSourceType">Source type</span>
+            <select id="aiDigestSourceTypeSelect">
+              <option value="" data-i18n="aiDigestAllSources">All sources</option>
+              <option value="rss" data-i18n="aiDigestRssOnly">RSS only</option>
+              <option value="telegram" data-i18n="aiDigestTelegramOnly">Telegram only</option>
+              <option value="prozorro" data-i18n="aiDigestRegistryOnly">Registries only</option>
+            </select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="aiDigestFocus">Focus</span>
+            <select id="aiDigestFocusSelect">
+              <option value="overview" data-i18n="aiDigestFocusOverview">General overview</option>
+              <option value="important" data-i18n="aiDigestFocusImportant">Important mentions</option>
+              <option value="risks" data-i18n="aiDigestFocusRisks">Risks</option>
+              <option value="sources" data-i18n="aiDigestFocusSources">Source activity</option>
+              <option value="actions" data-i18n="aiDigestFocusActions">Next steps</option>
+            </select>
+          </label>
+          <label class="mini-field">
+            <span data-i18n="aiDigestMaxMentions">Mentions to analyze</span>
+            <select id="aiDigestMaxMentionsSelect">
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="80" selected>80</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+        </div>
+        <button class="primary-button" id="aiDigestButton" data-i18n="generateAiDigest" type="button">Generate AI digest</button>
+        <div class="ai-digest-result" id="aiDigestResult" hidden></div>
       </div>
     </section>
 
@@ -100,14 +383,9 @@
         <button class="compact-button" id="plansRefreshButton" data-i18n="refresh" type="button">Refresh</button>
       </div>
       <div class="plans-grid" id="plansGrid"></div>
-    </section>
-
-    <section class="tab-panel help-panel" data-panel="help">
-      <div class="toolbar">
-        <div>
-          <h2 data-i18n="helpTitle">Help</h2>
-          <small data-i18n="helpIntro">Monitorio tracks mentions in media, RSS feeds, and public Telegram channels.</small>
-        </div>
+      <div class="section-divider">
+        <strong data-i18n="helpTitle">Help</strong>
+        <small data-i18n="helpIntro">Monitorio tracks mentions in media, RSS feeds, and public Telegram channels.</small>
       </div>
       <div class="help-grid">
         <article class="help-card">
@@ -115,61 +393,32 @@
           <p data-i18n="helpQuickText">Choose a region, add keywords in Filters, then run a manual check or enable automatic monitoring.</p>
         </article>
         <article class="help-card">
-          <strong data-i18n="helpRegionTitle">Region logic</strong>
-          <p data-i18n="helpRegionText">Each keyword is linked to the monitoring region selected when you add it.</p>
-        </article>
-        <article class="help-card">
           <strong data-i18n="helpFiltersTitle">Filter logic</strong>
           <p data-i18n="helpFiltersText">Keywords work as OR logic. Stop words block results. Required words add an extra condition.</p>
         </article>
-        <article class="help-card">
-          <strong data-i18n="helpSourcesTitle">Sources and reports</strong>
-          <p data-i18n="helpSourcesText">In Sources you can add RSS or Telegram channels, manage TG packages, and request a CSV source file.</p>
+        <article class="help-card help-support">
+          <strong data-i18n="helpSupportTitle">Support</strong>
+          <p data-i18n="helpSupportText">Have a question or a suggestion? Write to our support team and we'll help.</p>
+          <a class="support-link" id="supportLink" href="https://t.me/MonitorioSupportBot" target="_blank" rel="noopener" data-i18n="helpSupportButton">Contact support</a>
         </article>
-      </div>
-    </section>
-
-    <section class="tab-panel" data-panel="filters">
-      <div class="input-card">
-        <label class="field">
-          <span data-i18n="keyword">Keyword</span>
-          <input id="keywordInput" type="text" autocomplete="off" placeholder="for example: bitcoin" data-i18n-placeholder="keywordPlaceholder">
-        </label>
-        <button class="primary-button" id="addKeywordButton" data-i18n="addKeyword" type="button">Add keyword</button>
-      </div>
-      <div class="chips" id="keywordChips"></div>
-
-      <div class="filter-columns">
-        <div class="input-card">
-          <label class="field">
-            <span data-i18n="stopWord">Stop word</span>
-            <input id="stopInput" type="text" autocomplete="off" placeholder="word to exclude" data-i18n-placeholder="stopPlaceholder">
-          </label>
-          <button class="secondary-button" id="addStopButton" data-i18n="add" type="button">Add</button>
-          <div class="chips compact" id="stopChips"></div>
-        </div>
-
-        <div class="input-card">
-          <label class="field">
-            <span data-i18n="plusWord">Required word</span>
-            <input id="plusInput" type="text" autocomplete="off" placeholder="extra condition" data-i18n-placeholder="plusPlaceholder">
-          </label>
-          <button class="secondary-button" id="addPlusButton" data-i18n="add" type="button">Add</button>
-          <div class="chips compact" id="plusChips"></div>
-        </div>
       </div>
     </section>
 
     <section class="tab-panel" data-panel="sources">
       <div class="source-stats">
         <div><strong id="standardSources">-</strong><small>RSS/standard</small></div>
+        <div><strong id="registrySources">-</strong><small data-i18n="sourceGroupRegistries">Registries</small></div>
         <div><strong id="paidSources">-</strong><small>TG</small></div>
         <div><strong id="customSources">-</strong><small>Custom</small></div>
       </div>
 
       <div class="toolbar">
-        <h2 data-i18n="sourceOverview">Source overview</h2>
+        <h2><span data-i18n="sourceOverview">Source overview</span> <small id="sourceOverviewCountry"></small></h2>
+        <div class="toolbar-actions">
+          <button class="compact-button" id="standardSourcesToggleButton" type="button"></button>
+        </div>
       </div>
+      <input id="sourceSearch" class="source-search" type="search" autocomplete="off" placeholder="Search sources" data-i18n-placeholder="sourceSearchPlaceholder">
       <div class="source-list" id="sourceList"></div>
 
       <div class="input-card">
@@ -187,17 +436,11 @@
         </label>
         <button class="secondary-button" id="addTgButton" data-i18n="addTg" type="button">Add TG</button>
       </div>
-
-      <div class="toolbar">
-        <h2 data-i18n="tgBlocks">TG packages</h2>
-        <button class="compact-button" id="sourcesFileButton" data-i18n="sourcesFile" type="button">Sources file</button>
-      </div>
-      <div class="block-list" id="tgBlocks"></div>
     </section>
 
     <p class="status-line" id="statusText" data-i18n="opening">Opening cabinet...</p>
   </main>
   <script src="./config.js"></script>
-  <script src="./app.js"></script>
+  <script src="./app.js?v=20260804-filtered-recent1"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@ name,url,type,rank,subscribers,country,language
 Європейська правда,https://www.eurointegration.com.ua/rss/,rss,,,,
 Детектор медіа,https://detector.media/rss/,rss,,,,
 Судово-юридична газета,https://sud.ua/rss/news,rss,,,,
-OBOZ.UA,https://www.obozrevatel.com/out/rss/lastnews.xml,rss,,,,
+OBOZ.UA,https://www.obozrevatel.com/ukr/out/rss/lastnews.xml,rss,,,,
 ТСН,https://tsn.ua/rss/full.rss,rss,,,,
 УНІАН,https://rss.unian.net/site/news_ukr.rss,rss,,,,
 24 Канал,https://24tv.ua/rss/all.xml,rss,,,,
@@ -255,6 +255,7 @@ Telegram @fastfocus,https://t.me/s/fastfocus,telegram_paid,228,583,,
 Telegram @presidentporoshenko,https://t.me/s/presidentporoshenko,telegram_paid,229,369,,
 Telegram @mortisaeternadpm,https://t.me/s/mortisaeternadpm,telegram_paid,230,0,,
 Telegram @ukr_125,https://t.me/s/ukr_125,telegram_paid,231,0,,
+ХЕРСОН: Воздух / БПЛА,https://t.me/s/kherson_non_drone,telegram_paid,232,,ua,uk
 Tagesschau,https://www.tagesschau.de/xml/rss2/,rss,1,,de,de
 Der Spiegel,https://www.spiegel.de/schlagzeilen/tops/index.rss,rss,2,,de,de
 Die Zeit,https://newsfeed.zeit.de/index,rss,3,,de,de
@@ -268,13 +269,13 @@ ZDFheute,https://www.zdf.de/rss/zdf/nachrichten,rss,10,,de,de
 MDR Nachrichten,https://www.mdr.de/nachrichten/index-rss.xml,rss,11,,de,de
 Handelsblatt,https://www.handelsblatt.com/contentexport/feed/schlagzeilen,rss,12,,de,de
 WirtschaftsWoche,https://www.wiwo.de/contentexport/feed/rss/schlagzeilen,rss,13,,de,de
-Focus via Google News,https://news.google.com/rss/search?q=site%3Afocus.de&hl=de&gl=DE&ceid=DE:de,rss,14,,de,de
+Focus Online,https://rss.focus.de/fol/XML/rss_folnews.xml,rss,14,,de,de
 BR24 via Google News,https://news.google.com/rss/search?q=site%3Abr.de&hl=de&gl=DE&ceid=DE:de,rss,15,,de,de
-t-online via Google News,https://news.google.com/rss/search?q=site%3At-online.de&hl=de&gl=DE&ceid=DE:de,rss,16,,de,de
+t-online,https://www.t-online.de/rss.xml,rss,16,,de,de
 RND via Google News,https://news.google.com/rss/search?q=site%3Arnd.de&hl=de&gl=DE&ceid=DE:de,rss,17,,de,de
 Berliner Zeitung via Google News,https://news.google.com/rss/search?q=site%3Aberliner-zeitung.de&hl=de&gl=DE&ceid=DE:de,rss,18,,de,de
-Sueddeutsche via Google News,https://news.google.com/rss/search?q=site%3Asueddeutsche.de&hl=de&gl=DE&ceid=DE:de,rss,19,,de,de
-Deutschlandfunk via Google News,https://news.google.com/rss/search?q=site%3Adeutschlandfunk.de&hl=de&gl=DE&ceid=DE:de,rss,20,,de,de
+Sueddeutsche Zeitung,https://rss.sueddeutsche.de/rss/Topthemen,rss,19,,de,de
+Deutschlandfunk,https://www.deutschlandfunk.de/nachrichten-100.rss,rss,20,,de,de
 Deutsche Welle,https://t.me/s/deutschewelleEN,telegram_paid,1,3190,de,de
 Tagesschau,https://t.me/s/tagesschau,telegram_paid,2,297,de,de
 DER SPIEGEL,https://t.me/s/derspiegel,telegram_paid,3,67,de,de
@@ -306,14 +307,14 @@ El Espanol,https://www.elespanol.com/rss/,rss,8,,es,es
 COPE,https://www.cope.es/api/es/news/rss.xml,rss,9,,es,es
 Europa Press,https://www.europapress.es/rss/rss.aspx,rss,10,,es,es
 Expansion,https://e00-expansion.uecdn.es/rss/portada.xml,rss,11,,es,es
-Publico via Google News,https://news.google.com/rss/search?q=site%3Apublico.es&hl=es&gl=ES&ceid=ES:es,rss,12,,es,es
-RTVE via Google News,https://news.google.com/rss/search?q=site%3Artve.es&hl=es&gl=ES&ceid=ES:es,rss,13,,es,es
+Publico,https://www.publico.es/rss/feed.xml,rss,12,,es,es
+RTVE Noticias,https://www.rtve.es/rss/noticias.xml,rss,13,,es,es
 Antena 3 via Google News,https://news.google.com/rss/search?q=site%3Aantena3.com&hl=es&gl=ES&ceid=ES:es,rss,14,,es,es
-La Razon via Google News,https://news.google.com/rss/search?q=site%3Alarazon.es&hl=es&gl=ES&ceid=ES:es,rss,15,,es,es
-Cinco Dias via Google News,https://news.google.com/rss/search?q=site%3Acincodias.elpais.com&hl=es&gl=ES&ceid=ES:es,rss,16,,es,es
-El Periodico via Google News,https://news.google.com/rss/search?q=site%3Aelperiodico.com&hl=es&gl=ES&ceid=ES:es,rss,17,,es,es
+La Razon,https://www.larazon.es/rss/,rss,15,,es,es
+Cinco Dias,https://cincodias.elpais.com/rss/cincodias/portada.xml,rss,16,,es,es
+El Periodico,https://www.elperiodico.com/es/rss/rss_portada.xml,rss,17,,es,es
 La Sexta via Google News,https://news.google.com/rss/search?q=site%3Alasexta.com&hl=es&gl=ES&ceid=ES:es,rss,18,,es,es
-Vozpopuli via Google News,https://news.google.com/rss/search?q=site%3Avozpopuli.com&hl=es&gl=ES&ceid=ES:es,rss,19,,es,es
+Vozpopuli,https://www.vozpopuli.com/rss.xml,rss,19,,es,es
 Telecinco via Google News,https://news.google.com/rss/search?q=site%3Atelecinco.es&hl=es&gl=ES&ceid=ES:es,rss,20,,es,es
 EL PAIS,https://t.me/s/elpais,telegram_paid,1,18000,es,es
 EL MUNDO,https://t.me/s/elmundoes,telegram_paid,2,19000,es,es
@@ -346,13 +347,13 @@ Sky TG24,https://tg24.sky.it/rss/tg24.xml,rss,8,,it,it
 Libero,https://www.liberoquotidiano.it/rss.xml,rss,9,,it,it
 Quotidiano Nazionale,https://www.quotidiano.net/rss,rss,10,,it,it
 Open,https://www.open.online/feed/,rss,11,,it,it
-La Stampa via Google News,https://news.google.com/rss/search?q=site%3Alastampa.it&hl=it&gl=IT&ceid=IT:it,rss,12,,it,it
+La Stampa,https://www.lastampa.it/rss/homepage.xml,rss,12,,it,it
 Fanpage via Google News,https://news.google.com/rss/search?q=site%3Afanpage.it&hl=it&gl=IT&ceid=IT:it,rss,13,,it,it
-RaiNews via Google News,https://news.google.com/rss/search?q=site%3Arainews.it&hl=it&gl=IT&ceid=IT:it,rss,14,,it,it
+RAI News,https://www.rainews.it/rss.xml,rss,14,,it,it
 Today via Google News,https://news.google.com/rss/search?q=site%3Atoday.it&hl=it&gl=IT&ceid=IT:it,rss,15,,it,it
-Il Post via Google News,https://news.google.com/rss/search?q=site%3Ailpost.it&hl=it&gl=IT&ceid=IT:it,rss,16,,it,it
-HuffPost Italia via Google News,https://news.google.com/rss/search?q=site%3Ahuffingtonpost.it&hl=it&gl=IT&ceid=IT:it,rss,17,,it,it
-Adnkronos via Google News,https://news.google.com/rss/search?q=site%3Aadnkronos.com&hl=it&gl=IT&ceid=IT:it,rss,18,,it,it
+Il Post,https://www.ilpost.it/feed/,rss,16,,it,it
+HuffPost Italia,https://www.huffingtonpost.it/feeds/index.xml,rss,17,,it,it
+Adnkronos,https://www.adnkronos.com/rss.xml,rss,18,,it,it
 Domani via Google News,https://news.google.com/rss/search?q=site%3Aeditorialedomani.it&hl=it&gl=IT&ceid=IT:it,rss,19,,it,it
 Agenzia Nova via Google News,https://news.google.com/rss/search?q=site%3Aagenzianova.com&hl=it&gl=IT&ceid=IT:it,rss,20,,it,it
 ANSA Economia,https://t.me/s/ansait,telegram_paid,1,943,it,it
@@ -375,7 +376,7 @@ L Indipendente,https://t.me/s/lindipendente,telegram_paid,17,35200,it,it
 Byoblu,https://t.me/s/byobluofficial,telegram_paid,18,87300,it,it
 Rainews,https://t.me/s/rainews_it,telegram_paid,19,73,it,it
 Open Online,https://t.me/s/openonline_it,telegram_paid,20,33,it,it
-BELTA via Google News,https://news.google.com/rss/search?q=site%3Abelta.by&hl=ru&gl=BY&ceid=BY:ru,rss,1,,by,be
+BELTA,https://belta.by/rss,rss,1,,by,be
 Onliner,https://people.onliner.by/feed,rss,2,,by,be
 Reform.news,https://reform.news/feed,rss,3,,by,be
 Radio Svaboda,https://www.svaboda.org/api/,rss,4,,by,be
@@ -383,17 +384,17 @@ Dev.by,https://devby.io/rss,rss,5,,by,be
 CityDog,https://citydog.io/rss,rss,6,,by,be
 Minsk News,https://minsknews.by/feed/,rss,7,,by,be
 Myfin,https://myfin.by/rss,rss,8,,by,be
-SB Belarus Segodnya via Google News,https://news.google.com/rss/search?q=site%3Asb.by&hl=ru&gl=BY&ceid=BY:ru,rss,9,,by,be
-Zerkalo via Google News,https://news.google.com/rss/search?q=site%3Azerkalo.io&hl=ru&gl=BY&ceid=BY:ru,rss,10,,by,be
-Nasha Niva via Google News,https://news.google.com/rss/search?q=site%3Anashaniva.com&hl=ru&gl=BY&ceid=BY:ru,rss,11,,by,be
+SB Belarus Segodnya,https://www.sb.by/rss/,rss,9,,by,be
+Zerkalo.io,https://news.zerkalo.io/rss.xml,rss,10,,by,be
+Nasha Niva,https://nashaniva.com/?c=ar&i=feed,rss,11,,by,be
 Euroradio via Google News,https://news.google.com/rss/search?q=site%3Aeuroradio.fm&hl=ru&gl=BY&ceid=BY:ru,rss,12,,by,be
-Belsat via Google News,https://news.google.com/rss/search?q=site%3Abelsat.eu&hl=ru&gl=BY&ceid=BY:ru,rss,13,,by,be
-Charter97 via Google News,https://news.google.com/rss/search?q=site%3Acharter97.org&hl=ru&gl=BY&ceid=BY:ru,rss,14,,by,be
+Belsat,https://belsat.eu/feed,rss,13,,by,be
+Charter97,https://charter97.org/ru/rss/,rss,14,,by,be
 Mediazona Belarus via Google News,https://news.google.com/rss/search?q=site%3Amediazonaby.com&hl=ru&gl=BY&ceid=BY:ru,rss,15,,by,be
-Pozirk via Google News,https://news.google.com/rss/search?q=site%3Apozirk.online&hl=ru&gl=BY&ceid=BY:ru,rss,16,,by,be
+Pozirk,https://pozirk.online/feed/,rss,16,,by,be
 Office Life via Google News,https://news.google.com/rss/search?q=site%3Aofficelife.media&hl=ru&gl=BY&ceid=BY:ru,rss,17,,by,be
-Smartpress via Google News,https://news.google.com/rss/search?q=site%3Asmartpress.by&hl=ru&gl=BY&ceid=BY:ru,rss,18,,by,be
-Tochka.by via Google News,https://news.google.com/rss/search?q=site%3Atochka.by&hl=ru&gl=BY&ceid=BY:ru,rss,19,,by,be
+Smartpress,https://smartpress.by/rss/,rss,18,,by,be
+Tochka.by,https://tochka.by/rss/,rss,19,,by,be
 Mlyn.by via Google News,https://news.google.com/rss/search?q=site%3Amlyn.by&hl=ru&gl=BY&ceid=BY:ru,rss,20,,by,be
 NEXTA,https://t.me/s/nexta_tv,telegram_paid,1,106000,by,be
 NEXTA Live,https://t.me/s/nexta_live,telegram_paid,2,764000,by,be
@@ -455,26 +456,26 @@ SCMP News,https://t.me/s/SCMPNews,telegram_paid,17,,gb,en
 Newsmax,https://t.me/s/newsmax,telegram_paid,18,,gb,en
 France 24 English,https://t.me/s/France24_en,telegram_paid,19,,gb,en
 PressTV,https://t.me/s/pressTV,telegram_paid,20,,gb,en
-RIA Novosti via Google News,https://news.google.com/rss/search?q=site:ria.ru&hl=ru&gl=RU&ceid=RU:ru,rss,1,,ru,ru
-TASS via Google News,https://news.google.com/rss/search?q=site:tass.ru&hl=ru&gl=RU&ceid=RU:ru,rss,2,,ru,ru
-Interfax via Google News,https://news.google.com/rss/search?q=site:interfax.ru&hl=ru&gl=RU&ceid=RU:ru,rss,3,,ru,ru
-Kommersant via Google News,https://news.google.com/rss/search?q=site:kommersant.ru&hl=ru&gl=RU&ceid=RU:ru,rss,4,,ru,ru
-RBC via Google News,https://news.google.com/rss/search?q=site:rbc.ru&hl=ru&gl=RU&ceid=RU:ru,rss,5,,ru,ru
-Vedomosti via Google News,https://news.google.com/rss/search?q=site:vedomosti.ru&hl=ru&gl=RU&ceid=RU:ru,rss,6,,ru,ru
-Lenta.ru via Google News,https://news.google.com/rss/search?q=site:lenta.ru&hl=ru&gl=RU&ceid=RU:ru,rss,7,,ru,ru
-Gazeta.ru via Google News,https://news.google.com/rss/search?q=site:gazeta.ru&hl=ru&gl=RU&ceid=RU:ru,rss,8,,ru,ru
-Izvestia via Google News,https://news.google.com/rss/search?q=site:iz.ru&hl=ru&gl=RU&ceid=RU:ru,rss,9,,ru,ru
-Fontanka via Google News,https://news.google.com/rss/search?q=site:fontanka.ru&hl=ru&gl=RU&ceid=RU:ru,rss,10,,ru,ru
+RIA Novosti,https://ria.ru/export/rss2/index.xml,rss,1,,ru,ru
+TASS,https://tass.ru/rss/v2.xml,rss,2,,ru,ru
+Interfax,https://www.interfax.ru/rss.asp,rss,3,,ru,ru
+Kommersant,https://www.kommersant.ru/RSS/news.xml,rss,4,,ru,ru
+RBC,https://rssexport.rbc.ru/rbcnews/news/30/full.rss,rss,5,,ru,ru
+Vedomosti,https://www.vedomosti.ru/rss/news,rss,6,,ru,ru
+Lenta.ru,https://lenta.ru/rss,rss,7,,ru,ru
+Gazeta.ru,https://www.gazeta.ru/export/rss/lenta.xml,rss,8,,ru,ru
+Izvestia,https://iz.ru/xml/rss/all.xml,rss,9,,ru,ru
+Fontanka.ru,https://www.fontanka.ru/fontanka.rss,rss,10,,ru,ru
 Forbes Russia via Google News,https://news.google.com/rss/search?q=site:forbes.ru&hl=ru&gl=RU&ceid=RU:ru,rss,11,,ru,ru
-CNews via Google News,https://news.google.com/rss/search?q=site:cnews.ru&hl=ru&gl=RU&ceid=RU:ru,rss,12,,ru,ru
+CNews,https://www.cnews.ru/inc/rss/news.xml,rss,12,,ru,ru
 VC.ru via Google News,https://news.google.com/rss/search?q=site:vc.ru&hl=ru&gl=RU&ceid=RU:ru,rss,13,,ru,ru
 Habr via Google News,https://news.google.com/rss/search?q=site:habr.com&hl=ru&gl=RU&ceid=RU:ru,rss,14,,ru,ru
 3DNews via Google News,https://news.google.com/rss/search?q=site:3dnews.ru&hl=ru&gl=RU&ceid=RU:ru,rss,15,,ru,ru
 Sports.ru via Google News,https://news.google.com/rss/search?q=site:sports.ru&hl=ru&gl=RU&ceid=RU:ru,rss,16,,ru,ru
 Championat via Google News,https://news.google.com/rss/search?q=site:championat.com&hl=ru&gl=RU&ceid=RU:ru,rss,17,,ru,ru
-Argumenty i Fakty via Google News,https://news.google.com/rss/search?q=site:aif.ru&hl=ru&gl=RU&ceid=RU:ru,rss,18,,ru,ru
-MK via Google News,https://news.google.com/rss/search?q=site:mk.ru&hl=ru&gl=RU&ceid=RU:ru,rss,19,,ru,ru
-Meduza via Google News,https://news.google.com/rss/search?q=site:meduza.io&hl=ru&gl=RU&ceid=RU:ru,rss,20,,ru,ru
+Argumenty i Fakty,https://aif.ru/rss/all.php,rss,18,,ru,ru
+Moskovskij Komsomolets,https://www.mk.ru/rss/news/index.xml,rss,19,,ru,ru
+Meduza,https://meduza.io/rss/all,rss,20,,ru,ru
 RIA Novosti,https://t.me/s/rian_ru,telegram_paid,1,,ru,ru
 TASS,https://t.me/s/tass_agency,telegram_paid,2,,ru,ru
 Kommersant,https://t.me/s/kommersant,telegram_paid,3,,ru,ru
@@ -496,24 +497,24 @@ Habr,https://t.me/s/habr_com,telegram_paid,18,,ru,ru
 Ostorozhno Novosti,https://t.me/s/ostorozhno_novosti,telegram_paid,19,,ru,ru
 Ateo Breaking,https://t.me/s/AteoBreaking,telegram_paid,20,,ru,ru
 Tengrinews,https://tengrinews.kz/news.rss,rss,1,,kz,ru
-Informburo via Google News,https://news.google.com/rss/search?q=site:informburo.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,2,,kz,ru
-Zakon.kz via Google News,https://news.google.com/rss/search?q=site:zakon.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,3,,kz,ru
+Informburo.kz,https://informburo.kz/rss.xml,rss,2,,kz,ru
+Zakon.kz,https://www.zakon.kz/rss.xml,rss,3,,kz,ru
 Kazinform RU,https://www.inform.kz/rss/rus.xml,rss,4,,kz,ru
 Nur.kz,https://www.nur.kz/rss/all.rss,rss,5,,kz,ru
-Vlast.kz via Google News,https://news.google.com/rss/search?q=site:vlast.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,6,,kz,ru
-Orda.kz via Google News,https://news.google.com/rss/search?q=site:orda.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,7,,kz,ru
+Vlast.kz,https://vlast.kz/rss.xml,rss,6,,kz,ru
+Orda.kz,https://orda.kz/feed/,rss,7,,kz,ru
 Kursiv,https://kz.kursiv.media/feed/,rss,8,,kz,ru
-Kapital.kz via Google News,https://news.google.com/rss/search?q=site:kapital.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,9,,kz,ru
-Forbes Kazakhstan via Google News,https://news.google.com/rss/search?q=site:forbes.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,10,,kz,ru
+Kapital.kz,https://kapital.kz/rss,rss,9,,kz,ru
+Forbes Kazakhstan,https://forbes.kz/rss/,rss,10,,kz,ru
 KazTAG via Google News,https://news.google.com/rss/search?q=site:kaztag.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,11,,kz,ru
-Liter.kz via Google News,https://news.google.com/rss/search?q=site:liter.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,12,,kz,ru
+Liter.kz,https://liter.kz/feed/,rss,12,,kz,ru
 Sputnik Kazakhstan,https://ru.sputnik.kz/export/rss2/archive/index.xml,rss,13,,kz,ru
 Azattyq,https://rus.azattyq.org/api/,rss,14,,kz,ru
 Khabar24 via Google News,https://news.google.com/rss/search?q=site:24.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,15,,kz,ru
 Baq.kz via Google News,https://news.google.com/rss/search?q=site:baq.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,16,,kz,ru
 Inbusiness,https://inbusiness.kz/ru/rss,rss,17,,kz,ru
 NewTimes,https://newtimes.kz/rss,rss,18,,kz,ru
-Kazpravda via Google News,https://news.google.com/rss/search?q=site:kazpravda.kz&hl=ru&gl=KZ&ceid=KZ:ru,rss,19,,kz,ru
+Kazpravda.kz,https://kazpravda.kz/rss/,rss,19,,kz,ru
 The Steppe via Google News,https://news.google.com/rss/search?q=site:the-steppe.com&hl=ru&gl=KZ&ceid=KZ:ru,rss,20,,kz,ru
 Tengrinews,https://t.me/s/tengrinews,telegram_paid,1,,kz,ru
 Informburo,https://t.me/s/informburo_kz,telegram_paid,2,,kz,ru
@@ -535,6 +536,33 @@ MVD Kazakhstan,https://t.me/s/POLICE_of_KZ,telegram_paid,17,,kz,ru
 TJD Kazakhstan,https://t.me/s/qr_tjm,telegram_paid,18,,kz,ru
 Tengri Astana,https://t.me/s/tengriastana,telegram_paid,19,,kz,ru
 Tengri Almaty,https://t.me/s/tengrialmaty,telegram_paid,20,,kz,ru
+Zakon.kz,https://t.me/s/zakonkz,telegram_paid,21,,kz,ru
+Qaz365,https://t.me/s/qaz365kz,telegram_paid,22,,kz,ru
+Dauletten News,https://t.me/s/dauletten_news,telegram_paid,23,,kz,ru
+NeHabar,https://t.me/s/nehabar,telegram_paid,24,,kz,ru
+NUR.KZ News,https://t.me/s/newsnurkz,telegram_paid,25,,kz,ru
+Anti-Corruption Fund KZ,https://t.me/s/fund_anticorr,telegram_paid,26,,kz,ru
+Za nami viehali,https://t.me/s/Zanamiviehali,telegram_paid,27,,kz,ru
+Jogargy Sot,https://t.me/s/Jogargy_sot,telegram_paid,28,,kz,ru
+Almaty Today,https://t.me/s/almatytoday,telegram_paid,29,,kz,ru
+Media Tulpar,https://t.me/s/mediatulpar,telegram_paid,30,,kz,ru
+Base KZ,https://t.me/s/basekz,telegram_paid,31,,kz,ru
+Atasotandas,https://t.me/s/atasotandas,telegram_paid,32,,kz,ru
+Kazakh Inform,https://t.me/s/kazakh_inform,telegram_paid,33,,kz,ru
+EgovKzBot2,https://t.me/s/EgovKzBot2_01,telegram_paid,34,,kz,ru
+Qazaqstan TV,https://t.me/s/qazaqstantv,telegram_paid,35,,kz,ru
+KazTAG,https://t.me/s/kaztag_tg,telegram_paid,36,,kz,ru
+TV7 Kazakhstan,https://t.me/s/tv7_kaz,telegram_paid,37,,kz,ru
+Zhest KZ,https://t.me/s/zhest_kz_official,telegram_paid,38,,kz,ru
+Watakato,https://t.me/s/watakato,telegram_paid,39,,kz,ru
+Khabar TV,https://t.me/s/khabartv_kz,telegram_paid,40,,kz,ru
+Tipavlo,https://t.me/s/tipavlo,telegram_paid,41,,kz,ru
+Elinfo KZ,https://t.me/s/elinfo_kz,telegram_paid,42,,kz,ru
+Central Media 24 KZ,https://t.me/s/CentralMedia24kz,telegram_paid,43,,kz,ru
+Altyn Adam Esyk,https://t.me/s/AltynAdamEsyk,telegram_paid,44,,kz,ru
+Shishkin Like,https://t.me/s/shishkin_like,telegram_paid,45,,kz,ru
+Halyqstan,https://t.me/s/halyqstan,telegram_paid,46,,kz,ru
+CMN KZ,https://t.me/s/CMN_KZ,telegram_paid,47,,kz,ru
 Gazeta.uz via Google News,https://news.google.com/rss/search?q=site:gazeta.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,1,,uz,ru
 Kun.uz RU,https://kun.uz/ru/news/rss,rss,2,,uz,ru
 Daryo via Google News,https://news.google.com/rss/search?q=site:daryo.uz&hl=ru&gl=UZ&ceid=UZ:ru,rss,3,,uz,ru
@@ -575,3 +603,713 @@ Press Secretary UZ,https://t.me/s/pressuzb,telegram_paid,17,,uz,ru
 MFA Uzbekistan,https://t.me/s/uzbekmfa,telegram_paid,18,,uz,ru
 MVD Uzbekistan,https://t.me/s/iivuz,telegram_paid,19,,uz,ru
 Potrebitel.uz,https://t.me/s/potrebitel_uz,telegram_paid,20,,uz,ru
+Il Giornale,https://www.ilgiornale.it/feed.xml,rss,21,,it,
+Avvenire,https://www.avvenire.it/RSS/HomePage.xml,rss,22,,it,
+AGI,https://www.agi.it/rss,rss,23,,it,
+La Gazzetta dello Sport,https://www.gazzetta.it/rss/home.xml,rss,24,,it,
+Corriere dello Sport,https://www.corrieredellosport.it/rss/home.xml,rss,25,,it,
+Tuttosport,https://www.tuttosport.com/rss/home.xml,rss,26,,it,
+OKDiario,https://okdiario.com/feed,rss,21,,es,
+EFE,https://efe.com/feed/,rss,22,,es,
+Diario AS,https://as.com/rss/tags/ultimas_noticias.xml,rss,23,,es,
+Marca,https://e00-marca.uecdn.es/rss/portada.xml,rss,24,,es,
+BELTA (eng),https://eng.belta.by/rss,rss,21,,by,
+Zviazda,https://zviazda.by/be/rss.xml,rss,22,,by,
+BelaPAN (Belnovosti),https://belnovosti.by/rss,rss,23,,by,
+Neg.by,https://neg.by/rss,rss,24,,by,
+UDF.BY,https://udf.name/rss.xml,rss,25,,by,
+Minsk Herald,https://minskherald.com/feed,rss,26,,by,
+AFN,https://afn.by/news/rss,rss,27,,by,
+Vecherniy Brest,https://vb.by/feed,rss,28,,by,
+Vecherniy Grodno,https://vgr.by/feed,rss,29,,by,
+Tagesspiegel,https://www.tagesspiegel.de/contentexport/feed/home,rss,21,,de,
+Bild,https://www.bild.de/rssfeeds/vw-home/vw-home-16725492.bild.xml,rss,22,,de,
+Rheinische Post,https://rp-online.de/feed.rss,rss,23,,de,
+Manager Magazin,https://www.manager-magazin.de/contentexport/feed/schlagzeilen,rss,24,,de,
+PAP,https://pap-mediaroom.pl/rss,rss,1,,pl,
+Gazeta Wyborcza,https://wyborcza.pl/pub/rss/najnowsze.xml,rss,2,,pl,
+Rzeczpospolita,https://www.rp.pl/rss_main,rss,3,,pl,
+Onet,https://wiadomosci.onet.pl/.feed,rss,4,,pl,
+Interia,https://wydarzenia.interia.pl/feed,rss,5,,pl,
+WP,https://wiadomosci.wp.pl/rss.xml,rss,6,,pl,
+TVN24,https://tvn24.pl/najnowsze.xml,rss,7,,pl,
+TVP Info,https://www.tvp.info/rss,rss,8,,pl,
+Polsat News,https://www.polsatnews.pl/rss/wszystkie.xml,rss,9,,pl,
+RMF24,https://www.rmf24.pl/fakty/feed,rss,10,,pl,
+Wprost,https://www.wprost.pl/rss.xml,rss,11,,pl,
+Newsweek Polska,https://www.newsweek.pl/rss,rss,12,,pl,
+Do Rzeczy,https://dorzeczy.pl/feed,rss,13,,pl,
+Wirtualne Media,https://www.wirtualnemedia.pl/rss/wm.xml,rss,14,,pl,
+Forsal.pl,https://forsal.pl/rss,rss,15,,pl,
+300Gospodarka,https://300gospodarka.pl/feed,rss,16,,pl,
+Spider's Web,https://spidersweb.pl/feed,rss,17,,pl,
+Komputer Świat,https://www.komputerswiat.pl/rss.xml,rss,18,,pl,
+Benchmark.pl,https://www.benchmark.pl/rss/aktualnosci.xml,rss,19,,pl,
+CyberDefence24,https://cyberdefence24.pl/rss.xml,rss,20,,pl,
+Energetyka24,https://energetyka24.com/rss.xml,rss,21,,pl,
+Space24,https://space24.pl/rss.xml,rss,22,,pl,
+Dziennik.pl,https://wiadomosci.dziennik.pl/rss.xml,rss,23,,pl,
+Salon24,https://www.salon24.pl/rss,rss,24,,pl,
+Krytyka Polityczna,https://krytykapolityczna.pl/feed/,rss,25,,pl,
+OKO.press,https://oko.press/feed,rss,26,,pl,
+Polityka,https://www.polityka.pl/rss,rss,27,,pl,
+Głos Wielkopolski,https://gloswielkopolski.pl/rss,rss,28,,pl,
+Dziennik Bałtycki,https://dziennikbaltycki.pl/rss,rss,29,,pl,
+Dziennik Zachodni,https://dziennikzachodni.pl/rss,rss,30,,pl,
+Gazeta Krakowska,https://gazetakrakowska.pl/rss,rss,31,,pl,
+Gazeta Wrocławska,https://gazetawroclawska.pl/rss,rss,32,,pl,
+LSM,https://www.lsm.lv/rss/,rss,1,,lv,
+Delfi Latvia,https://www.delfi.lv/rss/,rss,2,,lv,
+TVNET,https://tvnet.lv/rss,rss,3,,lv,
+Apollo.lv,https://apollo.lv/rss,rss,4,,lv,
+Jauns.lv,https://jauns.lv/rss,rss,5,,lv,
+LRT,https://www.lrt.lt/rss,rss,1,,lt,
+DELFI Lietuva,https://www.delfi.lt/rss,rss,2,,lt,
+15min,https://www.15min.lt/rss,rss,3,,lt,
+Lrytas,https://www.lrytas.lt/rss,rss,4,,lt,
+Verslo žinios,https://www.vz.lt/rss,rss,5,,lt,
+ERR,https://news.err.ee/rss,rss,1,,ee,
+Postimees,https://www.postimees.ee/rss,rss,2,,ee,
+Delfi Estonia,https://www.delfi.ee/rss,rss,3,,ee,
+Õhtuleht,https://www.ohtuleht.ee/rss,rss,4,,ee,
+Äripäev,https://www.aripaev.ee/rss,rss,5,,ee,
+Geenius,https://geenius.ee/feed/,rss,6,,ee,
+Komsomolskaya Pravda,https://www.kp.ru/rss/allsections.xml,rss,21,,ru,
+RT Russian,https://russian.rt.com/rss,rss,22,,ru,
+Vesti.ru,https://www.vesti.ru/vesti.rss,rss,23,,ru,
+Moscow 24,https://www.m24.ru/rss.xml,rss,24,,ru,
+Pravda.ru,https://www.pravda.ru/news/export.xml,rss,25,,ru,
+Utro.ru,https://utro.ru/rss.xml,rss,26,,ru,
+Nezavisimaya Gazeta,https://www.ng.ru/rss/,rss,27,,ru,
+Novye Izvestia,https://newizv.ru/rss,rss,28,,ru,
+Novaya Gazeta Europe,https://novayagazeta.eu/feed/rss,rss,29,,ru,
+The Moscow Times,https://www.themoscowtimes.com/rss/news,rss,30,,ru,
+The Bell,https://thebell.io/feed,rss,31,,ru,
+BBC Russian,https://feeds.bbci.co.uk/russian/rss.xml,rss,32,,ru,
+Radio Svoboda,https://www.svoboda.org/api/zrqiteuuir,rss,33,,ru,
+Deutsche Welle Russian,https://rss.dw.com/xml/rss-ru-all,rss,34,,ru,
+Kazinform / Qazinform,https://qazinform.com/rss,rss,21,,kz,
+Kazakhstan Today,https://www.kt.kz/rss/,rss,22,,kz,
+The Astana Times,https://astanatimes.com/feed/,rss,23,,kz,
+Interfax-Kazakhstan,https://www.interfax.kz/rss,rss,24,,kz,
+Caravan.kz,https://www.caravan.kz/rss.xml,rss,25,,kz,
+Time.kz,https://time.kz/rss,rss,26,,kz,
+Lada.kz,https://www.lada.kz/rss.xml,rss,27,,kz,
+Ekaraganda.kz,https://ekaraganda.kz/rss.xml,rss,28,,kz,
+NG.kz,https://www.ng.kz/modules/newspaper/cache/rss.xml,rss,29,,kz,
+Kostanay News,https://kstnews.kz/rss/,rss,30,,kz,
+Diapazon.kz,https://diapazon.kz/rss/,rss,31,,kz,
+Egemen Qazaqstan,https://egemen.kz/rss,rss,32,,kz,
+Kazakhstan Newsline,https://newsline.kz/rss.xml,rss,33,,kz,
+France 24,https://www.france24.com/fr/rss,rss,1,,fr,
+RFI,https://www.rfi.fr/fr/rss,rss,2,,fr,
+Le Monde,https://www.lemonde.fr/rss/une.xml,rss,3,,fr,
+Le Figaro,https://www.lefigaro.fr/rss/figaro_actualites.xml,rss,4,,fr,
+Le Parisien,https://feeds.leparisien.fr/leparisien/rss,rss,5,,fr,
+Libération,https://www.liberation.fr/arc/outboundfeeds/rss-all/?outputType=xml,rss,6,,fr,
+Franceinfo,https://www.francetvinfo.fr/titres.rss,rss,7,,fr,
+Les Echos,https://services.lesechos.fr/rss/les-echos-actualites.xml,rss,8,,fr,
+Mediapart,https://www.mediapart.fr/articles/feed,rss,9,,fr,
+20 Minutes France,https://www.20minutes.fr/feeds/rss-une.xml,rss,10,,fr,
+BFMTV,https://www.bfmtv.com/rss/news-24-7/,rss,11,,fr,
+Le HuffPost France,https://www.huffingtonpost.fr/feeds/index.xml,rss,12,,fr,
+Le Point,https://www.lepoint.fr/24h-infos/rss.xml,rss,13,,fr,
+L'Obs,https://www.nouvelobs.com/rss.xml,rss,14,,fr,
+Ouest-France,https://www.ouest-france.fr/rss-en-continu.xml,rss,15,,fr,
+Sud Ouest,https://www.sudouest.fr/rss.xml,rss,16,,fr,
+La Dépêche,https://www.ladepeche.fr/rss.xml,rss,17,,fr,
+Midi Libre,https://www.midilibre.fr/rss.xml,rss,18,,fr,
+L'Est Républicain,https://www.estrepublicain.fr/rss,rss,19,,fr,
+Dernières Nouvelles d'Alsace,https://www.dna.fr/rss,rss,20,,fr,
+France Bleu,https://www.francebleu.fr/rss/a-la-une.xml,rss,21,,fr,
+La Croix,https://www.la-croix.com/RSS/UNIVERS,rss,22,,fr,
+Challenges,https://www.challenges.fr/rss.xml,rss,23,,fr,
+L'Usine Nouvelle,https://www.usinenouvelle.com/rss/,rss,24,,fr,
+Numerama,https://www.numerama.com/feed/,rss,25,,fr,
+Next,https://next.ink/feed/,rss,26,,fr,
+Actu.fr,https://actu.fr/feed,rss,27,,fr,
+Le Monde diplomatique,https://www.monde-diplomatique.fr/rss/,rss,28,,fr,
+RTP Notícias,https://www.rtp.pt/noticias/rss,rss,1,,pt,
+Público,https://feeds.feedburner.com/PublicoRSS,rss,2,,pt,
+Expresso,https://feeds.feedburner.com/expresso,rss,3,,pt,
+Correio da Manhã,https://www.cmjornal.pt/rss,rss,4,,pt,
+Diário de Notícias,https://www.dn.pt/rss,rss,5,,pt,
+Jornal de Notícias,https://www.jn.pt/rss,rss,6,,pt,
+Observador,https://observador.pt/feed/,rss,7,,pt,
+SIC Notícias,https://sicnoticias.pt/rss,rss,8,,pt,
+Notícias ao Minuto,https://www.noticiasaominuto.com/rss,rss,9,,pt,
+Renascença,https://rr.sapo.pt/rss,rss,10,,pt,
+Sábado,https://www.sabado.pt/rss,rss,11,,pt,
+O Jornal Económico,https://jornaleconomico.sapo.pt/feed,rss,12,,pt,
+Jornal de Negócios,https://www.jornaldenegocios.pt/rss,rss,13,,pt,
+ECO,https://eco.sapo.pt/feed/,rss,14,,pt,
+Dinheiro Vivo,https://www.dinheirovivo.pt/rss,rss,15,,pt,
+Portugal Resident,https://www.portugalresident.com/feed/,rss,16,,pt,
+Diário As Beiras,https://feeds.feedburner.com/asbeiras,rss,17,,pt,
+Açoriano Oriental,https://www.acorianooriental.pt/rss,rss,18,,pt,
+DNotícias Madeira,https://www.dnoticias.pt/rss,rss,19,,pt,
+Diário de Coimbra,https://www.diariocoimbra.pt/rss,rss,20,,pt,
+Porto.pt,https://www.porto.pt/rss,rss,21,,pt,
+A Voz de Trás-os-Montes,https://www.avozdetrasosmontes.pt/feed/,rss,22,,pt,
+032.ua,https://www.032.ua/rss,rss,,,ua,uk
+0352.ua,https://www.0352.ua/rss,rss,,,ua,uk
+048.ua,https://www.048.ua/rss,rss,,,ua,uk
+0512.com.ua,https://www.0512.com.ua/rss,rss,,,ua,uk
+057.ua,https://www.057.ua/rss,rss,,,ua,uk
+061.ua,https://www.061.ua/rss,rss,,,ua,uk
+0629.com.ua,https://www.0629.com.ua/rss,rss,,,ua,uk
+1kr.ua,https://1kr.ua/ua/rss/rss.xml,rss,,,ua,uk
+1news.com.ua,https://1news.com.ua/feed,rss,,,ua,uk
+1-tv.com.ua,https://1-tv.com.ua/feed/,rss,,,ua,uk
+44.ua,https://www.44.ua/rss,rss,,,ua,uk
+4studio.com.ua,https://4studio.com.ua/rss,rss,,,ua,uk
+5.ua,https://news.google.com/rss/search?q=site:5.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+62.ua,https://www.62.ua/rss,rss,,,ua,uk
+aafu.org.ua,https://news.google.com/rss/search?q=site:aafu.org.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+acc.cv.ua,https://news.google.com/rss/search?q=site:acc.cv.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ain.ua,https://ain.ua/feed,rss,,,ua,uk
+akcenty.com.ua,https://akcenty.ua/feed/rss2.xml,rss,,,ua,uk
+amcu.gov.ua,https://news.google.com/rss/search?q=site:amcu.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+antikor.com.ua,https://antikor.com.ua/rss.xml,rss,,,ua,uk
+apostrophe.ua,https://news.google.com/rss/search?q=site:apostrophe.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+argumentua.com,https://argumentua.com/rss.xml,rss,,,ua,uk
+asn.in.ua,https://news.google.com/rss/search?q=site:asn.in.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+autocentre.ua,https://autocentre.ua/rss,rss,,,ua,uk
+autoua.net,https://autoua.net/rss,rss,,,ua,uk
+bagnet.org,https://news.google.com/rss/search?q=site:bagnet.org&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+bank.gov.ua,https://news.google.com/rss/search?q=site:bank.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+banki.ua,https://banki.ua/rss.xml,rss,,,ua,uk
+bazilik.media,https://bazilik.media/feed/,rss,,,ua,uk
+bbc.com,https://news.google.com/rss/search?q=site:bbc.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+beztabu.net,https://news.google.com/rss/search?q=site:beztabu.net&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+bigkyiv.com.ua,https://bigkyiv.com.ua/feed,rss,,,ua,uk
+kolobok.ua,https://kolobok.ua/rss,rss,,,ua,uk
+ivona.ua,https://ivona.ua/rss,rss,,,ua,uk
+mport.ua,https://mport.ua/rss,rss,,,ua,uk
+archidea.com.ua,https://archidea.com.ua/rss,rss,,,ua,uk
+foodandmood.com.ua,https://foodandmood.com.ua/rss,rss,,,ua,uk
+bigmir.net,https://bigmir.net/rss,rss,,,ua,uk
+bit.ua,https://bit.ua/rss,rss,,,ua,uk
+bug.org.ua,https://news.google.com/rss/search?q=site:bug.org.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+buhgalter.com.ua,https://buhgalter.com.ua/rss-for-users.rss,rss,,,ua,uk
+mezha.net,https://mezha.net/rss,rss,,,ua,uk
+cfts.org.ua,https://news.google.com/rss/search?q=site:cfts.org.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+champion.com.ua,https://champion.com.ua/rss,rss,,,ua,uk
+chp.com.ua,https://news.google.com/rss/search?q=site:chp.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+comments.ua,https://comments.ua/rss,rss,,,ua,uk
+court.gov.ua,https://news.google.com/rss/search?q=site:court.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+cvk.gov.ua,https://news.google.com/rss/search?q=site:cvk.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+day.kyiv.ua,https://news.google.com/rss/search?q=site:day.kyiv.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+defence-ua.com,https://defence-ua.com/rss/feed.xml,rss,,,ua,uk
+delo.ua,https://news.google.com/rss/search?q=site:delo.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+dengi.ua,https://dengi.ua/rss,rss,,,ua,uk
+depo.ua,https://news.google.com/rss/search?q=site:depo.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+dev.ua,https://dev.ua/rss,rss,,,ua,uk
+dialog.ua,https://news.google.com/rss/search?q=site:dialog.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+dmsu.gov.ua,https://dmsu.gov.ua/rss.xml,rss,,,ua,uk
+dnpr.com.ua,https://dnpr.com.ua/feeds/novini-dnipra,rss,,,ua,uk
+dostyp.com.ua,https://dostyp.com.ua/rss.xml,rss,,,ua,uk
+dou.ua,https://dou.ua/feed/,rss,,,ua,uk
+dpchas.com.ua,https://news.google.com/rss/search?q=site:dpchas.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+dsnews.ua,https://news.google.com/rss/search?q=site:dsnews.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+dumskaya.net,https://dumskaya.net/rss,rss,,,ua,uk
+dw.com,https://news.google.com/rss/search?q=site:dw.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+dynamo.kiev.ua,https://dynamo.kiev.ua/rss20.xml,rss,,,ua,uk
+dyvys.info,https://dyvys.info/rss,rss,,,ua,uk
+dzo.com.ua,https://news.google.com/rss/search?q=site:dzo.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+edyna.media,https://news.google.com/rss/search?q=site:edyna.media&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+expres.online,https://news.google.com/rss/search?q=site:expres.online&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+facenews.ua,https://facenews.ua/rss,rss,,,ua,uk
+fakty.com.ua,https://fakty.com.ua/rss,rss,,,ua,uk
+fakty.ua,https://fakty.ua/rss_feed/ukraine,rss,,,ua,uk
+fanday.net,https://fanday.net/rss.uk.xml,rss,,,ua,uk
+fg.gov.ua,https://news.google.com/rss/search?q=site:fg.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+finance.ua,https://news.google.com/rss/search?q=site:finance.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+finbalance.com.ua,https://news.google.com/rss/search?q=site:finbalance.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+finclub.net,https://news.google.com/rss/search?q=site:finclub.net&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+firtka.if.ua,https://news.google.com/rss/search?q=site:firtka.if.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+focus.ua,https://focus.ua/uk/modules/rss.php,rss,,,ua,uk
+football24.ua,https://news.google.com/rss/search?q=site:football24.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+football.ua,https://football.ua/rss2.ashx,rss,,,ua,uk
+forbes.ua,https://news.google.com/rss/search?q=site:forbes.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+fraza.com,https://news.google.com/rss/search?q=site:fraza.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+from-ua.org,https://from-ua.org/misc/export/rss.xml,rss,,,ua,uk
+gagadget.com,https://gagadget.com/rss,rss,,,ua,uk
+galas.te.ua,https://galas.te.ua/feed/,rss,,,ua,uk
+galinfo.com.ua,https://galinfo.com.ua/rss.xml,rss,,,ua,uk
+galka.if.ua,https://galka.if.ua/rss,rss,,,ua,uk
+gazeta.ua,https://gazeta.ua/rss,rss,,,ua,uk
+gecid.com,https://ua.gecid.com/rss.php,rss,,,ua,uk
+gk-press.if.ua,https://news.google.com/rss/search?q=site:gk-press.if.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+glavcom.ua,https://news.google.com/rss/search?q=site:glavcom.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+glavnoe.in.ua,https://glavnoe.in.ua/rss,rss,,,ua,uk
+glavred.net,https://glavred.net/rss,rss,,,ua,uk
+glavred.info,https://glavred.info/rss,rss,,,ua,uk
+goloskarpat.info,https://goloskarpat.info/rss.xml,rss,,,ua,uk
+golos.ua,https://news.google.com/rss/search?q=site:golos.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+gorod.cn.ua,https://news.google.com/rss/search?q=site:gorod.cn.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+gorod.dp.ua,https://gorod.dp.ua/export/rss.php,rss,,,ua,uk
+gur.gov.ua,https://news.google.com/rss/search?q=site:gur.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+gwaramedia.com,https://gwaramedia.com/rss,rss,,,ua,uk
+happymonday.ua,https://news.google.com/rss/search?q=site:happymonday.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+hmarochos.kiev.ua,https://hmarochos.kiev.ua/rss,rss,,,ua,uk
+hromadske.ua,https://news.google.com/rss/search?q=site:hromadske.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+hubs.ua,https://hubs.ua/feed,rss,,,ua,uk
+hvylya.net,https://hvylya.net/feed/rss2.xml,rss,,,ua,uk
+hyser.com.ua,https://hyser.com.ua/feed/rss2.xml,rss,,,ua,uk
+igate.com.ua,https://igate.com.ua/rss.xml,rss,,,ua,uk
+inforesist.org,https://inforesist.org/feed/,rss,,,ua,uk
+informator.ua,https://news.google.com/rss/search?q=site:informator.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+intent.press,https://intent.press/rss,rss,,,ua,uk
+interfax.com.ua,https://news.google.com/rss/search?q=site:interfax.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+internetua.com,https://internetua.com/rss,rss,,,ua,uk
+investory.news,https://investory.news/feed/,rss,,,ua,uk
+isport.ua,https://isport.ua/rss,rss,,,ua,uk
+itc.ua,https://feeds.feedburner.com/itcua,rss,,,ua,uk
+izvestia.kiev.ua,https://izvestia.kiev.ua/rss,rss,,,ua,uk
+joinfo.com,https://joinfo.com/feed,rss,,,ua,uk
+keddr.com,https://news.google.com/rss/search?q=site:keddr.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+khersonline.net,https://khersonline.net/rss,rss,,,ua,uk
+kyivvlada.com.ua,https://kyivvlada.com.ua/feed/,rss,,,ua,uk
+kmr.gov.ua,https://news.google.com/rss/search?q=site:kmr.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+konkurent.ua,https://konkurent.ua/rss,rss,,,ua,uk
+kontrakty.ua,https://kontrakty.ua/feed,rss,,,ua,uk
+korrespondent.net,https://news.google.com/rss/search?q=site:korrespondent.net&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+kp.ua,https://news.google.com/rss/search?q=site:kp.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+kriminal.tv,https://news.google.com/rss/search?q=site:kriminal.tv&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+krymr.com,https://krymr.com/api/,rss,,,ua,uk
+kurs.if.ua,https://news.google.com/rss/search?q=site:kurs.if.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+kyivcity.gov.ua,https://news.google.com/rss/search?q=site:kyivcity.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+land.gov.ua,https://news.google.com/rss/search?q=site:land.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+latifundist.com,https://news.google.com/rss/search?q=site:latifundist.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+lenta.ua,https://news.google.com/rss/search?q=site:lenta.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ligazakon.net,https://ligazakon.net/rss,rss,,,ua,uk
+liza.ua,https://liza.ua/feed/,rss,,,ua,uk
+loda.gov.ua,https://news.google.com/rss/search?q=site:loda.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+lux.fm,https://news.google.com/rss/search?q=site:lux.fm&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+maanimo.com,https://maanimo.com/feed,rss,,,ua,uk
+marketer.ua,https://marketer.ua/rss,rss,,,ua,uk
+maximum.fm,https://news.google.com/rss/search?q=site:maximum.fm&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mc.today,https://mc.today/uk/feed/,rss,,,ua,uk
+mepr.gov.ua,https://mepr.gov.ua/feed/,rss,,,ua,uk
+meta.ua,https://meta.ua/news/feed/,rss,,,ua,uk
+mezha.media,https://mezha.media/feed,rss,,,ua,uk
+mfa.gov.ua,https://news.google.com/rss/search?q=site:mfa.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mi100.info,https://mi100.info/holovna/feed/,rss,,,ua,uk
+mil.gov.ua,https://news.google.com/rss/search?q=site:mil.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mind.ua,https://s.mind.ua/rss/ua/all.xml,rss,,,ua,uk
+minfin.com.ua,https://news.google.com/rss/search?q=site:minfin.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+minjust.gov.ua,https://news.google.com/rss/search?q=site:minjust.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mintrans.news,https://news.google.com/rss/search?q=site:mintrans.news&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mmr.net.ua,https://mmr.net.ua/feed,rss,,,ua,uk
+mmr.ua,https://news.google.com/rss/search?q=site:mmr.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+molbuk.ua,https://molbuk.ua/rss.xml,rss,,,ua,uk
+mon.gov.ua,https://news.google.com/rss/search?q=site:mon.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+msp.gov.ua,https://news.google.com/rss/search?q=site:msp.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mtu.gov.ua,https://news.google.com/rss/search?q=site:mtu.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+mukachevo.net,https://mukachevo.net/sitemap/rss/feed.xml,rss,,,ua,uk
+muzvar.com.ua,https://muzvar.com.ua/feed/,rss,,,ua,uk
+mvs.gov.ua,https://news.google.com/rss/search?q=site:mvs.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+nashigroshi.org,https://nashigroshi.org/feed/,rss,,,ua,uk
+nbnews.com.ua,https://news.google.com/rss/search?q=site:nbnews.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+newformat.info,https://newformat.info/rss,rss,,,ua,uk
+infocar.ua,https://infocar.ua/rss,rss,,,ua,uk
+newsyou.info,https://newsyou.info/rss,rss,,,ua,uk
+nnovosti.info,https://news.google.com/rss/search?q=site:nnovosti.info&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+novosti.dn.ua,https://news.google.com/rss/search?q=site:novosti.dn.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+novosti-n.org,https://news.google.com/rss/search?q=site:novosti-n.org&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+novyny.live,https://novyny.live/rss/feed_ua.rss,rss,,,ua,uk
+np.pl.ua,https://news.google.com/rss/search?q=site:np.pl.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+npu.gov.ua,https://news.google.com/rss/search?q=site:npu.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+oboz.ua,https://oboz.ua/rss.xml,rss,,,ua,uk
+odessa.online,https://odessa.online/rss,rss,,,ua,uk
+ogo.ua,https://ogo.ua/feed/,rss,,,ua,uk
+online.ua,https://news.online.ua/rss/news/,rss,,,ua,uk
+ostro.org,https://www.ostro.org/rssfeed/rss.xml,rss,,,ua,uk
+overclockers.ua,https://www.overclockers.ua/ua/rss.xml,rss,,,ua,uk
+palai.media,https://news.google.com/rss/search?q=site:palai.media&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+patrioty.org.ua,https://news.google.com/rss/search?q=site:patrioty.org.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+pershij.com.ua,https://news.google.com/rss/search?q=site:pershij.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+petrimazepa.com,https://news.google.com/rss/search?q=site:petrimazepa.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+pfl.ua,https://news.google.com/rss/search?q=site:pfl.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+playua.net,https://playua.net/feed/,rss,,,ua,uk
+podrobnosti.ua,https://news.google.com/rss/search?q=site:podrobnosti.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+politeka.net,https://politeka.net/feed/rss2.xml,rss,,,ua,uk
+poltava.to,https://news.google.com/rss/search?q=site:poltava.to&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+portal.lviv.ua,https://portal.lviv.ua/feed,rss,,,ua,uk
+istpravda.com.ua,https://news.google.com/rss/search?q=site:istpravda.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+pravo.ua,https://pravo.ua/feed/,rss,,,ua,uk
+president.gov.ua,https://news.google.com/rss/search?q=site:president.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+prm.ua,https://prm.ua/rss,rss,,,ua,uk
+bankchart.com.ua,https://news.google.com/rss/search?q=site:bankchart.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+prostobank.ua,https://news.google.com/rss/search?q=site:prostobank.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+psm7.com,https://psm7.com/feed,rss,,,ua,uk
+racurs.ua,https://news.google.com/rss/search?q=site:racurs.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+rada.gov.ua,https://news.google.com/rss/search?q=site:rada.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+radiotrek.rv.ua,https://news.google.com/rss/search?q=site:radiotrek.rv.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+rayon.in.ua,https://news.google.com/rss/search?q=site:rayon.in.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+realist.online,https://news.google.com/rss/search?q=site:realist.online&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+realno.te.ua,https://realno.net/feed/,rss,,,ua,uk
+regionews.ua,https://news.google.com/rss/search?q=site:regionews.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+replyua.net,https://replyua.net/rss.xml,rss,,,ua,uk
+reporter-ua.com,https://news.google.com/rss/search?q=site:reporter-ua.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+report.if.ua,https://report.if.ua/feed/,rss,,,ua,uk
+ria-m.tv,https://news.google.com/rss/search?q=site:ria-m.tv&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+rivne1.tv,https://rivne1.tv/rss,rss,,,ua,uk
+rivnepost.rv.ua,https://rivnepost.rv.ua/feed/,rss,,,ua,uk
+rnbo.gov.ua,https://news.google.com/rss/search?q=site:rnbo.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+robota.ua,https://news.google.com/rss/search?q=site:robota.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+root-nation.com,https://news.google.com/rss/search?q=site:root-nation.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+rst.ua,https://news.google.com/rss/search?q=site:rst.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+rubryka.com,https://news.google.com/rss/search?q=site:rubryka.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+rupor.info,https://news.google.com/rss/search?q=site:rupor.info&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+shepetivka.com.ua,https://shepetivka.com.ua/rss,rss,,,ua,uk
+site.ua,https://site.ua/rss.xml,rss,,,ua,uk
+slovoidilo.ua,https://slovoidilo.ua/rss.xml,rss,,,ua,uk
+slukh.media,https://news.google.com/rss/search?q=site:slukh.media&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+socportal.info,https://socportal.info/rss,rss,,,ua,uk
+speka.media,https://speka.media/rss,rss,,,ua,uk
+spfu.gov.ua,https://news.google.com/rss/search?q=site:spfu.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+sportarena.com,https://sportarena.com/rss,rss,,,ua,uk
+sport-express.ua,https://sport-express.ua/rss.xml,rss,,,ua,uk
+sportonline.ua,https://news.google.com/rss/search?q=site:sportonline.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+sport.ua,https://sport.ua/rss/all,rss,,,ua,uk
+sprotyv.info,https://sprotyv.info/feed/,rss,,,ua,uk
+sq.com.ua,https://news.google.com/rss/search?q=site:sq.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ssu.gov.ua,https://news.google.com/rss/search?q=site:ssu.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+stopcor.org,https://news.google.com/rss/search?q=site:stopcor.org&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+svoboda.te.ua,https://news.google.com/rss/search?q=site:svoboda.te.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+tax.gov.ua,https://news.google.com/rss/search?q=site:tax.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+telegraf.com.ua,https://telegraf.com.ua/ukr/rss,rss,,,ua,uk
+telegraf.in.ua,https://www.telegraf.in.ua/feed,rss,,,ua,uk
+tepravda.te.ua,https://news.google.com/rss/search?q=site:tepravda.te.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+terrikon.com,https://terrikon.com/rss/all,rss,,,ua,uk
+texty.org.ua,https://texty.org.ua/feed.xml,rss,,,ua,uk
+thedigital.gov.ua,https://news.google.com/rss/search?q=site:thedigital.gov.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+thepage.ua,https://thepage.ua/rss,rss,,,ua,uk
+village.com.ua,https://news.google.com/rss/search?q=site:village.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+t.ks.ua,https://t.ks.ua/rss,rss,,,ua,uk
+tochka.net,https://news.google.com/rss/search?q=site:tochka.net&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+today.ua,https://today.ua/rss/,rss,,,ua,uk
+transkarpatia.net,https://transkarpatia.net/rss.xml,rss,,,ua,uk
+tvoemisto.tv,https://tvoemisto.tv/rss.xml,rss,,,ua,uk
+tyzhden.ua,https://tyzhden.ua/rss,rss,,,ua,uk
+ua-football.com,https://news.google.com/rss/search?q=site:ua-football.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+uaf.ua,https://news.google.com/rss/search?q=site:uaf.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+uainfo.org,https://uainfo.org/static/rss/newsline.rss.xml,rss,,,ua,uk
+ua.news,https://news.google.com/rss/search?q=site:ua.news&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+uaportal.com,https://www.uaportal.com/ukr/api/news/out/rss/lastnews.xml,rss,,,ua,uk
+uaspectr.com,https://news.google.com/rss/search?q=site:uaspectr.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+tribuna.com,https://news.google.com/rss/search?q=site:tribuna.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ukrainianwall.com,https://ukrainianwall.com/feed/rss2.xml,rss,,,ua,uk
+ukranews.com,https://news.google.com/rss/search?q=site:ukranews.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ukrfootball.ua,https://ukrfootball.ua/rss.xml,rss,,,ua,uk
+ukrinform.ru,https://news.google.com/rss/search?q=site:ukrinform.ru&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ukrrudprom.ua,https://news.google.com/rss/search?q=site:ukrrudprom.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+u-news.com.ua,https://news.google.com/rss/search?q=site:u-news.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+unian.net,https://unian.net/rss,rss,,,ua,uk
+unian.ua,https://unian.ua/rss,rss,,,ua,uk
+unn.ua,https://unn.ua/rss/news_uk.xml,rss,,,ua,uk
+upl.ua,https://upl.ua/ua/rss,rss,,,ua,uk
+ura-inform.com,https://news.google.com/rss/search?q=site:ura-inform.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+uz.gov.ua,https://uz.gov.ua/rss,rss,,,ua,uk
+varta1.com.ua,https://varta1.com.ua/sitemap/rss/feed.xml,rss,,,ua,uk
+vchaspik.ua,https://vchaspik.ua/ua/rss.xml,rss,,,ua,uk
+vctr.media,https://vctr.media/ua/feed/,rss,,,ua,uk
+vechirniy.kyiv.ua,https://vechirniy.kyiv.ua/rss,rss,,,ua,uk
+vesti-ua.net,https://vesti-ua.net/rss.xml,rss,,,ua,uk
+vgolos.ua,https://news.google.com/rss/search?q=site:vgolos.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+vgorode.ua,https://news.google.com/rss/search?q=site:vgorode.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+vgoru.org,https://vgoru.org/rss-google.xml,rss,,,ua,uk
+viva.ua,https://viva.ua/rss,rss,,,ua,uk
+vlasti.net,https://vlasti.net/rss,rss,,,ua,uk
+vsim.ua,https://vsim.ua/rss,rss,,,ua,uk
+kazatin.com,https://kazatin.com/rss,rss,,,ua,uk
+20minut.ua,https://20minut.ua/rss,rss,,,ua,uk
+vogue.ua,https://news.google.com/rss/search?q=site:vogue.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+volyn24.com,https://volyn24.com/rss.xml,rss,,,ua,uk
+volyn.com.ua,https://news.google.com/rss/search?q=site:volyn.com.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+volynnews.com,https://news.google.com/rss/search?q=site:volynnews.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+volynpost.com,https://www.volynpost.com/rss.xml,rss,,,ua,uk
+v-variant.com.ua,https://v-variant.com.ua/rss,rss,,,ua,uk
+weukraine.tv,https://weukraine.tv/feed/,rss,,,ua,uk
+willbeua.com,https://news.google.com/rss/search?q=site:willbeua.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+wz.lviv.ua,https://news.google.com/rss/search?q=site:wz.lviv.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+xsport.ua,https://news.google.com/rss/search?q=site:xsport.ua&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+ye.ua,https://ye.ua/rss/news.xml,rss,,,ua,uk
+yur-gazeta.com,https://news.google.com/rss/search?q=site:yur-gazeta.com&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+zakarpatpost.net,https://zakarpatpost.net/feed/,rss,,,ua,uk
+zakarpattya.net.ua,https://zakarpattya.net.ua/rss.xml,rss,,,ua,uk
+zaxid.net,https://zaxid.net/rss,rss,,,ua,uk
+zhitomir.info,https://news.google.com/rss/search?q=site:zhitomir.info&hl=uk&gl=UA&ceid=UA:uk,rss,,,ua,uk
+zib.com.ua,http://zib.com.ua/ua/rss/,rss,,,ua,uk
+znaj.ua,https://znaj.ua/feed/rss2.xml,rss,,,ua,uk
+RSS Wiadomosci.gazeta.pl,https://wiadomosci.gazeta.pl/pub/rss/wiadomosci.htm,rss,33,,pl,pl
+RSS Wiadomosci.gazeta.pl,https://wiadomosci.gazeta.pl/pub/rss/wiadomosci.xml,rss,34,,pl,pl
+Fakt wiadomości,https://www.fakt.pl/rss-articles.xml,rss,35,,pl,pl
+Se,https://news.google.com/rss/search?q=site:se.pl&hl=pl&gl=PL&ceid=PL:pl,rss,36,,pl,pl
+Superbiznes,https://superbiz.se.pl/rss_feed_1/,rss,37,,pl,pl
+naTemat.pl - artykuły i wpisy blogerów,https://natemat.pl/rss/wszystkie,rss,38,,pl,pl
+- Noizz,https://noizz.pl/?rss,rss,39,,pl,pl
+Radio ZET,https://news.google.com/rss/search?q=site:radiozet.pl&hl=pl&gl=PL&ceid=PL:pl,rss,40,,pl,pl
+Zetkacper,https://news.google.com/rss/search?q=site:zetkacper.pl&hl=pl&gl=PL&ceid=PL:pl,rss,41,,pl,pl
+Polskie Radio,https://news.google.com/rss/search?q=site:polskieradio.pl&hl=pl&gl=PL&ceid=PL:pl,rss,42,,pl,pl
+Tokfm,https://news.google.com/rss/search?q=site:tokfm.pl&hl=pl&gl=PL&ceid=PL:pl,rss,43,,pl,pl
+Eska,https://news.google.com/rss/search?q=site:eska.pl&hl=pl&gl=PL&ceid=PL:pl,rss,44,,pl,pl
+Eskarock,https://news.google.com/rss/search?q=site:eskarock.pl&hl=pl&gl=PL&ceid=PL:pl,rss,45,,pl,pl
+Vox,https://news.google.com/rss/search?q=site:vox.pl&hl=pl&gl=PL&ceid=PL:pl,rss,46,,pl,pl
+Chillizet,https://news.google.com/rss/search?q=site:chillizet.pl&hl=pl&gl=PL&ceid=PL:pl,rss,47,,pl,pl
+TV Republika,https://news.google.com/rss/search?q=site:tvrepublika.pl&hl=pl&gl=PL&ceid=PL:pl,rss,48,,pl,pl
+wPolityce,https://news.google.com/rss/search?q=site:wpolityce.pl&hl=pl&gl=PL&ceid=PL:pl,rss,49,,pl,pl
+Niezalezna.pl,https://niezalezna.pl/feed,rss,50,,pl,pl
+Tysol,https://news.google.com/rss/search?q=site:tysol.pl&hl=pl&gl=PL&ceid=PL:pl,rss,51,,pl,pl
+Nasz Dziennik,https://naszdziennik.pl/rss.xml,rss,52,,pl,pl
+Aktualności z Gościem Niedzielnym,https://www.gosc.pl/rss/rtr/c7a21.Aktualnosci-z-Gosciem-Niedzielnym,rss,53,,pl,pl
+Pch24,https://news.google.com/rss/search?q=site:pch24.pl&hl=pl&gl=PL&ceid=PL:pl,rss,54,,pl,pl
+Fronda,https://news.google.com/rss/search?q=site:fronda.pl&hl=pl&gl=PL&ceid=PL:pl,rss,55,,pl,pl
+Wykop.pl - Strona Główna,https://wykop.pl/rss,rss,56,,pl,pl
+Money.pl,https://www.money.pl/rss/rss.xml,rss,57,,pl,pl
+Business Insider Polska,https://news.google.com/rss/search?q=site:businessinsider.com.pl&hl=pl&gl=PL&ceid=PL:pl,rss,58,,pl,pl
+Bankier,https://news.google.com/rss/search?q=site:bankier.pl&hl=pl&gl=PL&ceid=PL:pl,rss,59,,pl,pl
+Pb,https://news.google.com/rss/search?q=site:pb.pl&hl=pl&gl=PL&ceid=PL:pl,rss,60,,pl,pl
+Stooq,https://news.google.com/rss/search?q=site:stooq.pl&hl=pl&gl=PL&ceid=PL:pl,rss,61,,pl,pl
+Stockwatch,https://news.google.com/rss/search?q=site:stockwatch.pl&hl=pl&gl=PL&ceid=PL:pl,rss,62,,pl,pl
+www.parkiet.com,https://www.parkiet.com/rss_main,rss,63,,pl,pl
+Obserwator Finansowy,https://news.google.com/rss/search?q=site:obserwatorfinansowy.pl&hl=pl&gl=PL&ceid=PL:pl,rss,64,,pl,pl
+Filarybiznesu,https://news.google.com/rss/search?q=site:filarybiznesu.pl&hl=pl&gl=PL&ceid=PL:pl,rss,65,,pl,pl
+"PulsHR - zarządzanie ludźmi, edukacja, rekrutacja",https://www.pulshr.pl/rss/pulshr.xml,rss,66,,pl,pl
+"wnp.pl - portal gospodarczy: przemysł, biznes, finanse",https://www.wnp.pl/rss/serwis_rss.xml,rss,67,,pl,pl
+Portal Spożywczy,https://www.portalspozywczy.pl/rss/portalspozywczy.xml,rss,68,,pl,pl
+"PropertyNews - rynek nieruchomości: hotele, biura, galerie",https://www.propertynews.pl/rss/najwazniejsze-informacje.xml,rss,69,,pl,pl
+Rynek Zdrowia,https://www.rynekzdrowia.pl/Kanal/all.xml,rss,70,,pl,pl
+portalsamorzadowy.pl: Najnowsze informacje samorządowe,https://www.portalsamorzadowy.pl/rss/samorzady.xml,rss,71,,pl,pl
+Serwis Samorządowy PAP,https://samorzad.pap.pl/rss.xml,rss,72,,pl,pl
+Prawo,https://news.google.com/rss/search?q=site:prawo.pl&hl=pl&gl=PL&ceid=PL:pl,rss,73,,pl,pl
+Lex,https://news.google.com/rss/search?q=site:lex.pl&hl=pl&gl=PL&ceid=PL:pl,rss,74,,pl,pl
+"Bezprawnik - prawo, biznes, finanse, eCommerce",https://bezprawnik.pl/api/feed-gn/,rss,75,,pl,pl
+MamStartup,https://mamstartup.pl/feed/,rss,76,,pl,pl
+Cashless.pl - o nowoczesnych technologiach w finansach,https://cashless.pl/rss,rss,77,,pl,pl
+ANDROID.COM.PL – społeczność entuzjastów technologii,https://android.com.pl/rss,rss,78,,pl,pl
+AntyWeb,https://antyweb.pl/feed/,rss,79,,pl,pl
+Purepc,https://news.google.com/rss/search?q=site:purepc.pl&hl=pl&gl=PL&ceid=PL:pl,rss,80,,pl,pl
+ITHardware.pl,https://ithardware.pl/feed,rss,81,,pl,pl
+Pclab,https://news.google.com/rss/search?q=site:pclab.pl&hl=pl&gl=PL&ceid=PL:pl,rss,82,,pl,pl
+Telepolis.pl,https://www.telepolis.pl/rss,rss,83,,pl,pl
+Tabletowo.pl,https://www.tabletowo.pl/feed/,rss,84,,pl,pl
+dobreprogramy - najnowsze artykuły,https://dobreprogramy.pl/rss/aktualnosci,rss,85,,pl,pl
+INSTALKI,https://www.instalki.pl/feed/,rss,86,,pl,pl
+gram.pl,https://www.gram.pl/rss/content.xml,rss,87,,pl,pl
+Ppe,https://news.google.com/rss/search?q=site:ppe.pl&hl=pl&gl=PL&ceid=PL:pl,rss,88,,pl,pl
+Eurogamer.pl Latest Articles Feed,https://www.eurogamer.pl/feed,rss,89,,pl,pl
+GRY-OnLine Newsroom,https://www.gry-online.pl/rss/news.xml,rss,90,,pl,pl
+Łowcy Gier,https://lowcygier.pl/feed/,rss,91,,pl,pl
+Medianarodowe,https://news.google.com/rss/search?q=site:medianarodowe.com&hl=pl&gl=PL&ceid=PL:pl,rss,92,,pl,pl
+FRONTSTORY.PL,https://frontstory.pl/feed/,rss,93,,pl,pl
+Tvn24,https://news.google.com/rss/search?q=site:konkret24.tvn24.pl&hl=pl&gl=PL&ceid=PL:pl,rss,94,,pl,pl
+Demagog,https://demagog.org.pl/feed/,rss,95,,pl,pl
+Press,https://press.pl/rss,rss,96,,pl,pl
+PRoto.pl,https://www.proto.pl/feed/,rss,97,,pl,pl
+Nowymarketing,https://news.google.com/rss/search?q=site:nowymarketing.pl&hl=pl&gl=PL&ceid=PL:pl,rss,98,,pl,pl
+BRIEF,https://brief.pl/feed/,rss,99,,pl,pl
+Marketing przy Kawie,https://news.google.com/rss/search?q=site:marketingprzykawie.pl&hl=pl&gl=PL&ceid=PL:pl,rss,100,,pl,pl
+Trojmiasto,https://news.google.com/rss/search?q=site:trojmiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,101,,pl,pl
+Warszawa Nasze Miasto,https://news.google.com/rss/search?q=site:warszawa.naszemiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,102,,pl,pl
+Wrocław Nasze Miasto,https://news.google.com/rss/search?q=site:wroclaw.naszemiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,103,,pl,pl
+Poznań Nasze Miasto,https://news.google.com/rss/search?q=site:poznan.naszemiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,104,,pl,pl
+Łódź Nasze Miasto,https://news.google.com/rss/search?q=site:lodz.naszemiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,105,,pl,pl
+Katowice Nasze Miasto,https://news.google.com/rss/search?q=site:katowice.naszemiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,106,,pl,pl
+Kraków Nasze Miasto,https://news.google.com/rss/search?q=site:krakow.naszemiasto.pl&hl=pl&gl=PL&ceid=PL:pl,rss,107,,pl,pl
+Kurier Lubelski,https://kurierlubelski.pl/rss,rss,108,,pl,pl
+Gazeta Lubuska,https://gazetalubuska.pl/rss,rss,109,,pl,pl
+Gazeta Współczesna,https://news.google.com/rss/search?q=site:gazetawspolczesna.pl&hl=pl&gl=PL&ceid=PL:pl,rss,110,,pl,pl
+Gazeta Olsztyńska,https://news.google.com/rss/search?q=site:gazetaolsztynska.pl&hl=pl&gl=PL&ceid=PL:pl,rss,111,,pl,pl
+Gazeta Pomorska,https://news.google.com/rss/search?q=site:gazetapomorska.pl&hl=pl&gl=PL&ceid=PL:pl,rss,112,,pl,pl
+Gazeta Pomorska,https://pomorska.pl/rss,rss,113,,pl,pl
+Nowiny,https://nowiny24.pl/rss,rss,114,,pl,pl
+Tygodnik Powszechny,https://tygodnikpowszechny.pl/rss.xml,rss,115,,pl,pl
+"Wiadomości Handlowe - newsy, analizy, prognozy dla handlu",https://wiadomoscihandlowe.pl/feed,rss,116,,pl,pl
+WP SportoweFakty,https://sportowefakty.wp.pl/rss.xml,rss,117,,pl,pl
+Przegląd Sportowy,https://przegladsportowy.onet.pl/.feed,rss,118,,pl,pl
+Sport.pl,https://www.sport.pl/pub/rss/sport.xml,rss,119,,pl,pl
+Meczyki,https://news.google.com/rss/search?q=site:meczyki.pl&hl=pl&gl=PL&ceid=PL:pl,rss,120,,pl,pl
+Gol24,https://gol24.pl/rss,rss,121,,pl,pl
+Weszło,https://weszlo.com/feed,rss,122,,pl,pl
+Insider Polska,https://t.me/s/Insider_polska,telegram_paid,1,,pl,pl
+Warszawa Live,https://t.me/s/warszawa_live1,telegram_paid,2,,pl,pl
+Real Warszawa,https://t.me/s/realwarszaw,telegram_paid,3,,pl,pl
+Truxa Poland Warszawa,https://t.me/s/truexapolandvarhsava,telegram_paid,4,,pl,pl
+Warszawa Life,https://t.me/s/warszawalifetgg,telegram_paid,5,,pl,pl
+Pan Warszawian,https://t.me/s/pan_warszawian,telegram_paid,6,,pl,pl
+The Warsaw,https://t.me/s/thewwarsaw,telegram_paid,7,,pl,pl
+Dziki Zachod,https://t.me/s/dzikizachod,telegram_paid,8,,pl,pl
+Novosti Efir,https://t.me/s/novosti_efir,telegram_paid,21,,ru,ru
+Topor Live,https://t.me/s/toporlive,telegram_paid,22,,ru,ru
+Moscowach,https://t.me/s/moscowach,telegram_paid,23,,ru,ru
+Mosguru,https://t.me/s/mosguru,telegram_paid,24,,ru,ru
+Mash,https://t.me/s/mash,telegram_paid,25,,ru,ru
+SMI RF Moskva,https://t.me/s/smi_rf_moskva,telegram_paid,26,,ru,ru
+Glaz Moscow,https://t.me/s/glaz_moscow,telegram_paid,27,,ru,ru
+Moscow Map,https://t.me/s/moscowmap,telegram_paid,28,,ru,ru
+Go MSK,https://t.me/s/go_msk,telegram_paid,29,,ru,ru
+Moscow,https://t.me/s/moscow,telegram_paid,30,,ru,ru
+MSK Top,https://t.me/s/msk_top1,telegram_paid,31,,ru,ru
+SVAO News 24,https://t.me/s/svao_news24,telegram_paid,32,,ru,ru
+Mosnews,https://t.me/s/mosnews,telegram_paid,33,,ru,ru
+MSK Live,https://t.me/s/msk_live,telegram_paid,34,,ru,ru
+Antons Reserve,https://t.me/s/antonsreserve,telegram_paid,35,,ru,ru
+Topor,https://t.me/s/topor,telegram_paid,36,,ru,ru
+Novosti Russia 360,https://t.me/s/novosti_russia360,telegram_paid,37,,ru,ru
+MSKY Media,https://t.me/s/msky_media,telegram_paid,38,,ru,ru
+Moscow Plus,https://t.me/s/moscowplus,telegram_paid,39,,ru,ru
+MSK Inside,https://t.me/s/mskint,telegram_paid,40,,ru,ru
+RIA Novosti Russya,https://t.me/s/ria_novosti_russya,telegram_paid,41,,ru,ru
+Rossia,https://t.me/s/rossia,telegram_paid,42,,ru,ru
+Voina Belgorod Novosti,https://t.me/s/voina_belgorod_novosti,telegram_paid,43,,ru,ru
+Moscow Portal,https://t.me/s/moscowportal,telegram_paid,44,,ru,ru
+Vesti Russia,https://t.me/s/vestirussia,telegram_paid,45,,ru,ru
+Varlamov News,https://t.me/s/varlamov_news,telegram_paid,46,,ru,ru
+Rusich Army,https://t.me/s/rusich_army,telegram_paid,47,,ru,ru
+MSK Glavnoe,https://t.me/s/msk_glavnoe,telegram_paid,48,,ru,ru
+Moscow Everyday,https://t.me/s/mos_everyday,telegram_paid,49,,ru,ru
+Rossiyskaya Gazeta,https://news.google.com/rss/search?q=site:rg.ru&hl=ru&gl=RU&ceid=RU:ru,rss,35,,ru,ru
+NEWS.ru - главные новости дня,https://news.ru/rss,rss,36,,ru,ru
+Life.ru,https://news.google.com/rss/search?q=site:life.ru&hl=ru&gl=RU&ceid=RU:ru,rss,37,,ru,ru
+REN TV,https://news.google.com/rss/search?q=site:ren.tv&hl=ru&gl=RU&ceid=RU:ru,rss,38,,ru,ru
+360.ru,https://360.ru/rss,rss,39,,ru,ru
+Zvezda,https://news.google.com/rss/search?q=site:tvzvezda.ru&hl=ru&gl=RU&ceid=RU:ru,rss,40,,ru,ru
+Channel One Russia,https://news.google.com/rss/search?q=site:1tv.ru&hl=ru&gl=RU&ceid=RU:ru,rss,41,,ru,ru
+NTV,https://news.google.com/rss/search?q=site:ntv.ru&hl=ru&gl=RU&ceid=RU:ru,rss,42,,ru,ru
+5 TV,https://news.google.com/rss/search?q=site:5-tv.ru&hl=ru&gl=RU&ceid=RU:ru,rss,43,,ru,ru
+Smotrim,https://news.google.com/rss/search?q=site:smotrim.ru&hl=ru&gl=RU&ceid=RU:ru,rss,44,,ru,ru
+Rambler,https://news.google.com/rss/search?q=site:rambler.ru&hl=ru&gl=RU&ceid=RU:ru,rss,45,,ru,ru
+URA.RU,https://news.google.com/rss/search?q=site:ura.news&hl=ru&gl=RU&ceid=RU:ru,rss,46,,ru,ru
+REGNUM,https://news.google.com/rss/search?q=site:regnum.ru&hl=ru&gl=RU&ceid=RU:ru,rss,47,,ru,ru
+EADaily,https://news.google.com/rss/search?q=site:eadaily.com&hl=ru&gl=RU&ceid=RU:ru,rss,48,,ru,ru
+BFM.ru,https://news.google.com/rss/search?q=site:bfm.ru&hl=ru&gl=RU&ceid=RU:ru,rss,49,,ru,ru
+БИЗНЕС Online,https://business-gazeta.ru/rss.xml,rss,50,,ru,ru
+Информационное агентство Деловой журнал Профиль,https://profile.ru/feed/short/,rss,51,,ru,ru
+Expert,https://news.google.com/rss/search?q=site:expert.ru&hl=ru&gl=RU&ceid=RU:ru,rss,52,,ru,ru
+Secretmag,https://news.google.com/rss/search?q=site:secretmag.ru&hl=ru&gl=RU&ceid=RU:ru,rss,53,,ru,ru
+Banki.ru,https://news.google.com/rss/search?q=site:banki.ru&hl=ru&gl=RU&ceid=RU:ru,rss,54,,ru,ru
+Finam,https://news.google.com/rss/search?q=site:finam.ru&hl=ru&gl=RU&ceid=RU:ru,rss,55,,ru,ru
+Pravo,https://news.google.com/rss/search?q=site:pravo.ru&hl=ru&gl=RU&ceid=RU:ru,rss,56,,ru,ru
+RAPSI,https://news.google.com/rss/search?q=site:rapsinews.ru&hl=ru&gl=RU&ceid=RU:ru,rss,57,,ru,ru
+iXBT,https://news.google.com/rss/search?q=site:ixbt.com&hl=ru&gl=RU&ceid=RU:ru,rss,58,,ru,ru
+Ferra,https://news.google.com/rss/search?q=site:ferra.ru&hl=ru&gl=RU&ceid=RU:ru,rss,59,,ru,ru
+Overclockers.ru / Общая лента,https://overclockers.ru/rss/all.rss,rss,60,,ru,ru
+Match TV,https://news.google.com/rss/search?q=site:matchtv.ru&hl=ru&gl=RU&ceid=RU:ru,rss,61,,ru,ru
+Sovsport,https://news.google.com/rss/search?q=site:sovsport.ru&hl=ru&gl=RU&ceid=RU:ru,rss,62,,ru,ru
+Спорт-Экспресс. Баскетбол,https://www.sport-express.ru/services/materials/news/basketball/se/,rss,63,,ru,ru
+Metaratings,https://news.google.com/rss/search?q=site:metaratings.ru&hl=ru&gl=RU&ceid=RU:ru,rss,64,,ru,ru
+Moslenta,https://news.google.com/rss/search?q=site:moslenta.ru&hl=ru&gl=RU&ceid=RU:ru,rss,65,,ru,ru
+МСК1.ру - новости Москвы,https://msk1.ru/rss-feeds/rss.xml,rss,66,,ru,ru
+Spb,https://news.google.com/rss/search?q=site:spb.kp.ru&hl=ru&gl=RU&ceid=RU:ru,rss,67,,ru,ru
+Spbvedomosti,https://news.google.com/rss/search?q=site:spbvedomosti.ru&hl=ru&gl=RU&ceid=RU:ru,rss,68,,ru,ru
+www.dp.ru,https://www.dp.ru/news.rss,rss,69,,ru,ru
+78,https://news.google.com/rss/search?q=site:78.ru&hl=ru&gl=RU&ceid=RU:ru,rss,70,,ru,ru
+НГС.ру - новости Новосибирска,https://ngs.ru/rss-feeds/rss.xml,rss,71,,ru,ru
+Е1.ру - новости Екатеринбурга,https://www.e1.ru/rss-feeds/rss.xml,rss,72,,ru,ru
+74.ру - новости Челябинска,https://74.ru/rss-feeds/rss.xml,rss,73,,ru,ru
+161.ру - новости Ростова-на-Дону,https://161.ru/rss-feeds/rss.xml,rss,74,,ru,ru
+Kazanfirst,https://news.google.com/rss/search?q=site:kazanfirst.ru&hl=ru&gl=RU&ceid=RU:ru,rss,75,,ru,ru
+Inkazan,https://news.google.com/rss/search?q=site:inkazan.ru&hl=ru&gl=RU&ceid=RU:ru,rss,76,,ru,ru
+УФА1.ру - новости Уфы,https://ufa1.ru/rss-feeds/rss.xml,rss,77,,ru,ru
+63.ру - новости Самары,https://63.ru/rss-feeds/rss.xml,rss,78,,ru,ru
+Progorodnn,https://news.google.com/rss/search?q=site:progorodnn.ru&hl=ru&gl=RU&ceid=RU:ru,rss,79,,ru,ru
+Блокнот Россия,https://bloknot.ru/rss,rss,80,,ru,ru
+Bloknot Voronezh,https://news.google.com/rss/search?q=site:bloknot-voronezh.ru&hl=ru&gl=RU&ceid=RU:ru,rss,81,,ru,ru
+Kavkaz Uzel,https://news.google.com/rss/search?q=site:kavkaz-uzel.eu&hl=ru&gl=RU&ceid=RU:ru,rss,82,,ru,ru
+Медиазона,https://zona.media/rss,rss,83,,ru,ru
+ovd.info,https://ovd.info/rss.xml,rss,84,,ru,ru
+Настоящее Время,https://currenttime.tv/api/,rss,85,,ru,ru
+«Холод»,https://holod.media/rss,rss,86,,ru,ru
+Важные истории,https://istories.media/rss/all.xml,rss,87,,ru,ru
+Important Stories,https://news.google.com/rss/search?q=site:importantstories.org&hl=ru&gl=RU&ceid=RU:ru,rss,88,,ru,ru
+«Агентство»,https://agents.media/rss,rss,89,,ru,ru
+Proekt,https://news.google.com/rss/search?q=site:proekt.media&hl=ru&gl=RU&ceid=RU:ru,rss,90,,ru,ru
+Doxa,https://news.google.com/rss/search?q=site:doxa.team&hl=ru&gl=RU&ceid=RU:ru,rss,91,,ru,ru
+THE INSIDER,https://theins.ru/feed,rss,92,,ru,ru
+Вёрстка,https://verstka.media/feed,rss,93,,ru,ru
+Alfa.lt,https://news.google.com/rss/search?q=site:alfa.lt&hl=lt&gl=LT&ceid=LT:lt,rss,6,,lt,lt
+TV3.lt,https://news.google.com/rss/search?q=site:tv3.lt&hl=lt&gl=LT&ceid=LT:lt,rss,7,,lt,lt
+LNK,https://news.google.com/rss/search?q=site:lnk.lt&hl=lt&gl=LT&ceid=LT:lt,rss,8,,lt,lt
+KaunoDiena.lt - Kauno naujienos,https://kauno.diena.lt/rss,rss,9,,lt,lt
+kl.lt - Klaipėdos naujienos,https://klaipeda.diena.lt/rss,rss,10,,lt,lt
+Diena.lt - Vilniaus naujienos,https://diena.lt/rss,rss,11,,lt,lt
+Naujienos,https://www.respublika.lt/feed.php?format=rss,rss,12,,lt,lt
+Bernardinai.lt,https://www.bernardinai.lt/feed/rss,rss,13,,lt,lt
+Vakarų ekspresas - Klaipėdos ir jos krašto naujienos,https://ve.lt/rss,rss,14,,lt,lt
+Made in Vilnius,https://news.google.com/rss/search?q=site:madeinvilnius.lt&hl=lt&gl=LT&ceid=LT:lt,rss,15,,lt,lt
+Etaplius,https://news.google.com/rss/search?q=site:etaplius.lt&hl=lt&gl=LT&ceid=LT:lt,rss,16,,lt,lt
+Kad ir kur bebūtum – naujienos visada su Tavimi!,https://jp.lt/feed/,rss,17,,lt,lt
+Sekunde.lt,https://sekunde.lt/feed/,rss,18,,lt,lt
+AINA – Aukštaitijos internetinė naujienų agentūra,https://aina.lt/feed/,rss,19,,lt,lt
+Atvira Klaipėda,https://atviraklaipeda.lt/rss,rss,20,,lt,lt
+News - Kas vyksta Kaune,https://kaunas.kasvyksta.lt/sitemap/news.xml,rss,21,,lt,lt
+Mano kraštas,https://www.manokrastas.lt/feed/,rss,22,,lt,lt
+Technologijos.lt,https://news.google.com/rss/search?q=site:technologijos.lt&hl=lt&gl=LT&ceid=LT:lt,rss,23,,lt,lt
+Kauno alėja,https://kaunoaleja.lt/feed/,rss,24,,lt,lt
+Vilniuje,https://news.google.com/rss/search?q=site:vilniuje.info&hl=lt&gl=LT&ceid=LT:lt,rss,25,,lt,lt
+L24,https://news.google.com/rss/search?q=site:l24.lt&hl=lt&gl=LT&ceid=LT:lt,rss,26,,lt,lt
+BNS Lithuania,https://news.google.com/rss/search?q=site:bns.lt&hl=lt&gl=LT&ceid=LT:lt,rss,27,,lt,lt
+Delfi Lithuania English,https://news.google.com/rss/search?q=site:en.delfi.lt&hl=lt&gl=LT&ceid=LT:lt,rss,28,,lt,lt
+Obzor,https://news.google.com/rss/search?q=site:obzor.lt&hl=lt&gl=LT&ceid=LT:lt,rss,29,,lt,lt
+Delfi Lithuania Russian,https://news.google.com/rss/search?q=site:ru.delfi.lt&hl=lt&gl=LT&ceid=LT:lt,rss,30,,lt,lt
+Kurier Wileński,https://kurierwilenski.lt/feed/,rss,31,,lt,lt
+Diena,https://diena.lv/rss,rss,6,,lv,lv
+Jaunākās ziņas - nra.lv,https://nra.lv/rss/jaunakas-zinas/,rss,7,,lv,lv
+LA.LV,https://la.lv/feed,rss,8,,lv,lv
+IR.lv,https://ir.lv/rss,rss,9,,lv,lv
+LETA,https://news.google.com/rss/search?q=site:leta.lv&hl=lv&gl=LV&ceid=LV:lv,rss,10,,lv,lv
+Dienas Bizness,https://db.lv/rss,rss,11,,lv,lv
+Santa.lv,https://santa.lv/rss,rss,12,,lv,lv
+Liepājniekiem,https://news.google.com/rss/search?q=site:liepajniekiem.lv&hl=lv&gl=LV&ceid=LV:lv,rss,13,,lv,lv
+Ventas Balss,https://news.google.com/rss/search?q=site:ventasbalss.lv&hl=lv&gl=LV&ceid=LV:lv,rss,14,,lv,lv
+ZZ.lv,https://zz.lv/rss,rss,15,,lv,lv
+BauskasDzive.lv,https://bauskasdzive.lv/rss,rss,16,,lv,lv
+ReKurZeme.lv,https://rekurzeme.lv/rss,rss,17,,lv,lv
+Staburags.lv,https://staburags.lv/rss,rss,18,,lv,lv
+Kurzemnieks.lv,https://kurzemnieks.lv/rss,rss,19,,lv,lv
+Aluksniesiem.lv,https://aluksniesiem.lv/rss,rss,20,,lv,lv
+Dzirkstele.lv,https://dzirkstele.lv/rss,rss,21,,lv,lv
+eDruva.lv,https://edruva.lv/rss,rss,22,,lv,lv
+BrīvBrīdis.lv,https://brivbridis.lv/feed/,rss,23,,lv,lv
+Новости Латвии И Мира 24/7 | BB.LV,https://bb.lv/rss,rss,24,,lv,lv
+Nacionālais Sporta Portāls - sportacentrs.com,https://sportacentrs.com/static/non-publish/rss/sc/rss.xml,rss,25,,lv,lv
+Kursors.lv,https://kursors.lv/feed/,rss,26,,lv,lv
+Labs of Latvia,https://news.google.com/rss/search?q=site:labsoflatvia.com&hl=lv&gl=LV&ceid=LV:lv,rss,27,,lv,lv
+LSM English,https://eng.lsm.lv/rss,rss,28,,lv,lv
+LSM Russian,https://rus.lsm.lv/rss,rss,29,,lv,lv
+Delfi Latvia Russian,https://rus.delfi.lv/rss.xml,rss,30,,lv,lv
+GOROD.LV - новости Даугавпилса,https://www.gorod.lv/rss,rss,31,,lv,lv
+Chayka.lv,https://chayka.lv/feed/,rss,32,,lv,lv
+Eesti Päevaleht,https://news.google.com/rss/search?q=site:epl.delfi.ee&hl=et&gl=EE&ceid=EE:et,rss,7,,ee,et
+Eesti Ekspress,https://news.google.com/rss/search?q=site:ekspress.delfi.ee&hl=et&gl=EE&ceid=EE:et,rss,8,,ee,et
+Maaleht,https://news.google.com/rss/search?q=site:maaleht.delfi.ee&hl=et&gl=EE&ceid=EE:et,rss,9,,ee,et
+Forte,https://news.google.com/rss/search?q=site:forte.delfi.ee&hl=et&gl=EE&ceid=EE:et,rss,10,,ee,et
+Pealinn,https://news.google.com/rss/search?q=site:pealinn.ee&hl=et&gl=EE&ceid=EE:et,rss,11,,ee,et
+GoodNews,https://goodnews.ee/feed/,rss,12,,ee,et
+https://www.dv.ee/,https://dv.ee/rss,rss,13,,ee,et
+Rup,https://news.google.com/rss/search?q=site:rup.ee&hl=et&gl=EE&ceid=EE:et,rss,14,,ee,et
+новости | ERR,https://rus.err.ee/rss,rss,15,,ee,et
+Rus.Postimees.ee,https://rus.postimees.ee/rss,rss,16,,ee,et
+Limon,https://limon.postimees.ee/rss,rss,17,,ee,et
+Elu24,https://elu24.postimees.ee/rss,rss,18,,ee,et
+Majandus,https://majandus.postimees.ee/rss,rss,19,,ee,et
+Sport,https://sport.postimees.ee/rss,rss,20,,ee,et
+Tartu,https://news.google.com/rss/search?q=site:tartu.postimees.ee&hl=et&gl=EE&ceid=EE:et,rss,21,,ee,et
+Pärnu Postimees,https://parnu.postimees.ee/rss,rss,22,,ee,et
+Saarte Hääl,https://saartehaal.postimees.ee/rss,rss,23,,ee,et
+Järva Teataja,https://jarvateataja.postimees.ee/rss,rss,24,,ee,et
+Virumaa Teataja,https://virumaateataja.postimees.ee/rss,rss,25,,ee,et
+Lõuna-Eesti Postimees,https://lounapostimees.postimees.ee/rss,rss,26,,ee,et
+Saku Sõnumid,https://news.google.com/rss/search?q=site:sakusonnid.ee&hl=et&gl=EE&ceid=EE:et,rss,27,,ee,et
+The Baltic Times,https://baltictimes.com/rss,rss,28,,ee,et
+Delfi Estonia Russian,https://news.google.com/rss/search?q=site:rus.delfi.ee&hl=et&gl=EE&ceid=EE:et,rss,29,,ee,et
+Kroonika,https://news.google.com/rss/search?q=site:kroonika.delfi.ee&hl=et&gl=EE&ceid=EE:et,rss,30,,ee,et
+Prozorro,https://public-api.prozorro.gov.ua/api/2.5/tenders?limit=15&descending=1,prozorro,1,,ua,uk
+Prozorro.Sale,https://procedure.prozorro.sale/api/search/byDateModified/2026-01-01T00:00:00Z?limit=15,prozorro_sale,2,,ua,uk
+Prozorro.Sale ФГВФО,https://dgf-procedure.prozorro.sale/api/search/byDateModified/2026-01-01T00:00:00Z?limit=15,prozorro_sale,3,,ua,uk
+Data.gov.ua,https://data.gov.ua/feeds/dataset.atom,registry,4,,ua,uk
+Prozorro Plans,https://public.api.openprocurement.org/api/2.5/plans?limit=15&descending=1,prozorro_plan,5,,ua,uk
+Верховна Рада - законопроєкти,https://w1.c1.rada.gov.ua/pls/zweb2/webproc555,rada_bills,6,,ua,uk

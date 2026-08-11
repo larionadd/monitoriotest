@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_name }}</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='/miniapp.css') }}?v=20260720-rail">
+</head>
+<body>
+    <main class="app-shell">
+        <header class="app-header">
+            <div>
+                <span class="caption">TicketPing</span>
+                <h1>Квитки</h1>
+            </div>
+            <button type="button" id="settings-button" class="ghost-button">Налаштування</button>
+        </header>
+
+        <nav class="tabs" aria-label="Розділи">
+            <button type="button" class="active" data-tab="search">Пошук</button>
+            <button type="button" data-tab="finds">Знахідки</button>
+            <button type="button" data-tab="history">Історія</button>
+            <button type="button" data-tab="favorites">Обране</button>
+        </nav>
+
+        <section id="search" class="tab-panel active">
+            <div class="transport-toggle" role="group" aria-label="Тип квитка">
+                <button type="button" class="active" data-transport="air">Авіа</button>
+                <button type="button" data-transport="rail">УЗ</button>
+            </div>
+
+            <form id="search-form" class="search-card transport-panel" data-transport-panel="air">
+                <div class="mode-toggle" role="group" aria-label="Режим пошуку">
+                    <label>
+                        <input type="radio" name="search_type" value="route" checked>
+                        <span>Маршрут</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="search_type" value="anywhere">
+                        <span>Куди дешево</span>
+                    </label>
+                </div>
+
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Звідки</span>
+                        <input name="origin" data-airport-input autocomplete="off" placeholder="Батумі або BUS" required>
+                        <div class="suggestions" data-suggestions-for="origin"></div>
+                    </label>
+
+                    <label class="field" id="destination-field">
+                        <span>Куди</span>
+                        <input name="destination" data-airport-input autocomplete="off" placeholder="Тель-Авів або TLV">
+                        <div class="suggestions" data-suggestions-for="destination"></div>
+                    </label>
+
+                    <label class="field">
+                        <span>Дата вильоту</span>
+                        <input name="departure_date" type="date" required>
+                    </label>
+
+                    <label class="field">
+                        <span>Повернення</span>
+                        <input name="return_date" type="date">
+                    </label>
+                </div>
+
+                <details class="filters">
+                    <summary>Більше фільтрів</summary>
+                    <div class="filter-grid">
+                        <label class="field">
+                            <span>Пасажири</span>
+                            <input name="passengers" type="number" min="1" max="9" value="1">
+                        </label>
+                        <label class="field">
+                            <span>Валюта</span>
+                            <select name="currency">
+                                <option>EUR</option>
+                                <option>USD</option>
+                                <option>UAH</option>
+                            </select>
+                        </label>
+                        <label class="field">
+                            <span>Максимальна ціна</span>
+                            <input name="max_price" type="number" min="1" placeholder="Напр. 80">
+                        </label>
+                        <label class="check-row">
+                            <input name="direct_only" type="checkbox">
+                            <span>Тільки прямі рейси</span>
+                        </label>
+                        <label class="check-row">
+                            <input name="baggage_required" type="checkbox">
+                            <span>З багажем</span>
+                        </label>
+                    </div>
+                </details>
+
+                <button type="submit" class="primary-button">Знайти квитки</button>
+            </form>
+
+            <form id="rail-watch-form" class="search-card transport-panel hidden" data-transport-panel="rail">
+                <div class="section-head compact">
+                    <h2>Моніторинг УЗ</h2>
+                    <span>Сповістимо, якщо місце зʼявиться</span>
+                </div>
+
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Звідки</span>
+                        <input name="origin_station" data-rail-station-input autocomplete="off" placeholder="Київ або Київ-Пасажирський" required>
+                        <div class="suggestions" data-rail-suggestions-for="origin_station"></div>
+                    </label>
+
+                    <label class="field">
+                        <span>Куди</span>
+                        <input name="destination_station" data-rail-station-input autocomplete="off" placeholder="Львів або Перемишль" required>
+                        <div class="suggestions" data-rail-suggestions-for="destination_station"></div>
+                    </label>
+
+                    <label class="field">
+                        <span>Дата поїздки</span>
+                        <input name="travel_date" type="date" required>
+                    </label>
+
+                    <label class="field">
+                        <span>Тип місця</span>
+                        <select name="seat_type">
+                            <option value="any">Будь-яке</option>
+                            <option value="coupe">Купе</option>
+                            <option value="platzkart">Плацкарт</option>
+                            <option value="lux">Люкс</option>
+                            <option value="sitting">Сидячий</option>
+                            <option value="intercity">Інтерсіті</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label class="field">
+                    <span>Номер поїзда, якщо важливо</span>
+                    <input name="train_number" autocomplete="off" placeholder="Напр. 705К">
+                </label>
+
+                <button type="submit" class="primary-button">Стежити за квитком</button>
+            </form>
+
+            <div id="search-status" class="status-line"></div>
+            <div id="rail-status" class="status-line"></div>
+
+            <div class="section-head">
+                <h2>Відстеження УЗ</h2>
+                <span>Активні запити</span>
+            </div>
+            <div id="rail-watch-list" class="list"></div>
+        </section>
+
+        <section id="finds" class="tab-panel">
+            <div class="section-head">
+                <h2>Знахідки</h2>
+                <span>Найкращі доступні варіанти</span>
+            </div>
+            <div id="find-list" class="list"></div>
+        </section>
+
+        <section id="history" class="tab-panel">
+            <div class="section-head">
+                <h2>Історія</h2>
+                <span>Останні пошуки</span>
+            </div>
+            <div id="history-list" class="list"></div>
+        </section>
+
+        <section id="favorites" class="tab-panel">
+            <div class="section-head">
+                <h2>Обране</h2>
+                <span>Збережені квитки</span>
+            </div>
+            <div id="favorite-list" class="list"></div>
+        </section>
+
+        <dialog id="settings-dialog">
+            <form method="dialog" class="modal-card">
+                <div class="section-head">
+                    <h2>Налаштування</h2>
+                    <button type="submit" class="ghost-button">Закрити</button>
+                </div>
+                <label class="field">
+                    <span>Мова</span>
+                    <select>
+                        <option>Українська</option>
+                        <option>English</option>
+                    </select>
+                </label>
+                <label class="field">
+                    <span>Валюта за замовчуванням</span>
+                    <select>
+                        <option>EUR</option>
+                        <option>USD</option>
+                        <option>UAH</option>
+                    </select>
+                </label>
+                <label class="check-row">
+                    <input type="checkbox">
+                    <span>Тихі сповіщення</span>
+                </label>
+                <p class="help-text">Бот не продає квитки. Ціна може змінитися на сайті продавця.</p>
+            </form>
+        </dialog>
+    </main>
+    <script src="{{ url_for('static', path='/miniapp.js') }}?v=20260720-rail"></script>
+</body>
+</html>

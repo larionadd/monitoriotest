@@ -10,6 +10,18 @@
   "mini_app_menu_button_text": "Cabinet",
   "poll_interval_seconds": 7200,
   "source_timeout_seconds": 15,
+  "source_fetch_workers": 16,
+  "source_fetch_shard_workers": 4,
+  "source_fetch_workers_per_shard": 16,
+  "source_fetch_shard_bucket_size": 80,
+  "full_text_fetch_workers": 12,
+  "full_text_prefetch_limit": 180,
+  "source_error_threshold": 3,
+  "source_error_soft_cooldown_seconds": 60,
+  "source_error_cooldown_seconds": 1800,
+  "source_error_max_cooldown_seconds": 7200,
+  "source_slow_threshold_seconds": 20,
+  "source_slow_cooldown_seconds": 1800,
   "user_daily_limit": 100,
   "admin_chat_ids": [],
   "require_onboarding": false,
@@ -23,9 +35,34 @@
   "crypto_plan_prices_usd": {
     "basic": "4.00",
     "pro": "10.00",
-    "business": "25.00"
+    "business": "12.00"
   },
   "crypto_success_url": "",
   "crypto_cancel_url": "",
-  "alert_template": "📰 Нова згадка\n\nКлюч: {keyword}\nДжерело: {source}\nЗаголовок: {title}\nДата: {published_at}\n\n{url}"
+  "reddit_search_enabled": false,
+  "reddit_client_id": "",
+  "reddit_client_secret": "",
+  "reddit_user_agent": "Monitorio/0.1 by YOUR_REDDIT_USERNAME",
+  "reddit_api_base": "https://oauth.reddit.com",
+  "reddit_token_url": "https://www.reddit.com/api/v1/access_token",
+  "reddit_search_sort": "new",
+  "reddit_search_time": "day",
+  "reddit_search_limit": 25,
+  "reddit_search_recent_hours": 24,
+  "reddit_subreddits": [],
+  "reddit_plan_ids": [
+    "business"
+  ],
+  "alert_template": "📰 Нова згадка\n\nКлюч: {keyword}\nДжерело: {source}\nЗаголовок: {title}\n📅 Дата: {published_date}\n🕒 Час: {published_time}\n\n{url}",
+  "ai_digest_enabled": false,
+  "ai_digest_provider": "deepseek",
+  "deepseek_api_key": "",
+  "deepseek_api_base": "https://api.deepseek.com",
+  "deepseek_model": "deepseek-chat",
+  "ai_digest_plan_ids": [
+    "pro",
+    "business"
+  ],
+  "ai_digest_max_mentions": 80,
+  "ai_digest_timeout_seconds": 45
 }

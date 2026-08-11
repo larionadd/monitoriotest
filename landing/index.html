@@ -4,1837 +4,1226 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Monitorio - media and Telegram monitoring</title>
-  <meta name="description" content="Monitorio tracks mentions in news, RSS feeds, and Telegram channels by keywords. Automatic monitoring, regions, full text, CSV reports.">
+  <meta name="description" content="Monitorio tracks keyword mentions in news, RSS feeds and Telegram channels across selected countries.">
   <style>
     :root {
       color-scheme: light;
-      --bg: #f4f7fb;
-      --ink: #0e1726;
-      --muted: #607086;
-      --line: #d9e2ee;
-      --blue: #1463d8;
-      --blue-dark: #0d48a7;
-      --green: #158456;
-      --amber: #bd6b12;
-      --panel: rgba(255, 255, 255, .91);
-      --shadow: 0 18px 50px rgba(20, 38, 70, .13);
+      --bg: #f6f8fc;
+      --bg-grid: rgba(37, 99, 235, .075);
+      --surface: #ffffff;
+      --surface-soft: #eef5ff;
+      --surface-green: #e9f8f0;
+      --surface-warm: #fff4d6;
+      --surface-violet: #f1edff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #d8e2f0;
+      --primary: #2563eb;
+      --primary-dark: #123a8c;
+      --accent: #059669;
+      --warning: #b7791f;
+      --dark: #101827;
+      --dark-2: #162033;
+      --radius: 22px;
+      --radius-sm: 14px;
+      --shadow: 0 18px 50px rgba(15, 23, 42, .10);
+      --shadow-soft: 0 8px 24px rgba(15, 23, 42, .08);
+      --max: 1180px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      background: var(--bg);
       color: var(--ink);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       letter-spacing: 0;
+      background:
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(180deg, var(--bg-grid) 1px, transparent 1px),
+        radial-gradient(circle at 16% 0%, rgba(37, 99, 235, .12), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(5, 150, 105, .10), transparent 30%),
+        var(--bg);
+      background-size: 42px 42px, 42px 42px, auto, auto, auto;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
+    a { color: inherit; text-decoration: none; }
+    button, select { font: inherit; }
+
+    :focus-visible {
+      outline: 3px solid rgba(37, 99, 235, .42);
+      outline-offset: 3px;
+    }
+
+    .page-shell {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
     }
 
     .topbar {
-      position: fixed;
-      top: 0;
-      right: 0;
-      left: 0;
+      position: sticky;
+      top: 14px;
       z-index: 20;
-      border-bottom: 1px solid rgba(217, 226, 238, .74);
-      background: rgba(244, 247, 251, .86);
-      backdrop-filter: blur(16px);
+      padding: 0 0 10px;
     }
 
     .nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: min(1180px, calc(100% - 32px));
-      min-height: 68px;
-      margin: 0 auto;
-      gap: 24px;
+      gap: 14px;
+      min-height: 64px;
+      padding: 10px 12px;
+      border: 1px solid rgba(216, 226, 240, .92);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .86);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(18px);
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      font-weight: 900;
+      min-width: 0;
       font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0;
     }
 
-    .mark {
-      display: grid;
+    .brand-mark,
+    .icon {
+      display: inline-grid;
       place-items: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      background: #ffffff;
+      flex: 0 0 auto;
       border: 1px solid var(--line);
-      box-shadow: 0 8px 20px rgba(20, 99, 216, .12);
+      background: #fff;
+      color: var(--primary);
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      box-shadow: inset 0 -3px 0 rgba(37, 99, 235, .08);
+    }
+
+    .brand-mark svg,
+    .icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 22px;
-      color: var(--muted);
-      font-weight: 700;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid rgba(216, 226, 240, .86);
+      border-radius: 999px;
+      background: #f8fbff;
+      color: #42526a;
       font-size: 14px;
+      font-weight: 800;
     }
 
-    .language-switcher {
+    .nav-link {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      min-height: 42px;
-      padding: 0 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #ffffff;
-      color: var(--muted);
-      font-weight: 800;
-      font-size: 14px;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      transition: color .18s ease, background .18s ease;
     }
 
-    .language-switcher select {
-      min-height: 30px;
-      border: 0;
-      background: transparent;
+    .nav-link:hover {
+      background: #fff;
       color: var(--ink);
-      font: inherit;
-      outline: 0;
     }
 
-    .nav-cta,
+    .language-select {
+      min-height: 44px;
+      max-width: 168px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 12px;
+      font-weight: 850;
+      outline: none;
+    }
+
     .button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
       min-height: 44px;
-      padding: 0 18px;
-      border-radius: 8px;
-      border: 1px solid var(--blue);
-      background: var(--blue);
-      color: #ffffff;
-      font-weight: 850;
-      box-shadow: 0 10px 24px rgba(20, 99, 216, .22);
+      padding: 0 16px;
+      border: 1px solid var(--primary);
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, .22);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: #1d4ed8;
+      box-shadow: 0 16px 34px rgba(37, 99, 235, .28);
     }
 
     .button.secondary {
-      background: #ffffff;
-      color: var(--blue-dark);
       border-color: var(--line);
+      background: #fff;
+      color: var(--primary-dark);
       box-shadow: none;
     }
 
     .hero {
-      position: relative;
-      min-height: 88svh;
-      overflow: hidden;
-      padding: 122px 0 56px;
-      isolation: isolate;
+      padding: 36px 0 20px;
     }
 
-    .hero::before {
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .tile {
+      position: relative;
+      overflow: hidden;
+      min-height: 168px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .94);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .tile.hero-copy { grid-column: span 7; min-height: 560px; }
+    .tile.product-preview { grid-column: span 5; min-height: 560px; }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-6 { grid-column: span 6; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .tile.blue { background: linear-gradient(180deg, #f8fbff, #e9f2ff); }
+    .tile.green { background: var(--surface-green); }
+    .tile.warm { background: var(--surface-warm); }
+    .tile.violet { background: var(--surface-violet); }
+    .tile.dark {
+      border-color: rgba(255, 255, 255, .12);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .08), transparent),
+        var(--dark);
+      color: #fff;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, .24);
+    }
+
+    .tile-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 26px;
+    }
+
+    .hero-copy::after {
       content: "";
       position: absolute;
-      inset: 0;
-      z-index: -2;
+      right: 26px;
+      bottom: 26px;
+      width: 176px;
+      height: 176px;
+      border: 1px solid rgba(37, 99, 235, .16);
+      border-radius: 18px;
       background:
-        linear-gradient(110deg, rgba(244, 247, 251, .98) 0%, rgba(244, 247, 251, .91) 42%, rgba(244, 247, 251, .58) 78%, rgba(244, 247, 251, .92) 100%),
-        linear-gradient(135deg, #e7f0fb 0%, #f7fbf8 43%, #fff7e8 100%);
+        linear-gradient(90deg, rgba(37, 99, 235, .16) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(37, 99, 235, .16) 1px, transparent 1px),
+        rgba(255, 255, 255, .50);
+      background-size: 18px 18px;
     }
 
-    .hero-visual {
-      position: absolute;
-      top: 104px;
-      right: max(-80px, calc((100vw - 1180px) / 2 - 110px));
-      z-index: -1;
-      width: min(720px, 58vw);
-      min-height: 570px;
-      opacity: .94;
-    }
+    h1, h2, h3, p { margin: 0; }
 
-    .phone {
-      position: absolute;
-      top: 18px;
-      right: 28px;
-      width: 320px;
-      min-height: 548px;
-      padding: 18px 14px;
-      border: 1px solid rgba(125, 144, 168, .32);
-      border-radius: 34px;
-      background: rgba(255, 255, 255, .86);
-      box-shadow: 0 26px 80px rgba(20, 38, 70, .18);
-    }
-
-    .screen-title {
-      margin: 7px 4px 13px;
-      font-size: 26px;
-      font-weight: 950;
-    }
-
-    .screen-tabs,
-    .stats,
-    .alert-card,
-    .panel {
-      border: 1px solid var(--line);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      overflow: hidden;
-      border-radius: 13px;
-    }
-
-    .stat {
-      min-height: 72px;
-      padding: 12px;
-      border-right: 1px solid var(--line);
-    }
-
-    .stat:last-child {
-      border-right: 0;
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 20px;
-    }
-
-    .stat span,
-    .alert-card span,
-    .panel span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .screen-tabs {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 5px;
-      margin: 12px 0;
-      padding: 5px;
-      border-radius: 13px;
-    }
-
-    .screen-tabs b {
-      display: grid;
-      place-items: center;
-      min-height: 38px;
-      border-radius: 9px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .screen-tabs b:first-child {
-      color: #ffffff;
-      background: var(--blue);
-    }
-
-    .alert-card {
-      margin-top: 11px;
-      padding: 14px;
-      border-radius: 12px;
-    }
-
-    .alert-card h3 {
-      margin: 8px 0 6px;
-      font-size: 15px;
-      line-height: 1.3;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 0 8px;
-      border-radius: 99px;
-      background: #edf4ff;
-      color: var(--blue-dark);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .panel {
-      position: absolute;
-      left: 0;
-      width: 365px;
-      padding: 16px;
-      border-radius: 14px;
-    }
-
-    .panel.sources {
-      top: 44px;
-    }
-
-    .panel.filters {
-      bottom: 48px;
-      left: 74px;
-    }
-
-    .panel h3 {
-      margin: 0 0 12px;
-      font-size: 17px;
-    }
-
-    .source-row,
-    .filter-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      min-height: 42px;
-      border-top: 1px solid #e6edf5;
-    }
-
-    .source-row:first-of-type,
-    .filter-row:first-of-type {
-      border-top: 0;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 99px;
-      background: var(--green);
-    }
-
-    .container {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-    }
-
-    .hero-copy {
-      max-width: 650px;
-      padding-top: 52px;
-    }
-
-    .kicker {
+    .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      min-height: 34px;
+      min-height: 32px;
       padding: 0 12px;
-      border: 1px solid var(--line);
-      border-radius: 99px;
-      background: rgba(255, 255, 255, .74);
-      color: var(--blue-dark);
-      font-weight: 850;
-      font-size: 14px;
+      border: 1px solid rgba(37, 99, 235, .18);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 950;
+      text-transform: uppercase;
     }
 
     h1 {
-      margin: 22px 0 18px;
-      max-width: 760px;
-      font-size: clamp(42px, 7vw, 82px);
+      max-width: 720px;
+      margin-top: 26px;
+      font-size: clamp(44px, 5.2vw, 68px);
       line-height: .98;
       letter-spacing: 0;
     }
 
-    .lead {
-      max-width: 610px;
-      margin: 0 0 30px;
-      color: #344158;
+    h2 {
+      font-size: clamp(30px, 3.1vw, 44px);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    h3 {
       font-size: 20px;
-      line-height: 1.55;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 660px;
+      margin-top: 20px;
+      color: #334155;
+      font-size: 18px;
+      line-height: 1.65;
     }
 
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 34px;
+      margin-top: 28px;
     }
 
-    .proof {
+    .metric-strip {
+      position: relative;
+      z-index: 2;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      max-width: 620px;
-      gap: 10px;
+      gap: 12px;
+      margin-top: 34px;
     }
 
-    .proof-item {
-      min-height: 82px;
-      padding: 15px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(255, 255, 255, .78);
+    .metric {
+      min-height: 112px;
+      padding: 16px;
+      border: 1px solid rgba(216, 226, 240, .95);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .82);
+      backdrop-filter: blur(10px);
     }
 
-    .proof-item strong {
+    .metric strong {
       display: block;
-      margin-bottom: 4px;
-      font-size: 20px;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 28px;
+      line-height: 1;
     }
 
-    .proof-item span {
+    .metric span,
+    .muted,
+    .small-copy {
       color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    section.band {
-      padding: 70px 0;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 28px;
-      margin-bottom: 26px;
-    }
-
-    .section-head h2 {
-      margin: 0;
-      max-width: 700px;
-      font-size: clamp(30px, 4vw, 46px);
-      line-height: 1.06;
-    }
-
-    .section-head p {
-      max-width: 470px;
-      margin: 0;
-      color: var(--muted);
+      font-size: 15px;
       line-height: 1.55;
     }
 
-    .feature-grid,
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+    .mock-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
       gap: 14px;
     }
 
-    .feature,
-    .price {
-      min-height: 220px;
-      padding: 22px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #ffffff;
-      box-shadow: 0 12px 34px rgba(20, 38, 70, .07);
-    }
-
-    .icon {
-      display: grid;
-      place-items: center;
-      width: 38px;
-      height: 38px;
-      margin-bottom: 18px;
-      border-radius: 9px;
-      background: #eef5ff;
-      color: var(--blue-dark);
-      font-size: 19px;
-    }
-
-    .feature h3,
-    .price h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
-    }
-
-    .feature p,
-    .price p,
-    .price li {
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    .workflow {
-      display: grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 22px;
-      align-items: stretch;
-    }
-
-    .steps {
-      display: grid;
-      gap: 12px;
-    }
-
-    .step {
-      display: grid;
-      grid-template-columns: 44px 1fr;
-      gap: 16px;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #ffffff;
-    }
-
-    .step b {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 8px;
-      background: #f4f7fb;
-      color: var(--blue-dark);
-    }
-
-    .step h3 {
-      margin: 0 0 6px;
-    }
-
-    .step p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .report {
-      padding: 22px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #101827;
-      color: #ffffff;
-      box-shadow: var(--shadow);
-    }
-
-    .report h3 {
-      margin: 0 0 16px;
-      font-size: 24px;
-    }
-
-    .report-line {
-      display: grid;
-      grid-template-columns: 112px 1fr;
-      gap: 14px;
-      padding: 13px 0;
-      border-top: 1px solid rgba(255, 255, 255, .13);
-    }
-
-    .report-line span {
-      color: #93a4bd;
-    }
-
-    .report-line strong {
-      color: #ffffff;
-    }
-
-    .price ul {
-      margin: 16px 0 0;
-      padding: 0 0 0 18px;
-    }
-
-    .price.highlight {
-      border-color: rgba(20, 99, 216, .42);
-      box-shadow: 0 18px 46px rgba(20, 99, 216, .14);
-    }
-
-    .price-tag {
-      display: block;
-      margin: 6px 0 10px;
-      font-size: 28px;
-      font-weight: 950;
-    }
-
-    .final {
-      padding: 64px 0 78px;
-      background: #101827;
-      color: #ffffff;
-    }
-
-    .final .container {
+    .mock-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 28px;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, .14);
     }
 
-    .final h2 {
-      margin: 0 0 10px;
-      font-size: clamp(30px, 4vw, 48px);
+    .mock-head h2 {
+      color: #fff;
+      font-size: 28px;
     }
 
-    .final p {
-      max-width: 620px;
-      margin: 0;
-      color: #b9c5d7;
-      line-height: 1.55;
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(125, 211, 252, .24);
+      border-radius: 999px;
+      background: rgba(37, 99, 235, .26);
+      color: #dbeafe;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .mock-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 18px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .05);
+    }
+
+    .mock-stat {
+      min-height: 84px;
+      padding: 14px;
+      border-right: 1px solid rgba(255, 255, 255, .14);
+    }
+
+    .mock-stat:last-child { border-right: 0; }
+
+    .mock-stat strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 22px;
+    }
+
+    .mock-stat span,
+    .dark .muted {
+      color: #a9b5ca;
+    }
+
+    .mention {
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, .13);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .055);
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #573c00;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .mention h3 {
+      margin-bottom: 9px;
+      color: #fff;
+      font-size: 17px;
+    }
+
+    .mini-card .tile-inner,
+    .feature-card .tile-inner,
+    .price-card .tile-inner {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      color: var(--primary);
+    }
+
+    .dark .icon {
+      border-color: rgba(255, 255, 255, .18);
+      background: rgba(255, 255, 255, .08);
+      color: #bfdbfe;
+    }
+
+    .section {
+      padding: 34px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 520px);
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .source-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      padding: 0 12px;
+      border: 1px solid rgba(216, 226, 240, .96);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .74);
+      font-weight: 850;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .country-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .country-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 13px;
+      border: 1px solid rgba(216, 226, 240, .95);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .78);
+      font-weight: 850;
+    }
+
+    .price-value {
+      display: block;
+      margin: 14px 0 10px;
+      color: var(--primary-dark);
+      font-size: 24px;
+      font-weight: 950;
+    }
+
+    .dark .price-value { color: #bfdbfe; }
+
+    .price-card ul {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .dark.price-card ul { color: #dbeafe; }
+
+    .price-card li {
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .price-card li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .45em;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(5, 150, 105, .12);
+    }
+
+    .final {
+      padding: 34px 0 42px;
+    }
+
+    .final .tile-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: center;
     }
 
     footer {
-      padding: 24px 0;
-      background: #0b1220;
-      color: #93a4bd;
+      border-top: 1px solid var(--line);
+      padding: 24px 0 36px;
+      color: var(--muted);
       font-size: 14px;
     }
 
-    footer .container {
+    .footer-row {
       display: flex;
       justify-content: space-between;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
-    .reveal-on-scroll {
+    .contacts {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--primary-dark);
+      font-weight: 850;
+    }
+
+    .reveal {
       opacity: 1;
-      transform: none;
+      transform: translateY(0);
+      transition: opacity .55s ease, transform .55s ease;
     }
 
-    @media (max-width: 980px) {
-      .nav-links {
-        display: none;
+    .js-ready .reveal:not(.is-visible) {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal, .button { transition: none; transform: none; }
+      .js-ready .reveal:not(.is-visible) { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 1040px) {
+      .tile.hero-copy,
+      .tile.product-preview,
+      .span-3,
+      .span-4,
+      .span-5,
+      .span-6,
+      .span-7,
+      .span-8 {
+        grid-column: span 12;
       }
 
-      .hero {
+      .tile.hero-copy,
+      .tile.product-preview {
         min-height: auto;
-        padding-bottom: 36px;
       }
 
-      .hero-copy {
-        padding-top: 18px;
-      }
-
-      .hero-visual {
-        position: relative;
-        top: auto;
-        right: auto;
-        width: 100%;
-        min-height: 580px;
-        margin-top: 36px;
-      }
-
-      .panel.sources {
-        left: 0;
-      }
-
-      .panel.filters {
-        left: 28px;
-      }
-
-      .phone {
-        right: 0;
-      }
-
-      .section-head,
-      .workflow,
-      .final .container {
-        display: block;
-      }
-
-      .section-head p {
-        margin-top: 12px;
-      }
-
-      .feature-grid,
-      .pricing-grid,
-      .proof {
-        grid-template-columns: 1fr;
-      }
-
-      .report {
-        margin-top: 16px;
-      }
+      .nav-links { display: none; }
+      .section-head { grid-template-columns: 1fr; }
     }
 
-    @media (max-width: 560px) {
+    @media (max-width: 700px) {
+      .page-shell {
+        width: min(100% - 24px, var(--max));
+      }
+
       .topbar {
-        position: sticky;
+        top: 8px;
       }
 
       .nav {
-        width: min(100% - 20px, 1180px);
         min-height: 58px;
-        gap: 8px;
+        padding: 8px;
       }
 
-      .brand {
-        gap: 7px;
-        font-size: 17px;
-      }
-
-      .mark {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-      }
-
-      .language-switcher {
-        min-height: 36px;
-        padding: 0 6px;
-      }
-
-      .language-switcher span {
+      .brand span:last-child {
         display: none;
       }
 
-      .language-switcher select {
-        width: 82px;
-        min-height: 28px;
-        font-size: 12px;
+      .language-select {
+        min-height: 42px;
+        max-width: 126px;
+        font-size: 14px;
       }
 
-      .topbar .nav-cta {
-        flex: 0 0 auto;
-        width: auto;
-        min-height: 36px;
-        padding: 0 10px;
-        font-size: 12px;
-        white-space: nowrap;
+      .nav-actions .button {
+        display: none;
       }
 
       .hero {
-        padding-top: 48px;
+        padding-top: 18px;
       }
 
-      .hero-visual {
-        min-height: 545px;
+      .bento-grid {
+        gap: 12px;
       }
 
-      .phone {
-        width: min(310px, 92vw);
+      .tile {
+        border-radius: 18px;
       }
 
-      .panel {
-        width: min(340px, 92vw);
+      .tile-inner {
+        padding: 18px;
       }
 
-      .panel.sources {
-        top: 356px;
+      h1 {
+        margin-top: 18px;
+        font-size: 38px;
+        line-height: 1.04;
       }
 
-      .panel.filters {
+      h2 {
+        font-size: 28px;
+      }
+
+      .lead {
+        font-size: 16px;
+      }
+
+      .hero-copy::after {
         display: none;
       }
 
-      .button {
+      .hero-actions .button,
+      .final .button {
         width: 100%;
       }
 
-      .reveal-on-scroll {
-        opacity: 0;
-        transform: translateY(22px);
-        transition: opacity .55s ease, transform .55s ease;
+      .metric-strip,
+      .mock-stats,
+      .final .tile-inner {
+        grid-template-columns: 1fr;
       }
 
-      .reveal-on-scroll.is-visible {
-        opacity: 1;
-        transform: translateY(0);
+      .mock-stat {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, .14);
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        .reveal-on-scroll {
-          opacity: 1;
-          transform: none;
-          transition: none;
-        }
-      }
-
-      .final .button {
-        margin-top: 22px;
-      }
-
-      footer .container {
-        display: block;
+      .mock-stat:last-child {
+        border-bottom: 0;
       }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <nav class="nav" aria-label="Головна навігація">
-      <a class="brand" href="#top" aria-label="Monitorio">
-        <span class="mark">M</span>
-        <span>Monitorio</span>
-      </a>
-      <div class="nav-links">
-        <a href="#features" data-i18n="navFeatures">Можливості</a>
-        <a href="#workflow" data-i18n="navWorkflow">Як працює</a>
-        <a href="#plans" data-i18n="navPlans">Тарифи</a>
-      </div>
-      <label class="language-switcher">
-        <span data-i18n="languageShort">Мова</span>
-        <select class="language-select" aria-label="Language">
-          <option value="en">English</option>
-          <option value="uk">Українська</option>
-          <option value="pl">Polski</option>
-          <option value="de">Deutsch</option>
-          <option value="es">Español</option>
-          <option value="it">Italiano</option>
-          <option value="be">Беларуская</option>
-          <option value="ru">Русский</option>
-        </select>
-      </label>
-      <a class="nav-cta" href="https://t.me/Monitori0bot" data-i18n="openBot">Відкрити бота</a>
-    </nav>
+    <div class="page-shell">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="#top" aria-label="Monitorio home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/><path d="m17 16 3 3-3 3"/></svg>
+          </span>
+          <span>Monitorio</span>
+        </a>
+        <div class="nav-links" aria-label="Page sections">
+          <a class="nav-link" href="#features" data-i18n="navFeatures">Features</a>
+          <a class="nav-link" href="#countries" data-i18n="navCountries">Countries</a>
+          <a class="nav-link" href="#plans" data-i18n="navPlans">Plans</a>
+        </div>
+        <div class="nav-actions">
+          <select class="language-select" aria-label="Language">
+            <option value="en">English</option>
+            <option value="uk">Українська</option>
+            <option value="pl">Polski</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+            <option value="it">Italiano</option>
+            <option value="be">Беларуская</option>
+            <option value="ru">Русский</option>
+          </select>
+          <a class="button" href="https://t.me/Monitori0bot" data-i18n="openBot">Open bot</a>
+        </div>
+      </nav>
+    </div>
   </header>
 
   <main id="top">
     <section class="hero">
-      <div class="hero-visual" aria-hidden="true">
-        <div class="panel sources">
-          <h3 data-i18n="mockSources">Джерела</h3>
-          <div class="source-row"><span data-i18n="mockSourceUa">Українські медіа</span><i class="dot"></i></div>
-          <div class="source-row"><span data-i18n="mockSourcePl">Польські медіа</span><i class="dot"></i></div>
-          <div class="source-row"><span data-i18n="mockSourceTg">Telegram-канали</span><i class="dot"></i></div>
-          <div class="source-row"><span data-i18n="mockSourceCustom">Власні RSS та TG</span><i class="dot"></i></div>
-        </div>
-        <div class="phone">
-          <div class="screen-title">Monitorio</div>
-          <div class="stats">
-            <div class="stat"><strong>Pro</strong><span data-i18n="mockPlan">Тариф</span></div>
-            <div class="stat"><strong>255</strong><span data-i18n="mockSources">Джерела</span></div>
-            <div class="stat"><strong>18/500</strong><span data-i18n="mockToday">Сьогодні</span></div>
-          </div>
-          <div class="screen-tabs"><b data-i18n="tabNews">Новини</b><b data-i18n="tabFilters">Фільтри</b><b data-i18n="tabRegion">Регіон</b><b data-i18n="tabReports">Звіти</b></div>
-          <article class="alert-card">
-            <div class="badge-row">
-              <span class="badge" data-i18n="mockKeywordEnergy">ключ: енергетика</span>
-              <span class="badge" data-i18n="mockRegionPoland">регіон: Польща</span>
+      <div class="page-shell">
+        <div class="bento-grid">
+          <article class="tile hero-copy blue reveal">
+            <div class="tile-inner">
+              <span class="eyebrow" data-i18n="eyebrow">Media monitoring in Telegram</span>
+              <h1 data-i18n="heroTitle">Track news, Telegram and mentions across countries from one bot</h1>
+              <p class="lead" data-i18n="heroLead">Monitorio helps teams watch keywords in RSS, online media and public Telegram channels. Pick a country, add keywords and receive useful mentions without checking hundreds of sources by hand.</p>
+              <div class="hero-actions">
+                <a class="button" href="https://t.me/Monitori0bot" data-i18n="startBot">Start in Telegram</a>
+                <a class="button secondary" href="https://t.me/Monitori0bot" data-i18n="openCabinet">Open cabinet in Telegram</a>
+              </div>
+              <div class="metric-strip" aria-label="Monitorio metrics">
+                <div class="metric"><strong>1300+</strong><span data-i18n="metricSources">sources from Europe and neighboring regions</span></div>
+                <div class="metric"><strong>RSS + TG</strong><span data-i18n="metricTypes">news sites, feeds, Telegram channels and custom sources</span></div>
+                <div class="metric"><strong>CSV/XLS/PDF</strong><span data-i18n="metricReports">reports for analysis and team work</span></div>
+              </div>
             </div>
-            <h3 data-i18n="mockAlertOne">Нова згадка у сусідній країні: медіа пишуть про рішення уряду</h3>
-            <span data-i18n="mockAlertHint">Заголовок, анонс, повний текст або приховане посилання.</span>
           </article>
-          <article class="alert-card">
-            <div class="badge-row">
-              <span class="badge" data-i18n="mockKeywordBrand">ключ: бренд</span>
-              <span class="badge">Telegram</span>
+
+          <article class="tile product-preview dark reveal">
+            <div class="tile-inner">
+              <div class="mock-panel">
+                <div class="mock-head">
+                  <h2>Monitorio</h2>
+                  <span class="status-pill" data-i18n="mockLive">Live monitoring</span>
+                </div>
+                <div class="mock-stats">
+                  <div class="mock-stat"><strong>Business</strong><span data-i18n="mockPlan">Plan</span></div>
+                  <div class="mock-stat"><strong>819</strong><span data-i18n="mockSources">Sources</span></div>
+                  <div class="mock-stat"><strong>59/1000</strong><span data-i18n="mockToday">Today</span></div>
+                </div>
+                <div class="mention">
+                  <div class="badges">
+                    <span class="badge" data-i18n="badgeKeyword">keyword: energy</span>
+                    <span class="badge" data-i18n="badgeRegion">region: Poland</span>
+                    <span class="badge">Telegram</span>
+                  </div>
+                  <h3 data-i18n="mockTitle">New mention found in a neighboring country's media field</h3>
+                  <p class="muted" data-i18n="mockText">The bot checks titles, RSS summaries, public posts and, on Business, full article text and registries.</p>
+                </div>
+                <div class="mention">
+                  <div class="badges">
+                    <span class="badge">AI</span>
+                    <span class="badge" data-i18n="badgeDigest">digest</span>
+                  </div>
+                  <h3 data-i18n="mockDigestTitle">12-hour digest with key topics and important mentions</h3>
+                  <p class="muted" data-i18n="mockDigestText">A test AI feature summarizes mentions already found by Monitorio.</p>
+                </div>
+              </div>
             </div>
-            <h3 data-i18n="mockAlertTwo">Знайдено згадку у прихованому посиланні під словом у дописі</h3>
-            <span data-i18n="mockAlertTwoHint">Бот перевіряє текст допису та URL.</span>
           </article>
-        </div>
-        <div class="panel filters">
-          <h3 data-i18n="mockFilters">Фільтри</h3>
-          <div class="filter-row"><span data-i18n="mockKeywords">Ключові слова</span><strong>12</strong></div>
-          <div class="filter-row"><span data-i18n="mockStopWords">Стоп-слова</span><strong>4</strong></div>
-          <div class="filter-row"><span data-i18n="mockRegions">Регіони</span><strong>UA, PL, UK</strong></div>
-        </div>
-      </div>
 
-      <div class="container">
-        <div class="hero-copy">
-          <span class="kicker" data-i18n="kicker">Медіамоніторинг у Telegram</span>
-          <h1 data-i18n="heroTitle">Контролюйте інформаційне поле потрібної країни з одного Telegram-бота</h1>
-          <p class="lead" data-i18n="heroLead">Monitorio знаходить згадки за ключовими словами у медіа, RSS і Telegram. Оберіть країну моніторингу, додавайте власні сайти або канали й отримуйте потрібні новини без ручного перегляду десятків джерел.</p>
-          <div class="hero-actions">
-            <a class="button" href="https://t.me/Monitori0bot" data-i18n="startTelegram">Запустити в Telegram</a>
-            <a class="button secondary" href="https://app.monitorio.online" data-i18n="openCabinet">Кабінет з авторизацією</a>
-          </div>
-          <div class="proof">
-            <div class="proof-item"><strong>8</strong><span data-i18n="proofRegions">країн для регіонального моніторингу</span></div>
-            <div class="proof-item"><strong>RSS + TG</strong><span data-i18n="proofSources">новини, канали, власні джерела користувача</span></div>
-            <div class="proof-item"><strong>CSV</strong><span data-i18n="proofCsv">експорт згадок для звітів і командної роботи</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
+          <article class="tile mini-card green span-3 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></span>
+                <h3 data-i18n="regionTitle">Regional monitoring</h3>
+              </div>
+              <p class="small-copy" data-i18n="regionText">Choose the country whose media space you want to track. Each country has its own sources.</p>
+            </div>
+          </article>
 
-    <section class="band" id="features">
-      <div class="container">
-        <div class="section-head">
-          <h2 data-i18n="featuresTitle">Один бот для моніторингу інформаційного поля різних країн</h2>
-          <p data-i18n="featuresLead">Monitorio підходить для PR, юристів, редакцій, бізнесу, аналітиків і команд, яким важливо швидко бачити згадки про теми, бренди, персоналії або ризики у вибраному регіоні.</p>
-        </div>
-        <div class="feature-grid">
-          <article class="feature">
-            <span class="icon">🔎</span>
-            <h3 data-i18n="featureKeysTitle">Пошук за ключами</h3>
-            <p data-i18n="featureKeysText">Ключові слова прив'язуються до регіону. Користувач може окремо додавати стоп-слова та обов'язкові слова для точнішої видачі.</p>
+          <article class="tile mini-card warm span-3 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/><path d="M8 11h6"/></svg></span>
+                <h3 data-i18n="keywordTitle">Keyword logic</h3>
+              </div>
+              <p class="small-copy" data-i18n="keywordText">Keywords are tied to the country selected when the user adds them.</p>
+            </div>
           </article>
-          <article class="feature">
-            <span class="icon">📰</span>
-            <h3 data-i18n="featureNewsTitle">Новини й Telegram</h3>
-            <p data-i18n="featureNewsText">Підтримуються RSS, публічні Telegram-канали, пакети джерел і власні джерела, які користувач додає самостійно.</p>
+
+          <article class="tile mini-card span-3 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 1 0 8"/><path d="M6 8a6 6 0 0 0 0 8"/><path d="M12 5v14"/><path d="m4 4 16 16"/></svg></span>
+                <h3 data-i18n="quietTitle">Quiet mode</h3>
+              </div>
+              <p class="small-copy" data-i18n="quietText">Pause noisy keywords or keep monitoring them without sound notifications.</p>
+            </div>
           </article>
-          <article class="feature">
-            <span class="icon">🔗</span>
-            <h3 data-i18n="featureRssTitle">RSS за посиланням на сайт</h3>
-            <p data-i18n="featureRssText">Вставте звичайний URL сайту, а Monitorio сам знайде RSS або Atom-стрічку і додасть її як джерело.</p>
-          </article>
-          <article class="feature">
-            <span class="icon">🧾</span>
-            <h3 data-i18n="featureFullTitle">Повний текст</h3>
-            <p data-i18n="featureFullText">Швидкий режим перевіряє заголовки й анонси. Режим повного тексту додатково відкриває матеріал і шукає збіги в тілі новини.</p>
-          </article>
-          <article class="feature">
-            <span class="icon">🌍</span>
-            <h3 data-i18n="featureRegionTitle">Моніторинг сусідніх країн</h3>
-            <p data-i18n="featureRegionText">Користувач обирає країну, з якої хоче отримувати новини. Для кожної країни є власна база медіа та Telegram-каналів.</p>
-          </article>
-          <article class="feature">
-            <span class="icon">🔗</span>
-            <h3 data-i18n="featureLinksTitle">Приховані посилання</h3>
-            <p data-i18n="featureLinksText">Для Telegram-дописів бот може враховувати URL, які сховані під словами.</p>
-          </article>
-          <article class="feature">
-            <span class="icon">📊</span>
-            <h3 data-i18n="featureCabinetTitle">Кабінет і звіти</h3>
-            <p data-i18n="featureCabinetText">Кабінет показує останні згадки, фільтри, джерела, налаштування, ручну перевірку та CSV-звіт для швидкого експорту.</p>
+
+          <article class="tile mini-card dark span-3 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg></span>
+                <h3 data-i18n="aiTitle">AI digest</h3>
+              </div>
+              <p class="small-copy" data-i18n="aiText">A test feature for Pro and Business plans: summaries for 12 hours, 24 hours or a week.</p>
+            </div>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="band" id="workflow">
-      <div class="container">
-        <div class="section-head">
-          <h2 data-i18n="workflowTitle">Налаштування займає кілька хвилин</h2>
-          <p data-i18n="workflowLead">Бот працює прямо в Telegram, а кабінет потрібен для зручного керування джерелами, фільтрами та режимами пошуку. Для браузерного доступу потрібна авторизація через Telegram.</p>
+    <section class="section" id="features">
+      <div class="page-shell">
+        <div class="section-head reveal">
+          <h2 data-i18n="featuresTitle">The useful parts, without the noise</h2>
+          <p data-i18n="featuresLead">Monitorio is built for PR teams, editors, analysts, lawyers, businesses and public-sector teams that need fast, structured media signals.</p>
         </div>
-        <div class="workflow">
-          <div class="steps">
-            <article class="step">
-              <b>1</b>
-              <div><h3 data-i18n="stepOneTitle">Оберіть мову та регіон</h3><p data-i18n="stepOneText">Інтерфейс говорить мовою користувача, а країна визначає базу джерел для моніторингу.</p></div>
-            </article>
-            <article class="step">
-              <b>2</b>
-              <div><h3 data-i18n="stepTwoTitle">Додайте ключові слова</h3><p data-i18n="stepTwoText">Кожен ключ зберігається з регіоном, який був активним у момент додавання.</p></div>
-            </article>
-            <article class="step">
-              <b>3</b>
-              <div><h3 data-i18n="stepThreeTitle">Отримуйте згадки</h3><p data-i18n="stepThreeText">Запускайте перевірку вручну або увімкніть автоматичний моніторинг відповідно до тарифу.</p></div>
-            </article>
-          </div>
-          <aside class="report">
-            <h3 data-i18n="reportTitle">Приклад результату</h3>
-            <div class="report-line"><span data-i18n="reportKeyword">Ключ</span><strong data-i18n="reportKeywordValue">енергетика</strong></div>
-            <div class="report-line"><span data-i18n="reportRegion">Регіон</span><strong data-i18n="reportRegionValue">Польща</strong></div>
-            <div class="report-line"><span data-i18n="reportFound">Знайдено</span><strong data-i18n="reportFoundValue">заголовок, анонс або повний текст</strong></div>
-            <div class="report-line"><span data-i18n="reportExport">Звіт</span><strong>Telegram + CSV</strong></div>
-          </aside>
+        <div class="bento-grid">
+          <article class="tile feature-card span-6 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg></span>
+                <h3 data-i18n="featureSourcesTitle">News and Telegram in one flow</h3>
+              </div>
+              <p class="small-copy" data-i18n="featureSourcesText">Monitor RSS feeds, news sites, public Telegram channels and your own custom sources from one cabinet.</p>
+              <div class="source-list" aria-hidden="true">
+                <div class="source-row"><span>RSS</span><i class="dot"></i></div>
+                <div class="source-row"><span>Telegram</span><i class="dot"></i></div>
+                <div class="source-row"><span data-i18n="customSources">Custom sources</span><i class="dot"></i></div>
+              </div>
+            </div>
+          </article>
+
+          <article class="tile feature-card violet span-6 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+                <h3 data-i18n="featureFullTitle">Full-text mode</h3>
+              </div>
+              <p class="small-copy" data-i18n="featureFullText">Search in headlines and RSS summaries by default. Business unlocks full-text checks and registry monitoring.</p>
+            </div>
+          </article>
+
+          <article class="tile feature-card span-4 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg></span>
+                <h3 data-i18n="featureLinksTitle">Hidden links</h3>
+              </div>
+              <p class="small-copy" data-i18n="featureLinksText">Telegram posts can contain links hidden under words. Monitorio can use those URLs in matching.</p>
+            </div>
+          </article>
+
+          <article class="tile feature-card green span-4 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 7h16M7 12h10M10 17h4"/><path d="M7 7v10M17 7v10"/></svg></span>
+                <h3 data-i18n="featureFiltersTitle">Clean filters</h3>
+              </div>
+              <p class="small-copy" data-i18n="featureFiltersText">Stop words and required words help remove junk and keep only relevant mentions.</p>
+            </div>
+          </article>
+
+          <article class="tile feature-card warm span-4 reveal">
+            <div class="tile-inner">
+              <div class="card-title">
+                <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20V4"/><path d="M5 20h15"/><path d="M9 16v-5M13 16V8M17 16v-3"/></svg></span>
+                <h3 data-i18n="featureReportsTitle">Reports</h3>
+              </div>
+              <p class="small-copy" data-i18n="featureReportsText">Export mentions by period in CSV, Excel and PDF formats. Useful for teams and clients.</p>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="band" id="plans">
-      <div class="container">
-        <div class="section-head">
-          <h2 data-i18n="plansTitle">Тарифи для різної інтенсивності моніторингу</h2>
-          <p data-i18n="plansLead">Фінальні ціни й ліміти керуються в боті. Лендінг показує логіку пакетів без прив'язки до тимчасових акцій.</p>
+    <section class="section" id="countries">
+      <div class="page-shell">
+        <div class="bento-grid">
+          <article class="tile blue span-8 reveal">
+            <div class="tile-inner">
+              <span class="eyebrow" data-i18n="navCountries">Countries</span>
+              <h2 data-i18n="countriesTitle">Choose a country, not just a language</h2>
+              <p class="lead" data-i18n="countriesLead">Language affects interface comfort. Monitoring region defines the source base. That is the core advantage: one team can watch Ukraine, Poland, Germany, the Baltics or neighboring countries separately.</p>
+              <div class="country-cloud" aria-label="Available monitoring countries">
+                <span class="country-chip">Ukraine</span>
+                <span class="country-chip">Poland</span>
+                <span class="country-chip">United Kingdom</span>
+                <span class="country-chip">Germany</span>
+                <span class="country-chip">Spain</span>
+                <span class="country-chip">Italy</span>
+                <span class="country-chip">Belarus</span>
+                <span class="country-chip">Russia</span>
+                <span class="country-chip">Kazakhstan</span>
+                <span class="country-chip">Uzbekistan</span>
+                <span class="country-chip">Lithuania</span>
+                <span class="country-chip">Latvia</span>
+                <span class="country-chip">Estonia</span>
+              </div>
+            </div>
+          </article>
+
+          <div class="span-4 bento-grid" style="grid-template-columns: 1fr; gap: 16px;">
+            <article class="tile reveal">
+              <div class="tile-inner">
+                <div class="card-title">
+                  <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><path d="M5 5h14v14H5z"/></svg></span>
+                  <h3 data-i18n="rssTitle">Add RSS by website link</h3>
+                </div>
+                <p class="small-copy" data-i18n="rssText">Paste a website URL. The bot tries to find its RSS or Atom feed automatically and add it as a source.</p>
+              </div>
+            </article>
+            <article class="tile dark reveal">
+              <div class="tile-inner">
+                <div class="card-title">
+                  <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 3 3 10l7 3 3 7 8-17z"/><path d="m10 13 4-4"/></svg></span>
+                  <h3 data-i18n="tgTitle">Add Telegram channels</h3>
+                </div>
+                <p class="small-copy" data-i18n="tgText">Users can add public Telegram channels by @username or t.me link, within plan limits.</p>
+              </div>
+            </article>
+          </div>
         </div>
-        <div class="pricing-grid">
-          <article class="price">
-            <h3>Free</h3>
-            <span class="price-tag" data-i18n="freeTag">Старт</span>
-            <p data-i18n="freeText">Для перевірки ідеї, одного ключового слова та обмеженої кількості результатів.</p>
-            <ul>
-              <li data-i18n="freeOne">базові RSS-джерела</li>
-              <li data-i18n="freeTwo">ручна перевірка</li>
-              <li data-i18n="freeThree">обмежений денний ліміт</li>
-            </ul>
+      </div>
+    </section>
+
+    <section class="section" id="plans">
+      <div class="page-shell">
+        <div class="section-head reveal">
+          <h2 data-i18n="plansTitle">Plans for different monitoring intensity</h2>
+          <p data-i18n="plansLead">Start free, then switch to a paid plan when you need more keywords, more mentions, support or faster checks.</p>
+        </div>
+        <div class="bento-grid">
+          <article class="tile price-card span-3 reveal">
+            <div class="tile-inner">
+              <h3>Free</h3>
+              <span class="price-value" data-i18n="freePrice">Start</span>
+              <p class="small-copy" data-i18n="freeText">For trying the product without commitment.</p>
+              <ul>
+                <li data-i18n="freeOne">1 keyword</li>
+                <li data-i18n="freeTwo">15 mentions per day</li>
+                <li data-i18n="freeThree">Top 20 RSS and top 20 TG by country</li>
+              </ul>
+            </div>
           </article>
-          <article class="price highlight">
-            <h3>Pro</h3>
-            <span class="price-tag" data-i18n="proTag">Робота щодня</span>
-            <p data-i18n="proText">Для регулярного моніторингу, більшої кількості ключів, Telegram-джерел і повного тексту.</p>
-            <ul>
-              <li data-i18n="proOne">автоматичний моніторинг</li>
-              <li data-i18n="proTwo">база TG-каналів</li>
-              <li data-i18n="proThree">CSV-звіти</li>
-            </ul>
+
+          <article class="tile price-card green span-3 reveal">
+            <div class="tile-inner">
+              <h3>Basic</h3>
+              <span class="price-value">5 USDT</span>
+              <p class="small-copy" data-i18n="basicText">For light regular monitoring.</p>
+              <ul>
+                <li data-i18n="basicOne">10 keywords</li>
+                <li data-i18n="basicTwo">3 custom RSS/TG sources</li>
+                <li data-i18n="basicThree">100 mentions per day</li>
+              </ul>
+            </div>
           </article>
-          <article class="price">
-            <h3>Business</h3>
-            <span class="price-tag" data-i18n="businessTag">Команди</span>
-            <p data-i18n="businessText">Для високої частоти перевірок, постійного моніторингу та великої бази джерел.</p>
-            <ul>
-              <li data-i18n="businessOne">часті перевірки</li>
-              <li data-i18n="businessTwo">розширені ліміти</li>
-              <li data-i18n="businessThree">пріоритет для масштабування</li>
-            </ul>
+
+          <article class="tile price-card violet span-3 reveal">
+            <div class="tile-inner">
+              <h3>Pro</h3>
+              <span class="price-value">10 USDT</span>
+              <p class="small-copy" data-i18n="proText">For professional daily work.</p>
+              <ul>
+                <li data-i18n="proOne">50 keywords</li>
+                <li data-i18n="proTwo">15 custom RSS/TG sources</li>
+                <li data-i18n="proThree">Full TG base and 250 mentions per day</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="tile price-card dark span-3 reveal">
+            <div class="tile-inner">
+              <h3>Business</h3>
+              <span class="price-value">12 USDT</span>
+              <p class="small-copy" data-i18n="businessText">For frequent checks and larger teams.</p>
+              <ul>
+                <li data-i18n="businessOne">250 keywords</li>
+                <li data-i18n="businessTwo">500 custom RSS/TG sources</li>
+                <li data-i18n="businessThree">Full text, registries, 1000 mentions/day and checks from 1 min</li>
+              </ul>
+            </div>
           </article>
         </div>
       </div>
     </section>
 
     <section class="final">
-      <div class="container">
-        <div>
-          <h2 data-i18n="finalTitle">Запустіть Monitorio у Telegram</h2>
-          <p data-i18n="finalText">Додайте перший ключ, оберіть країну моніторингу й перевірте, як бот знаходить згадки у ваших джерелах.</p>
-        </div>
-        <a class="button" href="https://t.me/Monitori0bot" data-i18n="startNow">Почати зараз</a>
+      <div class="page-shell">
+        <article class="tile span-12 reveal">
+          <div class="tile-inner">
+            <div>
+              <h2 data-i18n="finalTitle">Start with one keyword</h2>
+              <p class="small-copy" data-i18n="finalText">Open the bot, choose a language and monitoring region, then add your first keyword. The cabinet helps manage sources, filters and reports.</p>
+            </div>
+            <a class="button" href="https://t.me/Monitori0bot" data-i18n="finalButton">Open Monitorio</a>
+          </div>
+        </article>
       </div>
     </section>
   </main>
 
   <footer>
-    <div class="container">
+    <div class="page-shell footer-row">
       <span>© 2026 Monitorio</span>
-      <span data-i18n="footerTag">Media and Telegram monitoring</span>
+      <div class="contacts">
+        <a href="mailto:info@monitorio.online">info@monitorio.online</a>
+        <a href="mailto:support@monitorio.online">support@monitorio.online</a>
+      </div>
     </div>
   </footer>
+
   <script>
-    const translations = {
-      uk: {
-        title: "Monitorio - моніторинг медіа та Telegram",
-        description: "Monitorio шукає згадки у новинах, RSS-стрічках і Telegram-каналах за ключовими словами. Автоматичний моніторинг, регіони, повний текст, CSV-звіти.",
-        navFeatures: "Можливості",
-        navWorkflow: "Як працює",
-        navPlans: "Тарифи",
-        languageShort: "Мова",
-        openBot: "Відкрити бота",
-        chooseLanguage: "Оберіть мову перед початком роботи",
-        kicker: "Медіамоніторинг у Telegram",
-        heroTitle: "Контролюйте інформаційне поле потрібної країни з одного Telegram-бота",
-        heroLead: "Monitorio знаходить згадки за ключовими словами у медіа, RSS і Telegram. Оберіть країну моніторингу, додавайте власні сайти або канали й отримуйте потрібні новини без ручного перегляду десятків джерел.",
-        startTelegram: "Запустити в Telegram",
-        openCabinet: "Кабінет з авторизацією",
-        proofRegions: "країн для регіонального моніторингу",
-        proofSources: "новини, канали, власні джерела користувача",
-        proofCsv: "експорт згадок для звітів і командної роботи",
-        featuresTitle: "Один бот для моніторингу інформаційного поля різних країн",
-        featuresLead: "Monitorio підходить для PR, юристів, редакцій, бізнесу, аналітиків і команд, яким важливо швидко бачити згадки про теми, бренди, персоналії або ризики у вибраному регіоні.",
-        featureKeysTitle: "Пошук за ключами",
-        featureKeysText: "Ключові слова прив'язуються до регіону. Користувач може окремо додавати стоп-слова та обов'язкові слова для точнішої видачі.",
-        featureNewsTitle: "Новини й Telegram",
-        featureNewsText: "Підтримуються RSS, публічні Telegram-канали, пакети джерел і власні джерела, які користувач додає самостійно.",
-        featureFullTitle: "Повний текст",
-        featureFullText: "Швидкий режим перевіряє заголовки й анонси. Режим повного тексту додатково відкриває матеріал і шукає збіги в тілі новини.",
-        featureRegionTitle: "Моніторинг сусідніх країн",
-        featureRegionText: "Користувач обирає країну, з якої хоче отримувати новини. Для кожної країни є власна база медіа та Telegram-каналів.",
-        featureLinksTitle: "Приховані посилання",
-        featureLinksText: "Для Telegram-дописів бот може враховувати URL, які сховані під словами.",
-        featureCabinetTitle: "Кабінет і звіти",
-        featureCabinetText: "Кабінет показує останні згадки, фільтри, джерела, налаштування, ручну перевірку та CSV-звіт для швидкого експорту.",
-        workflowTitle: "Налаштування займає кілька хвилин",
-        workflowLead: "Бот працює прямо в Telegram, а кабінет потрібен для зручного керування джерелами, фільтрами та режимами пошуку. Для браузерного доступу потрібна авторизація через Telegram.",
-        stepOneTitle: "Оберіть мову та регіон",
-        stepOneText: "Інтерфейс говорить мовою користувача, а країна визначає базу джерел для моніторингу.",
-        stepTwoTitle: "Додайте ключові слова",
-        stepTwoText: "Кожен ключ зберігається з регіоном, який був активним у момент додавання.",
-        stepThreeTitle: "Отримуйте згадки",
-        stepThreeText: "Запускайте перевірку вручну або увімкніть автоматичний моніторинг відповідно до тарифу.",
-        reportTitle: "Приклад результату",
-        reportKeyword: "Ключ",
-        reportKeywordValue: "енергетика",
-        reportRegion: "Регіон",
-        reportRegionValue: "Польща",
-        reportFound: "Знайдено",
-        reportFoundValue: "заголовок, анонс або повний текст",
-        reportExport: "Звіт",
-        plansTitle: "Тарифи для різної інтенсивності моніторингу",
-        plansLead: "Фінальні ціни й ліміти керуються в боті. Лендінг показує логіку пакетів без прив'язки до тимчасових акцій.",
-        freeTag: "Старт",
-        freeText: "Для перевірки ідеї, одного ключового слова та обмеженої кількості результатів.",
-        freeOne: "базові RSS-джерела",
-        freeTwo: "ручна перевірка",
-        freeThree: "обмежений денний ліміт",
-        proTag: "Робота щодня",
-        proText: "Для регулярного моніторингу, більшої кількості ключів, Telegram-джерел і повного тексту.",
-        proOne: "автоматичний моніторинг",
-        proTwo: "база TG-каналів",
-        proThree: "CSV-звіти",
-        businessTag: "Команди",
-        businessText: "Для високої частоти перевірок, постійного моніторингу та великої бази джерел.",
-        businessOne: "часті перевірки",
-        businessTwo: "розширені ліміти",
-        businessThree: "пріоритет для масштабування",
-        finalTitle: "Запустіть Monitorio у Telegram",
-        finalText: "Додайте перший ключ, оберіть країну моніторингу й перевірте, як бот знаходить згадки у ваших джерелах.",
-        startNow: "Почати зараз",
-        footerTag: "Моніторинг медіа та Telegram",
-        mockSources: "Джерела",
-        mockSourceUa: "Українські медіа",
-        mockSourcePl: "Польські медіа",
-        mockSourceTg: "Telegram-канали",
-        mockSourceCustom: "Власні RSS та TG",
-        mockPlan: "Тариф",
-        mockToday: "Сьогодні",
-        tabNews: "Новини",
-        tabFilters: "Фільтри",
-        tabRegion: "Регіон",
-        tabReports: "Звіти",
-        mockKeywordEnergy: "ключ: енергетика",
-        mockRegionPoland: "регіон: Польща",
-        mockAlertOne: "Нова згадка у сусідній країні: медіа пишуть про рішення уряду",
-        mockAlertHint: "Заголовок, анонс, повний текст або приховане посилання.",
-        mockKeywordBrand: "ключ: бренд",
-        mockAlertTwo: "Знайдено згадку у прихованому посиланні під словом у дописі",
-        mockAlertTwoHint: "Бот перевіряє текст допису та URL.",
-        mockFilters: "Фільтри",
-        mockKeywords: "Ключові слова",
-        mockStopWords: "Стоп-слова",
-        mockRegions: "Регіони"
-      },
+    const copy = {
       en: {
         title: "Monitorio - media and Telegram monitoring",
-        description: "Monitorio tracks mentions in news, RSS feeds, and Telegram channels by keywords. Automatic monitoring, regions, full text, CSV reports.",
-        navFeatures: "Features",
-        navWorkflow: "How it works",
-        navPlans: "Plans",
-        languageShort: "Language",
-        openBot: "Open bot",
-        chooseLanguage: "Choose your language before you start",
-        kicker: "Media monitoring in Telegram",
-        heroTitle: "Control the media field of any target country from one Telegram bot",
-        heroLead: "Monitorio finds keyword mentions in media, RSS, and Telegram. Choose a monitoring country, add your own sites or channels, and get the news you need without checking dozens of sources manually.",
-        startTelegram: "Start in Telegram",
-        openCabinet: "Cabinet with authorization",
-        proofRegions: "countries for regional monitoring",
-        proofSources: "news, channels, and user-added sources",
-        proofCsv: "CSV export for reports and team work",
-        featuresTitle: "One bot for monitoring the media field of different countries",
-        featuresLead: "Monitorio is useful for PR, legal teams, newsrooms, businesses, analysts, and teams that need fast alerts about topics, brands, people, or risks in a selected region.",
-        featureKeysTitle: "Keyword search",
-        featureKeysText: "Keywords are tied to a region. Users can add stop words and required words to make results more precise.",
-        featureNewsTitle: "News and Telegram",
-        featureNewsText: "RSS feeds, public Telegram channels, source packages, and user-added sources are supported.",
-        featureFullTitle: "Full text",
-        featureFullText: "Fast mode checks titles and summaries. Full-text mode also opens the article and searches the article body.",
-        featureRegionTitle: "Neighbor-country monitoring",
-        featureRegionText: "The user chooses the country they want news from. Each country has its own media and Telegram source base.",
-        featureLinksTitle: "Hidden links",
-        featureLinksText: "For Telegram posts, the bot can consider URLs hidden behind words.",
-        featureCabinetTitle: "Cabinet and reports",
-        featureCabinetText: "The cabinet shows recent mentions, filters, sources, settings, manual checks, and CSV reports for quick export.",
-        workflowTitle: "Setup takes a few minutes",
-        workflowLead: "The bot works directly in Telegram, while the cabinet helps manage sources, filters, and search modes. Browser access requires Telegram authorization.",
-        stepOneTitle: "Choose language and region",
-        stepOneText: "The interface uses the user's language, while the country defines the source base for monitoring.",
-        stepTwoTitle: "Add keywords",
-        stepTwoText: "Each keyword is saved with the region that was active when it was added.",
-        stepThreeTitle: "Receive mentions",
-        stepThreeText: "Run checks manually or enable automatic monitoring according to your plan.",
-        reportTitle: "Result example",
-        reportKeyword: "Keyword",
-        reportKeywordValue: "energy",
-        reportRegion: "Region",
-        reportRegionValue: "Poland",
-        reportFound: "Found in",
-        reportFoundValue: "title, summary, or full text",
-        reportExport: "Report",
-        plansTitle: "Plans for different monitoring intensity",
-        plansLead: "Final prices and limits are managed in the bot. This page explains the package logic without temporary promotions.",
-        freeTag: "Start",
-        freeText: "For testing the idea, one keyword, and a limited number of results.",
-        freeOne: "basic RSS sources",
-        freeTwo: "manual check",
-        freeThree: "limited daily quota",
-        proTag: "Daily work",
-        proText: "For regular monitoring, more keywords, Telegram sources, and full text.",
-        proOne: "automatic monitoring",
-        proTwo: "TG-channel base",
-        proThree: "CSV reports",
-        businessTag: "Teams",
-        businessText: "For high-frequency checks, continuous monitoring, and a larger source base.",
-        businessOne: "frequent checks",
-        businessTwo: "extended limits",
-        businessThree: "scaling priority",
-        finalTitle: "Start Monitorio in Telegram",
-        finalText: "Add your first keyword, choose a monitoring country, and see how the bot finds mentions in your sources.",
-        startNow: "Start now",
-        footerTag: "Media and Telegram monitoring",
-        mockSources: "Sources",
-        mockSourceUa: "Ukrainian media",
-        mockSourcePl: "Polish media",
-        mockSourceTg: "Telegram channels",
-        mockSourceCustom: "Custom RSS and TG",
-        mockPlan: "Plan",
-        mockToday: "Today",
-        tabNews: "News",
-        tabFilters: "Filters",
-        tabRegion: "Region",
-        tabReports: "Reports",
-        mockKeywordEnergy: "keyword: energy",
-        mockRegionPoland: "region: Poland",
-        mockAlertOne: "New mention in a neighboring country: media report a government decision",
-        mockAlertHint: "Title, summary, full text, or hidden link.",
-        mockKeywordBrand: "keyword: brand",
-        mockAlertTwo: "Mention found in a hidden link behind a word in a post",
-        mockAlertTwoHint: "The bot checks post text and URLs.",
-        mockFilters: "Filters",
-        mockKeywords: "Keywords",
-        mockStopWords: "Stop words",
-        mockRegions: "Regions"
+        navFeatures: "Features", navCountries: "Countries", navPlans: "Plans", openBot: "Open bot",
+        eyebrow: "Media monitoring in Telegram",
+        heroTitle: "Track news, Telegram and mentions across countries from one bot",
+        heroLead: "Monitorio helps teams watch keywords in RSS, online media and public Telegram channels. Pick a country, add keywords and receive useful mentions without checking hundreds of sources by hand.",
+        startBot: "Start in Telegram", openCabinet: "Open cabinet in Telegram",
+        metricSources: "sources from Europe and neighboring regions", metricTypes: "news sites, feeds, Telegram channels and custom sources", metricReports: "reports for analysis and team work",
+        mockLive: "Live monitoring", mockPlan: "Plan", mockSources: "Sources", mockToday: "Today", badgeKeyword: "keyword: energy", badgeRegion: "region: Poland", badgeDigest: "digest",
+        mockTitle: "New mention found in a neighboring country's media field", mockText: "The bot checks titles, RSS summaries, public posts and, on Business, full article text and registries.",
+        mockDigestTitle: "12-hour digest with key topics and important mentions", mockDigestText: "A test AI feature summarizes mentions already found by Monitorio.",
+        regionTitle: "Regional monitoring", regionText: "Choose the country whose media space you want to track. Each country has its own sources.",
+        keywordTitle: "Keyword logic", keywordText: "Keywords are tied to the country selected when the user adds them.",
+        quietTitle: "Quiet mode", quietText: "Pause noisy keywords or keep monitoring them without sound notifications.",
+        aiTitle: "AI digest", aiText: "A test feature for Pro and Business plans: summaries for 12 hours, 24 hours or a week.",
+        featuresTitle: "The useful parts, without the noise", featuresLead: "Monitorio is built for PR teams, editors, analysts, lawyers, businesses and public-sector teams that need fast, structured media signals.",
+        featureSourcesTitle: "News and Telegram in one flow", featureSourcesText: "Monitor RSS feeds, news sites, public Telegram channels and your own custom sources from one cabinet.", customSources: "Custom sources",
+        featureFullTitle: "Business depth", featureFullText: "Search in headlines and RSS summaries by default. Business unlocks full-text checks and registry monitoring.",
+        featureLinksTitle: "Hidden links", featureLinksText: "Telegram posts can contain links hidden under words. Monitorio can use those URLs in matching.",
+        featureFiltersTitle: "Clean filters", featureFiltersText: "Stop words and required words help remove junk and keep only relevant mentions.",
+        featureReportsTitle: "Reports", featureReportsText: "Export mentions by period in CSV, Excel and PDF formats. Useful for teams and clients.",
+        countriesTitle: "Choose a country, not just a language", countriesLead: "Language affects interface comfort. Monitoring region defines the source base. That is the core advantage: one team can watch Ukraine, Poland, Germany, the Baltics or neighboring countries separately.",
+        rssTitle: "Add RSS by website link", rssText: "Paste a website URL. The bot tries to find its RSS or Atom feed automatically and add it as a source.",
+        tgTitle: "Add Telegram channels", tgText: "Users can add public Telegram channels by @username or t.me link, within plan limits.",
+        plansTitle: "Plans for different monitoring intensity", plansLead: "Start free, then switch to a paid plan when you need more keywords, more mentions, support or faster checks.",
+        freePrice: "Start", freeText: "For trying the product without commitment.", freeOne: "1 keyword", freeTwo: "15 mentions per day", freeThree: "Top 20 RSS and top 20 TG by country",
+        basicText: "For light regular monitoring.", basicOne: "10 keywords", basicTwo: "3 custom RSS/TG sources", basicThree: "100 mentions per day",
+        proText: "For professional daily work.", proOne: "50 keywords", proTwo: "15 custom RSS/TG sources", proThree: "Full TG base and 250 mentions per day",
+        businessText: "For frequent checks and larger teams.", businessOne: "250 keywords", businessTwo: "500 custom RSS/TG sources", businessThree: "Full text, registries, 1000 mentions/day and checks from 1 min",
+        finalTitle: "Start with one keyword", finalText: "Open the bot, choose a language and monitoring region, then add your first keyword. The cabinet helps manage sources, filters and reports.", finalButton: "Open Monitorio"
+      },
+      uk: {
+        title: "Monitorio - моніторинг медіа та Telegram",
+        navFeatures: "Можливості", navCountries: "Країни", navPlans: "Тарифи", openBot: "Відкрити бота",
+        eyebrow: "Медіамоніторинг у Telegram",
+        heroTitle: "Відстежуйте новини, Telegram і згадки в різних країнах з одного бота",
+        heroLead: "Monitorio допомагає командам моніторити ключові слова в RSS, онлайн-медіа та публічних Telegram-каналах. Оберіть країну, додайте ключі й отримуйте потрібні згадки без ручної перевірки сотень джерел.",
+        startBot: "Запустити в Telegram", openCabinet: "Відкрити кабінет у Telegram",
+        metricSources: "джерел з Європи та сусідніх регіонів", metricTypes: "новинні сайти, RSS, Telegram-канали та власні джерела", metricReports: "звіти для аналізу й командної роботи",
+        mockLive: "Моніторинг увімкнено", mockPlan: "Тариф", mockSources: "Джерела", mockToday: "Сьогодні", badgeKeyword: "ключ: енергетика", badgeRegion: "регіон: Польща", badgeDigest: "дайджест",
+        mockTitle: "Знайдено нову згадку в медіаполі сусідньої країни", mockText: "Бот перевіряє заголовки, RSS-анонси, публічні дописи, а на Business — повний текст статей і реєстри.",
+        mockDigestTitle: "Дайджест за 12 годин із темами та важливими згадками", mockDigestText: "Тестова AI-функція підсумовує згадки, які вже знайшов Monitorio.",
+        regionTitle: "Регіональний моніторинг", regionText: "Оберіть країну, медіаполе якої потрібно відстежувати. Для кожної країни є власні джерела.",
+        keywordTitle: "Логіка ключів", keywordText: "Ключові слова прив'язуються до країни, обраної під час додавання.",
+        quietTitle: "Тихий режим", quietText: "Ставте шумні ключі на паузу або моніторте їх без звукових сповіщень.",
+        aiTitle: "AI-дайджест", aiText: "Тестова функція для Pro та Business: підсумки за 12 годин, 24 години або тиждень.",
+        featuresTitle: "Корисне - без зайвого шуму", featuresLead: "Monitorio створений для PR-команд, редакцій, аналітиків, юристів, бізнесу та держсектору, яким потрібні швидкі й структуровані медіасигнали.",
+        featureSourcesTitle: "Новини й Telegram в одному потоці", featureSourcesText: "Моніторте RSS, новинні сайти, публічні Telegram-канали й власні джерела з одного кабінету.", customSources: "Власні джерела",
+        featureFullTitle: "Глибина Business", featureFullText: "За замовчуванням пошук іде в заголовках і RSS-анонсах. Business відкриває повний текст і моніторинг реєстрів.",
+        featureLinksTitle: "Приховані посилання", featureLinksText: "У Telegram посилання можуть бути сховані під словами. Monitorio може враховувати ці URL у пошуку.",
+        featureFiltersTitle: "Чисті фільтри", featureFiltersText: "Стоп-слова й обов'язкові слова допомагають прибирати шум і залишати релевантні згадки.",
+        featureReportsTitle: "Звіти", featureReportsText: "Експортуйте згадки за період у CSV, Excel і PDF. Зручно для команд і клієнтів.",
+        countriesTitle: "Оберіть країну, а не лише мову", countriesLead: "Мова відповідає за зручність інтерфейсу. Регіон моніторингу визначає базу джерел. У цьому головна перевага: команда може окремо відстежувати Україну, Польщу, Німеччину, Балтію чи сусідні країни.",
+        rssTitle: "Додавання RSS за посиланням на сайт", rssText: "Вставте URL сайту. Бот спробує автоматично знайти RSS або Atom-стрічку й додати її як джерело.",
+        tgTitle: "Додавання Telegram-каналів", tgText: "Користувачі можуть додавати публічні Telegram-канали через @username або t.me-посилання в межах тарифу.",
+        plansTitle: "Тарифи для різної інтенсивності моніторингу", plansLead: "Почніть безкоштовно, а потім перейдіть на платний тариф, коли потрібні більше ключів, згадок, підтримка або швидші перевірки.",
+        freePrice: "Старт", freeText: "Для тесту продукту без зобов'язань.", freeOne: "1 ключове слово", freeTwo: "15 згадок на день", freeThree: "Топ-20 RSS і топ-20 TG по країні",
+        basicText: "Для легкого регулярного моніторингу.", basicOne: "10 ключових слів", basicTwo: "3 власні RSS/TG-джерела", basicThree: "100 згадок на день",
+        proText: "Для професійної щоденної роботи.", proOne: "50 ключових слів", proTwo: "15 власних RSS/TG-джерел", proThree: "Повна база TG і 250 згадок на день",
+        businessText: "Для частих перевірок і більших команд.", businessOne: "250 ключових слів", businessTwo: "500 власних RSS/TG-джерел", businessThree: "Повний текст, реєстри, 1000 згадок/день і перевірки від 1 хв",
+        finalTitle: "Почніть з одного ключового слова", finalText: "Відкрийте бота, оберіть мову й регіон моніторингу, додайте перший ключ. Кабінет допоможе керувати джерелами, фільтрами та звітами.", finalButton: "Відкрити Monitorio"
       },
       pl: {
         title: "Monitorio - monitoring mediów i Telegrama",
-        description: "Monitorio śledzi wzmianki w wiadomościach, RSS i kanałach Telegram według słów kluczowych. Monitoring automatyczny, regiony, pełny tekst, raporty CSV.",
-        navFeatures: "Funkcje",
-        navWorkflow: "Jak działa",
-        navPlans: "Plany",
-        languageShort: "Język",
-        openBot: "Otwórz bota",
-        chooseLanguage: "Wybierz język przed rozpoczęciem",
-        kicker: "Monitoring mediów w Telegramie",
-        heroTitle: "Kontroluj pole informacyjne wybranego kraju z jednego bota Telegram",
-        heroLead: "Monitorio znajduje wzmianki według słów kluczowych w mediach, RSS i Telegramie. Wybierz kraj monitoringu, dodaj własne strony lub kanały i otrzymuj potrzebne wiadomości bez ręcznego przeglądania wielu źródeł.",
-        startTelegram: "Uruchom w Telegramie",
-        openCabinet: "Panel z autoryzacją",
-        proofRegions: "krajów do monitoringu regionalnego",
-        proofSources: "wiadomości, kanały i własne źródła użytkownika",
-        proofCsv: "eksport CSV do raportów i pracy zespołowej",
-        featuresTitle: "Jeden bot do monitoringu mediów w różnych krajach",
-        featuresLead: "Monitorio pomaga PR, prawnikom, redakcjom, firmom, analitykom i zespołom szybko widzieć wzmianki o tematach, markach, osobach lub ryzykach w wybranym regionie.",
-        featureKeysTitle: "Wyszukiwanie słów kluczowych",
-        featureKeysText: "Słowa kluczowe są przypisane do regionu. Można dodawać słowa stop i słowa wymagane dla dokładniejszych wyników.",
-        featureNewsTitle: "Wiadomości i Telegram",
-        featureNewsText: "Obsługiwane są RSS, publiczne kanały Telegram, pakiety źródeł i własne źródła dodane przez użytkownika.",
-        featureFullTitle: "Pełny tekst",
-        featureFullText: "Tryb szybki sprawdza tytuły i opisy. Tryb pełnego tekstu otwiera artykuł i szuka w treści.",
-        featureRegionTitle: "Monitoring krajów sąsiednich",
-        featureRegionText: "Użytkownik wybiera kraj, z którego chce otrzymywać wiadomości. Każdy kraj ma własną bazę mediów i kanałów Telegram.",
-        featureLinksTitle: "Ukryte linki",
-        featureLinksText: "W postach Telegram bot może brać pod uwagę URL-e ukryte pod słowami.",
-        featureCabinetTitle: "Panel i raporty",
-        featureCabinetText: "Panel pokazuje ostatnie wzmianki, filtry, źródła, ustawienia, ręczne sprawdzanie i raport CSV.",
-        workflowTitle: "Konfiguracja zajmuje kilka minut",
-        workflowLead: "Bot działa bezpośrednio w Telegramie, a panel pomaga zarządzać źródłami, filtrami i trybami wyszukiwania. Dostęp z przeglądarki wymaga autoryzacji przez Telegram.",
-        stepOneTitle: "Wybierz język i region",
-        stepOneText: "Interfejs używa języka użytkownika, a kraj określa bazę źródeł do monitoringu.",
-        stepTwoTitle: "Dodaj słowa kluczowe",
-        stepTwoText: "Każde słowo jest zapisywane z regionem aktywnym w chwili dodania.",
-        stepThreeTitle: "Otrzymuj wzmianki",
-        stepThreeText: "Uruchamiaj sprawdzanie ręcznie albo włącz automatyczny monitoring zgodnie z planem.",
-        reportTitle: "Przykład wyniku",
-        reportKeyword: "Słowo",
-        reportKeywordValue: "energia",
-        reportRegion: "Region",
-        reportRegionValue: "Polska",
-        reportFound: "Znaleziono",
-        reportFoundValue: "tytuł, opis albo pełny tekst",
-        reportExport: "Raport",
-        plansTitle: "Plany dla różnej intensywności monitoringu",
-        plansLead: "Ostateczne ceny i limity są zarządzane w bocie. Strona pokazuje logikę pakietów bez promocji tymczasowych.",
-        freeTag: "Start",
-        freeText: "Do testu pomysłu, jednego słowa kluczowego i ograniczonej liczby wyników.",
-        freeOne: "podstawowe źródła RSS",
-        freeTwo: "ręczne sprawdzanie",
-        freeThree: "ograniczony limit dzienny",
-        proTag: "Praca codzienna",
-        proText: "Do regularnego monitoringu, większej liczby słów, źródeł Telegram i pełnego tekstu.",
-        proOne: "automatyczny monitoring",
-        proTwo: "baza kanałów TG",
-        proThree: "raporty CSV",
-        businessTag: "Zespoły",
-        businessText: "Do częstych kontroli, stałego monitoringu i dużej bazy źródeł.",
-        businessOne: "częste kontrole",
-        businessTwo: "rozszerzone limity",
-        businessThree: "priorytet skalowania",
-        finalTitle: "Uruchom Monitorio w Telegramie",
-        finalText: "Dodaj pierwsze słowo, wybierz kraj monitoringu i sprawdź, jak bot znajduje wzmianki.",
-        startNow: "Zacznij teraz",
-        footerTag: "Monitoring mediów i Telegrama",
-        mockSources: "Źródła",
-        mockSourceUa: "Media ukraińskie",
-        mockSourcePl: "Media polskie",
-        mockSourceTg: "Kanały Telegram",
-        mockSourceCustom: "Własne RSS i TG",
-        mockPlan: "Plan",
-        mockToday: "Dzisiaj",
-        tabNews: "Wiadomości",
-        tabFilters: "Filtry",
-        tabRegion: "Region",
-        tabReports: "Raporty",
-        mockKeywordEnergy: "słowo: energia",
-        mockRegionPoland: "region: Polska",
-        mockAlertOne: "Nowa wzmianka w kraju sąsiednim: media piszą o decyzji rządu",
-        mockAlertHint: "Tytuł, opis, pełny tekst albo ukryty link.",
-        mockKeywordBrand: "słowo: marka",
-        mockAlertTwo: "Wzmianka znaleziona w ukrytym linku pod słowem w poście",
-        mockAlertTwoHint: "Bot sprawdza tekst posta i URL-e.",
-        mockFilters: "Filtry",
-        mockKeywords: "Słowa kluczowe",
-        mockStopWords: "Słowa stop",
-        mockRegions: "Regiony"
+        navFeatures: "Funkcje", navCountries: "Kraje", navPlans: "Plany", openBot: "Otwórz bota",
+        eyebrow: "Monitoring mediów w Telegramie",
+        heroTitle: "Śledź newsy, Telegram i wzmianki w różnych krajach z jednego bota",
+        heroLead: "Monitorio pomaga zespołom monitorować słowa kluczowe w RSS, mediach online i publicznych kanałach Telegram. Wybierz kraj, dodaj słowa kluczowe i otrzymuj wzmianki bez ręcznego sprawdzania setek źródeł.",
+        startBot: "Uruchom w Telegramie", openCabinet: "Otwórz panel w Telegramie",
+        metricSources: "źródeł z Europy i sąsiednich regionów", metricTypes: "serwisy newsowe, RSS, Telegram i własne źródła", metricReports: "raporty do analizy i pracy zespołowej",
+        mockLive: "Monitoring aktywny", mockPlan: "Plan", mockSources: "Źródła", mockToday: "Dzisiaj", badgeKeyword: "słowo: energia", badgeRegion: "region: Polska", badgeDigest: "digest",
+        mockTitle: "Nowa wzmianka znaleziona w polu medialnym sąsiedniego kraju", mockText: "Bot sprawdza tytuły, opisy RSS, publiczne posty, a w Business także pełny tekst artykułów i rejestry.",
+        mockDigestTitle: "Digest 12-godzinny z tematami i ważnymi wzmiankami", mockDigestText: "Testowa funkcja AI podsumowuje wzmianki znalezione przez Monitorio.",
+        regionTitle: "Monitoring regionalny", regionText: "Wybierz kraj, którego przestrzeń medialną chcesz śledzić. Każdy kraj ma własne źródła.",
+        keywordTitle: "Logika słów", keywordText: "Słowa kluczowe są przypisane do kraju wybranego podczas dodawania.",
+        quietTitle: "Tryb cichy", quietText: "Wstrzymaj głośne słowa albo monitoruj je bez dźwięku powiadomień.",
+        aiTitle: "AI digest", aiText: "Funkcja testowa dla Pro i Business: podsumowania za 12 godzin, 24 godziny albo tydzień.",
+        featuresTitle: "Najważniejsze funkcje bez szumu", featuresLead: "Monitorio jest dla PR, redakcji, analityków, prawników, biznesu i administracji, które potrzebują szybkich sygnałów medialnych.",
+        featureSourcesTitle: "News i Telegram w jednym strumieniu", featureSourcesText: "Monitoruj RSS, portale informacyjne, publiczne kanały Telegram i własne źródła z jednego panelu.", customSources: "Własne źródła",
+        featureFullTitle: "Głębia Business", featureFullText: "Domyślnie wyszukiwanie obejmuje tytuły i opisy RSS. Business odblokowuje pełny tekst i monitoring rejestrów.",
+        featureLinksTitle: "Ukryte linki", featureLinksText: "W Telegramie linki mogą być ukryte pod słowami. Monitorio może uwzględniać te URL-e.",
+        featureFiltersTitle: "Czyste filtry", featureFiltersText: "Stop-słowa i słowa wymagane pomagają usuwać szum i zostawiać trafne wzmianki.",
+        featureReportsTitle: "Raporty", featureReportsText: "Eksportuj wzmianki w CSV, Excel i PDF. Wygodne dla zespołów i klientów.",
+        countriesTitle: "Wybierz kraj, nie tylko język", countriesLead: "Język odpowiada za wygodę interfejsu. Region monitoringu określa bazę źródeł. To główna przewaga: jeden zespół może osobno śledzić Ukrainę, Polskę, Niemcy, kraje bałtyckie i sąsiadów.",
+        rssTitle: "Dodaj RSS przez link do strony", rssText: "Wklej URL strony. Bot spróbuje znaleźć RSS lub Atom i dodać go jako źródło.",
+        tgTitle: "Dodaj kanały Telegram", tgText: "Użytkownicy mogą dodawać publiczne kanały przez @username lub link t.me w ramach limitów planu.",
+        plansTitle: "Plany dla różnej intensywności monitoringu", plansLead: "Zacznij za darmo, potem przejdź na płatny plan, gdy potrzebujesz więcej słów, wzmianek, wsparcia lub szybszych kontroli.",
+        freePrice: "Start", freeText: "Test produktu bez zobowiązań.", freeOne: "1 słowo kluczowe", freeTwo: "15 wzmianek dziennie", freeThree: "Top 20 RSS i top 20 TG według kraju",
+        basicText: "Lekki regularny monitoring.", basicOne: "10 słów kluczowych", basicTwo: "3 własne RSS/TG", basicThree: "100 wzmianek dziennie",
+        proText: "Profesjonalna codzienna praca.", proOne: "50 słów kluczowych", proTwo: "15 własnych RSS/TG", proThree: "Pełna baza TG i 250 wzmianek dziennie",
+        businessText: "Częste kontrole i większe zespoły.", businessOne: "250 słów kluczowych", businessTwo: "500 własnych RSS/TG", businessThree: "Pełny tekst, rejestry, 1000 wzmianek dziennie i kontrole od 1 min",
+        finalTitle: "Zacznij od jednego słowa", finalText: "Otwórz bota, wybierz język i region monitoringu, dodaj pierwsze słowo. Panel pomoże zarządzać źródłami, filtrami i raportami.", finalButton: "Otwórz Monitorio"
+      }
+    };
+
+    const aliases = {
+      de: {
+        title: "Monitorio - Medien- und Telegram-Monitoring", navFeatures: "Funktionen", navCountries: "Länder", navPlans: "Tarife", openBot: "Bot öffnen",
+        heroTitle: "Beobachten Sie Nachrichten, Telegram und Erwähnungen in mehreren Ländern", heroLead: "Monitorio verfolgt Keywords in RSS, Online-Medien und öffentlichen Telegram-Kanälen. Wählen Sie ein Land, fügen Sie Keywords hinzu und erhalten Sie relevante Treffer.", startBot: "In Telegram starten", openCabinet: "Panel in Telegram öffnen",
+        featuresTitle: "Wichtige Funktionen ohne Lärm", countriesTitle: "Wählen Sie ein Land, nicht nur eine Sprache", plansTitle: "Tarife nach Monitoring-Intensität", finalTitle: "Beginnen Sie mit einem Keyword", finalButton: "Monitorio öffnen"
       },
-      de: {},
-      es: {},
-      it: {},
-      be: {},
-      ru: {}
+      es: {
+        title: "Monitorio - monitoreo de medios y Telegram", navFeatures: "Funciones", navCountries: "Países", navPlans: "Planes", openBot: "Abrir bot",
+        heroTitle: "Sigue noticias, Telegram y menciones en varios países desde un bot", heroLead: "Monitorio rastrea palabras clave en RSS, medios online y canales públicos de Telegram. Elige un país, añade palabras clave y recibe menciones útiles.", startBot: "Iniciar en Telegram", openCabinet: "Abrir panel en Telegram",
+        featuresTitle: "Funciones útiles sin ruido", countriesTitle: "Elige un país, no solo un idioma", plansTitle: "Planes según intensidad de monitoreo", finalTitle: "Empieza con una palabra clave", finalButton: "Abrir Monitorio"
+      },
+      it: {
+        title: "Monitorio - monitoraggio media e Telegram", navFeatures: "Funzioni", navCountries: "Paesi", navPlans: "Piani", openBot: "Apri bot",
+        heroTitle: "Monitora notizie, Telegram e menzioni in più paesi da un bot", heroLead: "Monitorio traccia parole chiave in RSS, media online e canali Telegram pubblici. Scegli un paese, aggiungi keyword e ricevi menzioni utili.", startBot: "Avvia in Telegram", openCabinet: "Apri pannello in Telegram",
+        featuresTitle: "Funzioni utili senza rumore", countriesTitle: "Scegli un paese, non solo una lingua", plansTitle: "Piani per intensità diverse", finalTitle: "Inizia con una keyword", finalButton: "Apri Monitorio"
+      },
+      be: {
+        title: "Monitorio - маніторынг медыя і Telegram", navFeatures: "Магчымасці", navCountries: "Краіны", navPlans: "Тарыфы", openBot: "Адкрыць бота",
+        heroTitle: "Адсочвайце навіны, Telegram і згадкі ў розных краінах з аднаго бота", heroLead: "Monitorio шукае ключавыя словы ў RSS, онлайн-медыя і публічных Telegram-каналах. Абярыце краіну, дадайце ключы і атрымлівайце важныя згадкі.", startBot: "Запусціць у Telegram", openCabinet: "Адкрыць кабінет у Telegram",
+        featuresTitle: "Карыснае без лішняга шуму", countriesTitle: "Абярыце краіну, а не толькі мову", plansTitle: "Тарыфы для рознай інтэнсіўнасці", finalTitle: "Пачніце з аднаго ключа", finalButton: "Адкрыць Monitorio"
+      },
+      ru: {
+        title: "Monitorio - мониторинг медиа и Telegram", navFeatures: "Возможности", navCountries: "Страны", navPlans: "Тарифы", openBot: "Открыть бота",
+        heroTitle: "Отслеживайте новости, Telegram и упоминания в разных странах из одного бота", heroLead: "Monitorio помогает командам мониторить ключевые слова в RSS, онлайн-медиа и публичных Telegram-каналах. Выберите страну, добавьте ключи и получайте нужные упоминания без ручной проверки сотен источников.", startBot: "Запустить в Telegram", openCabinet: "Открыть кабинет в Telegram",
+        featuresTitle: "Полезные функции без лишнего шума", countriesTitle: "Выберите страну, а не только язык", plansTitle: "Тарифы для разной интенсивности мониторинга", finalTitle: "Начните с одного ключевого слова", finalButton: "Открыть Monitorio"
+      }
     };
 
-    translations.de = {
-      ...translations.en,
-      title: "Monitorio - Medien- und Telegram-Monitoring",
-      description: "Monitorio verfolgt Erwähnungen in Nachrichten, RSS-Feeds und Telegram-Kanälen nach Keywords. Automatisches Monitoring, Regionen, Volltext, CSV-Berichte.",
-      navFeatures: "Funktionen",
-      navWorkflow: "So funktioniert es",
-      navPlans: "Tarife",
-      languageShort: "Sprache",
-      openBot: "Bot öffnen",
-      chooseLanguage: "Wählen Sie zuerst Ihre Sprache",
-      kicker: "Medienmonitoring in Telegram",
-      heroTitle: "Kontrollieren Sie das Medienfeld eines Ziellandes mit einem Telegram-Bot",
-      heroLead: "Monitorio findet Keyword-Erwähnungen in Medien, RSS und Telegram. Wählen Sie ein Monitoring-Land, fügen Sie eigene Websites oder Kanäle hinzu und erhalten Sie relevante Nachrichten ohne manuelles Prüfen vieler Quellen.",
-      startTelegram: "In Telegram starten",
-      openCabinet: "Kabinett mit Autorisierung",
-      proofRegions: "Länder für regionales Monitoring",
-      proofSources: "Nachrichten, Kanäle und eigene Quellen",
-      proofCsv: "CSV-Export für Berichte und Teamarbeit",
-      featuresTitle: "Ein Bot für Medienmonitoring in verschiedenen Ländern",
-      featuresLead: "Monitorio hilft PR, Juristen, Redaktionen, Unternehmen, Analysten und Teams, Erwähnungen zu Themen, Marken, Personen oder Risiken in einer gewählten Region schnell zu sehen.",
-      featureRegionTitle: "Monitoring von Nachbarländern",
-      featureRegionText: "Der Nutzer wählt das Land, aus dem er Nachrichten erhalten möchte. Jedes Land hat eine eigene Basis aus Medien und Telegram-Kanälen.",
-      workflowLead: "Der Bot arbeitet direkt in Telegram, das Kabinett hilft bei Quellen, Filtern und Suchmodi. Browserzugang erfordert Telegram-Autorisierung.",
-      reportRegionValue: "Polen",
-      footerTag: "Medien- und Telegram-Monitoring",
-      mockSourceUa: "Ukrainische Medien",
-      mockSourcePl: "Polnische Medien",
-      mockRegionPoland: "Region: Polen"
-    };
-
-    translations.es = {
-      ...translations.en,
-      title: "Monitorio - monitoreo de medios y Telegram",
-      description: "Monitorio rastrea menciones en noticias, RSS y canales de Telegram por palabras clave. Monitoreo automático, regiones, texto completo, informes CSV.",
-      navFeatures: "Funciones",
-      navWorkflow: "Cómo funciona",
-      navPlans: "Planes",
-      languageShort: "Idioma",
-      openBot: "Abrir bot",
-      chooseLanguage: "Elige el idioma antes de empezar",
-      kicker: "Monitoreo de medios en Telegram",
-      heroTitle: "Controla el campo mediático del país que necesitas desde un bot de Telegram",
-      heroLead: "Monitorio encuentra menciones por palabras clave en medios, RSS y Telegram. Elige un país de monitoreo, añade tus sitios o canales y recibe las noticias necesarias sin revisar decenas de fuentes manualmente.",
-      startTelegram: "Iniciar en Telegram",
-      openCabinet: "Panel con autorización",
-      proofRegions: "países para monitoreo regional",
-      proofSources: "noticias, canales y fuentes propias",
-      proofCsv: "exportación CSV para informes y equipos",
-      featuresTitle: "Un bot para monitorear el campo mediático de distintos países",
-      featuresLead: "Monitorio ayuda a PR, abogados, redacciones, empresas, analistas y equipos a ver rápido menciones sobre temas, marcas, personas o riesgos en una región elegida.",
-      featureRegionTitle: "Monitoreo de países vecinos",
-      featureRegionText: "El usuario elige el país del que quiere recibir noticias. Cada país tiene su propia base de medios y canales de Telegram.",
-      workflowLead: "El bot funciona directamente en Telegram, y el panel ayuda a gestionar fuentes, filtros y modos de búsqueda. El acceso desde navegador requiere autorización por Telegram.",
-      reportRegionValue: "Polonia",
-      footerTag: "Monitoreo de medios y Telegram",
-      mockSourceUa: "Medios ucranianos",
-      mockSourcePl: "Medios polacos",
-      mockRegionPoland: "región: Polonia"
-    };
-
-    translations.it = {
-      ...translations.en,
-      title: "Monitorio - monitoraggio media e Telegram",
-      description: "Monitorio traccia menzioni in notizie, RSS e canali Telegram tramite parole chiave. Monitoraggio automatico, regioni, testo completo, report CSV.",
-      navFeatures: "Funzioni",
-      navWorkflow: "Come funziona",
-      navPlans: "Piani",
-      languageShort: "Lingua",
-      openBot: "Apri bot",
-      chooseLanguage: "Scegli la lingua prima di iniziare",
-      kicker: "Monitoraggio media in Telegram",
-      heroTitle: "Controlla il campo mediatico del paese che ti interessa da un bot Telegram",
-      heroLead: "Monitorio trova menzioni per parole chiave in media, RSS e Telegram. Scegli un paese di monitoraggio, aggiungi siti o canali personali e ricevi le notizie utili senza controllare decine di fonti a mano.",
-      startTelegram: "Avvia in Telegram",
-      openCabinet: "Pannello con autorizzazione",
-      proofRegions: "paesi per monitoraggio regionale",
-      proofSources: "notizie, canali e fonti aggiunte dall'utente",
-      proofCsv: "export CSV per report e lavoro di squadra",
-      featuresTitle: "Un bot per monitorare il campo mediatico di diversi paesi",
-      featuresLead: "Monitorio aiuta PR, legali, redazioni, aziende, analisti e team a vedere rapidamente menzioni su temi, brand, persone o rischi nella regione scelta.",
-      featureRegionTitle: "Monitoraggio dei paesi vicini",
-      featureRegionText: "L'utente sceglie il paese da cui vuole ricevere notizie. Ogni paese ha una propria base di media e canali Telegram.",
-      workflowLead: "Il bot funziona direttamente in Telegram, mentre il pannello aiuta a gestire fonti, filtri e modalità di ricerca. L'accesso da browser richiede autorizzazione Telegram.",
-      reportRegionValue: "Polonia",
-      footerTag: "Monitoraggio media e Telegram",
-      mockSourceUa: "Media ucraini",
-      mockSourcePl: "Media polacchi",
-      mockRegionPoland: "regione: Polonia"
-    };
-
-    translations.be = {
-      ...translations.uk,
-      title: "Monitorio - маніторынг медыя і Telegram",
-      description: "Monitorio шукае згадкі ў навінах, RSS-стужках і Telegram-каналах па ключавых словах. Аўтаматычны маніторынг, рэгіёны, поўны тэкст, CSV-справаздачы.",
-      navFeatures: "Магчымасці",
-      navWorkflow: "Як працуе",
-      navPlans: "Тарыфы",
-      languageShort: "Мова",
-      openBot: "Адкрыць бота",
-      chooseLanguage: "Выберыце мову перад пачаткам працы",
-      kicker: "Медыяманіторынг у Telegram",
-      heroTitle: "Кантралюйце інфармацыйнае поле патрэбнай краіны з аднаго Telegram-бота",
-      heroLead: "Monitorio знаходзіць згадкі па ключавых словах у медыя, RSS і Telegram. Выберыце краіну маніторынгу, дадавайце свае сайты або каналы і атрымлівайце патрэбныя навіны без ручнога прагляду дзясяткаў крыніц.",
-      startTelegram: "Запусціць у Telegram",
-      openCabinet: "Кабінет з аўтарызацыяй",
-      proofRegions: "краін для рэгіянальнага маніторынгу",
-      proofSources: "навіны, каналы і ўласныя крыніцы карыстальніка",
-      proofCsv: "экспарт CSV для справаздач і каманднай працы",
-      featuresTitle: "Адзін бот для маніторынгу інфармацыйнага поля розных краін",
-      featureRegionTitle: "Маніторынг суседніх краін",
-      featureRegionText: "Карыстальнік выбірае краіну, з якой хоча атрымліваць навіны. Для кожнай краіны ёсць уласная база медыя і Telegram-каналаў.",
-      workflowLead: "Бот працуе проста ў Telegram, а кабінет патрэбны для кіравання крыніцамі, фільтрамі і рэжымамі пошуку. Для доступу з браўзера патрэбна аўтарызацыя праз Telegram.",
-      reportRegionValue: "Польшча",
-      footerTag: "Маніторынг медыя і Telegram",
-      mockSourceUa: "Украінскія медыя",
-      mockSourcePl: "Польскія медыя",
-      mockRegionPoland: "рэгіён: Польшча"
-    };
-
-    translations.ru = {
-      ...translations.uk,
-      title: "Monitorio - мониторинг медиа и Telegram",
-      description: "Monitorio ищет упоминания в новостях, RSS-лентах и Telegram-каналах по ключевым словам. Автоматический мониторинг, регионы, полный текст, CSV-отчеты.",
-      navFeatures: "Возможности",
-      navWorkflow: "Как работает",
-      navPlans: "Тарифы",
-      languageShort: "Язык",
-      openBot: "Открыть бота",
-      chooseLanguage: "Выберите язык перед началом работы",
-      kicker: "Медиамониторинг в Telegram",
-      heroTitle: "Контролируйте информационное поле нужной страны из одного Telegram-бота",
-      heroLead: "Monitorio находит упоминания по ключевым словам в медиа, RSS и Telegram. Выберите страну мониторинга, добавляйте свои сайты или каналы и получайте нужные новости без ручного просмотра десятков источников.",
-      startTelegram: "Запустить в Telegram",
-      openCabinet: "Кабинет с авторизацией",
-      proofRegions: "стран для регионального мониторинга",
-      proofSources: "новости, каналы и собственные источники пользователя",
-      proofCsv: "экспорт CSV для отчетов и командной работы",
-      featuresTitle: "Один бот для мониторинга информационного поля разных стран",
-      featuresLead: "Monitorio подходит PR, юристам, редакциям, бизнесу, аналитикам и командам, которым важно быстро видеть упоминания тем, брендов, персоналий или рисков в выбранном регионе.",
-      featureKeysTitle: "Поиск по ключам",
-      featureKeysText: "Ключевые слова привязываются к региону. Пользователь может добавлять стоп-слова и обязательные слова для более точной выдачи.",
-      featureNewsTitle: "Новости и Telegram",
-      featureNewsText: "Поддерживаются RSS, публичные Telegram-каналы, пакеты источников и собственные источники, которые пользователь добавляет сам.",
-      featureFullTitle: "Полный текст",
-      featureFullText: "Быстрый режим проверяет заголовки и анонсы. Режим полного текста дополнительно открывает материал и ищет совпадения в тексте новости.",
-      featureRegionTitle: "Мониторинг соседних стран",
-      featureRegionText: "Пользователь выбирает страну, из которой хочет получать новости. Для каждой страны есть своя база медиа и Telegram-каналов.",
-      featureLinksTitle: "Скрытые ссылки",
-      featureLinksText: "Для Telegram-постов бот может учитывать URL, скрытые под словами.",
-      featureCabinetTitle: "Кабинет и отчеты",
-      featureCabinetText: "Кабинет показывает последние упоминания, фильтры, источники, настройки, ручную проверку и CSV-отчет для быстрого экспорта.",
-      workflowTitle: "Настройка занимает несколько минут",
-      workflowLead: "Бот работает прямо в Telegram, а кабинет нужен для управления источниками, фильтрами и режимами поиска. Для доступа из браузера нужна авторизация через Telegram.",
-      stepOneTitle: "Выберите язык и регион",
-      stepOneText: "Интерфейс говорит на языке пользователя, а страна определяет базу источников для мониторинга.",
-      stepTwoTitle: "Добавьте ключевые слова",
-      stepTwoText: "Каждый ключ сохраняется с регионом, который был активен в момент добавления.",
-      stepThreeTitle: "Получайте упоминания",
-      stepThreeText: "Запускайте проверку вручную или включайте автоматический мониторинг согласно тарифу.",
-      reportTitle: "Пример результата",
-      reportKeyword: "Ключ",
-      reportRegion: "Регион",
-      reportRegionValue: "Польша",
-      reportFound: "Найдено",
-      reportFoundValue: "заголовок, анонс или полный текст",
-      reportExport: "Отчет",
-      plansTitle: "Тарифы для разной интенсивности мониторинга",
-      plansLead: "Финальные цены и лимиты управляются в боте. Лендинг показывает логику пакетов без временных акций.",
-      freeTag: "Старт",
-      freeText: "Для проверки идеи, одного ключевого слова и ограниченного количества результатов.",
-      freeOne: "базовые RSS-источники",
-      freeTwo: "ручная проверка",
-      freeThree: "ограниченный дневной лимит",
-      proTag: "Ежедневная работа",
-      proText: "Для регулярного мониторинга, большего количества ключей, Telegram-источников и полного текста.",
-      proOne: "автоматический мониторинг",
-      proTwo: "база TG-каналов",
-      proThree: "CSV-отчеты",
-      businessTag: "Команды",
-      businessText: "Для высокой частоты проверок, постоянного мониторинга и большой базы источников.",
-      businessOne: "частые проверки",
-      businessTwo: "расширенные лимиты",
-      businessThree: "приоритет для масштабирования",
-      finalTitle: "Запустите Monitorio в Telegram",
-      finalText: "Добавьте первый ключ, выберите страну мониторинга и проверьте, как бот находит упоминания в ваших источниках.",
-      startNow: "Начать сейчас",
-      footerTag: "Мониторинг медиа и Telegram",
-      mockSourceUa: "Украинские медиа",
-      mockSourcePl: "Польские медиа",
-      mockPlan: "Тариф",
-      mockToday: "Сегодня",
-      tabNews: "Новости",
-      tabFilters: "Фильтры",
-      tabRegion: "Регион",
-      tabReports: "Отчеты",
-      mockKeywordEnergy: "ключ: энергетика",
-      mockRegionPoland: "регион: Польша",
-      mockAlertOne: "Новое упоминание в соседней стране: медиа пишут о решении правительства",
-      mockAlertHint: "Заголовок, анонс, полный текст или скрытая ссылка.",
-      mockKeywordBrand: "ключ: бренд",
-      mockAlertTwo: "Найдено упоминание в скрытой ссылке под словом в посте",
-      mockAlertTwoHint: "Бот проверяет текст поста и URL.",
-      mockFilters: "Фильтры",
-      mockKeywords: "Ключевые слова",
-      mockStopWords: "Стоп-слова",
-      mockRegions: "Регионы"
-    };
-
-    Object.assign(translations.de, {
-      featureKeysTitle: "Keyword-Suche",
-      featureKeysText: "Keywords werden einer Region zugeordnet. Nutzer können Stoppwörter und Pflichtwörter hinzufügen, um Ergebnisse genauer zu machen.",
-      featureNewsTitle: "Nachrichten und Telegram",
-      featureNewsText: "RSS-Feeds, öffentliche Telegram-Kanäle, Quellenpakete und eigene Quellen des Nutzers werden unterstützt.",
-      featureFullTitle: "Volltext",
-      featureFullText: "Der Schnellmodus prüft Titel und Kurztexte. Der Volltextmodus öffnet zusätzlich den Artikel und sucht im Nachrichtentext.",
-      featureLinksTitle: "Versteckte Links",
-      featureLinksText: "Bei Telegram-Beiträgen kann der Bot URLs berücksichtigen, die hinter Wörtern verborgen sind.",
-      featureCabinetTitle: "Kabinett und Berichte",
-      featureCabinetText: "Das Kabinett zeigt letzte Treffer, Filter, Quellen, Einstellungen, manuelle Prüfung und CSV-Berichte für schnellen Export.",
-      workflowTitle: "Die Einrichtung dauert nur wenige Minuten",
-      stepOneTitle: "Sprache und Region wählen",
-      stepOneText: "Die Oberfläche nutzt die Sprache des Nutzers, während das Land die Quellenbasis für das Monitoring bestimmt.",
-      stepTwoTitle: "Keywords hinzufügen",
-      stepTwoText: "Jedes Keyword wird mit der Region gespeichert, die beim Hinzufügen aktiv war.",
-      stepThreeTitle: "Erwähnungen erhalten",
-      stepThreeText: "Starten Sie Prüfungen manuell oder aktivieren Sie automatisches Monitoring gemäß Ihrem Tarif.",
-      reportTitle: "Beispielergebnis",
-      reportKeyword: "Keyword",
-      reportKeywordValue: "Energie",
-      reportRegion: "Region",
-      reportFound: "Gefunden in",
-      reportFoundValue: "Titel, Kurztext oder Volltext",
-      reportExport: "Bericht",
-      plansTitle: "Tarife für unterschiedliche Monitoring-Intensität",
-      plansLead: "Endgültige Preise und Limits werden im Bot verwaltet. Diese Seite erklärt die Paketlogik ohne zeitlich begrenzte Aktionen.",
-      freeTag: "Start",
-      freeText: "Zum Testen der Idee, eines Keywords und einer begrenzten Anzahl von Ergebnissen.",
-      freeOne: "Basis-RSS-Quellen",
-      freeTwo: "manuelle Prüfung",
-      freeThree: "begrenztes Tageslimit",
-      proTag: "Tägliche Arbeit",
-      proText: "Für regelmäßiges Monitoring, mehr Keywords, Telegram-Quellen und Volltext.",
-      proOne: "automatisches Monitoring",
-      proTwo: "TG-Kanalbasis",
-      proThree: "CSV-Berichte",
-      businessTag: "Teams",
-      businessText: "Für häufige Prüfungen, kontinuierliches Monitoring und eine große Quellenbasis.",
-      businessOne: "häufige Prüfungen",
-      businessTwo: "erweiterte Limits",
-      businessThree: "Priorität beim Skalieren",
-      finalTitle: "Starten Sie Monitorio in Telegram",
-      finalText: "Fügen Sie Ihr erstes Keyword hinzu, wählen Sie ein Monitoring-Land und prüfen Sie, wie der Bot Erwähnungen in Ihren Quellen findet.",
-      startNow: "Jetzt starten",
-      mockSources: "Quellen",
-      mockSourceTg: "Telegram-Kanäle",
-      mockSourceCustom: "Eigene RSS und TG",
-      mockPlan: "Tarif",
-      mockToday: "Heute",
-      tabNews: "Nachrichten",
-      tabFilters: "Filter",
-      tabRegion: "Region",
-      tabReports: "Berichte",
-      mockKeywordEnergy: "Keyword: Energie",
-      mockAlertOne: "Neue Erwähnung in einem Nachbarland: Medien berichten über eine Regierungsentscheidung",
-      mockAlertHint: "Titel, Kurztext, Volltext oder versteckter Link.",
-      mockKeywordBrand: "Keyword: Marke",
-      mockAlertTwo: "Erwähnung in einem versteckten Link hinter einem Wort im Beitrag gefunden",
-      mockAlertTwoHint: "Der Bot prüft Beitragstext und URLs.",
-      mockFilters: "Filter",
-      mockKeywords: "Keywords",
-      mockStopWords: "Stoppwörter",
-      mockRegions: "Regionen"
+    const fallback = copy.en;
+    Object.keys(aliases).forEach((lang) => {
+      copy[lang] = { ...fallback, ...aliases[lang] };
     });
-
-    Object.assign(translations.es, {
-      featureKeysTitle: "Búsqueda por palabras clave",
-      featureKeysText: "Las palabras clave se vinculan a una región. El usuario puede añadir palabras excluidas y obligatorias para precisar los resultados.",
-      featureNewsTitle: "Noticias y Telegram",
-      featureNewsText: "Se admiten RSS, canales públicos de Telegram, paquetes de fuentes y fuentes propias añadidas por el usuario.",
-      featureFullTitle: "Texto completo",
-      featureFullText: "El modo rápido revisa títulos y resúmenes. El modo de texto completo abre el artículo y busca en el cuerpo de la noticia.",
-      featureLinksTitle: "Enlaces ocultos",
-      featureLinksText: "En publicaciones de Telegram, el bot puede tener en cuenta URL ocultas bajo palabras.",
-      featureCabinetTitle: "Panel e informes",
-      featureCabinetText: "El panel muestra menciones recientes, filtros, fuentes, ajustes, comprobación manual e informes CSV para exportación rápida.",
-      workflowTitle: "La configuración toma unos minutos",
-      stepOneTitle: "Elige idioma y región",
-      stepOneText: "La interfaz usa el idioma del usuario, mientras que el país define la base de fuentes para el monitoreo.",
-      stepTwoTitle: "Añade palabras clave",
-      stepTwoText: "Cada palabra clave se guarda con la región activa en el momento de añadirla.",
-      stepThreeTitle: "Recibe menciones",
-      stepThreeText: "Ejecuta comprobaciones manuales o activa el monitoreo automático según tu plan.",
-      reportTitle: "Ejemplo de resultado",
-      reportKeyword: "Clave",
-      reportKeywordValue: "energía",
-      reportRegion: "Región",
-      reportFound: "Encontrado en",
-      reportFoundValue: "título, resumen o texto completo",
-      reportExport: "Informe",
-      plansTitle: "Planes para distintas intensidades de monitoreo",
-      plansLead: "Los precios y límites finales se gestionan en el bot. Esta página explica la lógica de los paquetes sin promociones temporales.",
-      freeTag: "Inicio",
-      freeText: "Para probar la idea, una palabra clave y un número limitado de resultados.",
-      freeOne: "fuentes RSS básicas",
-      freeTwo: "comprobación manual",
-      freeThree: "límite diario reducido",
-      proTag: "Trabajo diario",
-      proText: "Para monitoreo regular, más palabras clave, fuentes de Telegram y texto completo.",
-      proOne: "monitoreo automático",
-      proTwo: "base de canales TG",
-      proThree: "informes CSV",
-      businessTag: "Equipos",
-      businessText: "Para comprobaciones frecuentes, monitoreo continuo y una base amplia de fuentes.",
-      businessOne: "comprobaciones frecuentes",
-      businessTwo: "límites ampliados",
-      businessThree: "prioridad de escalado",
-      finalTitle: "Inicia Monitorio en Telegram",
-      finalText: "Añade tu primera palabra clave, elige un país de monitoreo y comprueba cómo el bot encuentra menciones.",
-      startNow: "Empezar ahora",
-      mockSources: "Fuentes",
-      mockSourceTg: "Canales de Telegram",
-      mockSourceCustom: "RSS y TG propios",
-      mockPlan: "Plan",
-      mockToday: "Hoy",
-      tabNews: "Noticias",
-      tabFilters: "Filtros",
-      tabRegion: "Región",
-      tabReports: "Informes",
-      mockKeywordEnergy: "clave: energía",
-      mockAlertOne: "Nueva mención en un país vecino: los medios informan sobre una decisión del gobierno",
-      mockAlertHint: "Título, resumen, texto completo o enlace oculto.",
-      mockKeywordBrand: "clave: marca",
-      mockAlertTwo: "Mención encontrada en un enlace oculto bajo una palabra en una publicación",
-      mockAlertTwoHint: "El bot revisa el texto de la publicación y las URL.",
-      mockFilters: "Filtros",
-      mockKeywords: "Palabras clave",
-      mockStopWords: "Palabras excluidas",
-      mockRegions: "Regiones"
-    });
-
-    Object.assign(translations.it, {
-      featureKeysTitle: "Ricerca per parole chiave",
-      featureKeysText: "Le parole chiave sono collegate a una regione. L'utente può aggiungere parole escluse e parole obbligatorie per risultati più precisi.",
-      featureNewsTitle: "Notizie e Telegram",
-      featureNewsText: "Sono supportati RSS, canali Telegram pubblici, pacchetti di fonti e fonti proprie aggiunte dall'utente.",
-      featureFullTitle: "Testo completo",
-      featureFullText: "La modalità rapida controlla titoli e sommari. La modalità testo completo apre anche l'articolo e cerca nel corpo della notizia.",
-      featureLinksTitle: "Link nascosti",
-      featureLinksText: "Nei post Telegram, il bot può considerare URL nascosti sotto le parole.",
-      featureCabinetTitle: "Pannello e report",
-      featureCabinetText: "Il pannello mostra menzioni recenti, filtri, fonti, impostazioni, controllo manuale e report CSV per esportazione rapida.",
-      workflowTitle: "La configurazione richiede pochi minuti",
-      stepOneTitle: "Scegli lingua e regione",
-      stepOneText: "L'interfaccia usa la lingua dell'utente, mentre il paese definisce la base di fonti per il monitoraggio.",
-      stepTwoTitle: "Aggiungi parole chiave",
-      stepTwoText: "Ogni parola chiave viene salvata con la regione attiva al momento dell'aggiunta.",
-      stepThreeTitle: "Ricevi menzioni",
-      stepThreeText: "Esegui controlli manuali o attiva il monitoraggio automatico in base al piano.",
-      reportTitle: "Esempio di risultato",
-      reportKeyword: "Chiave",
-      reportKeywordValue: "energia",
-      reportRegion: "Regione",
-      reportFound: "Trovato in",
-      reportFoundValue: "titolo, sommario o testo completo",
-      reportExport: "Report",
-      plansTitle: "Piani per diverse intensità di monitoraggio",
-      plansLead: "Prezzi e limiti finali sono gestiti nel bot. Questa pagina spiega la logica dei pacchetti senza promozioni temporanee.",
-      freeTag: "Inizio",
-      freeText: "Per testare l'idea, una parola chiave e un numero limitato di risultati.",
-      freeOne: "fonti RSS di base",
-      freeTwo: "controllo manuale",
-      freeThree: "limite giornaliero ridotto",
-      proTag: "Lavoro quotidiano",
-      proText: "Per monitoraggio regolare, più parole chiave, fonti Telegram e testo completo.",
-      proOne: "monitoraggio automatico",
-      proTwo: "base di canali TG",
-      proThree: "report CSV",
-      businessTag: "Team",
-      businessText: "Per controlli frequenti, monitoraggio continuo e una grande base di fonti.",
-      businessOne: "controlli frequenti",
-      businessTwo: "limiti estesi",
-      businessThree: "priorità di scalabilità",
-      finalTitle: "Avvia Monitorio in Telegram",
-      finalText: "Aggiungi la prima parola chiave, scegli un paese di monitoraggio e verifica come il bot trova le menzioni.",
-      startNow: "Inizia ora",
-      mockSources: "Fonti",
-      mockSourceTg: "Canali Telegram",
-      mockSourceCustom: "RSS e TG propri",
-      mockPlan: "Piano",
-      mockToday: "Oggi",
-      tabNews: "Notizie",
-      tabFilters: "Filtri",
-      tabRegion: "Regione",
-      tabReports: "Report",
-      mockKeywordEnergy: "chiave: energia",
-      mockAlertOne: "Nuova menzione in un paese vicino: i media scrivono di una decisione del governo",
-      mockAlertHint: "Titolo, sommario, testo completo o link nascosto.",
-      mockKeywordBrand: "chiave: brand",
-      mockAlertTwo: "Menzione trovata in un link nascosto sotto una parola nel post",
-      mockAlertTwoHint: "Il bot controlla testo del post e URL.",
-      mockFilters: "Filtri",
-      mockKeywords: "Parole chiave",
-      mockStopWords: "Parole escluse",
-      mockRegions: "Regioni"
-    });
-
-    Object.assign(translations.be, {
-      featuresLead: "Monitorio падыходзіць для PR, юрыстаў, рэдакцый, бізнесу, аналітыкаў і каманд, якім важна хутка бачыць згадкі пра тэмы, брэнды, людзей або рызыкі ў выбраным рэгіёне.",
-      featureKeysTitle: "Пошук па ключах",
-      featureKeysText: "Ключавыя словы прывязваюцца да рэгіёна. Карыстальнік можа дадаваць стоп-словы і абавязковыя словы для больш дакладнай выдачы.",
-      featureNewsTitle: "Навіны і Telegram",
-      featureNewsText: "Падтрымліваюцца RSS, публічныя Telegram-каналы, пакеты крыніц і ўласныя крыніцы, якія карыстальнік дадае сам.",
-      featureFullTitle: "Поўны тэкст",
-      featureFullText: "Хуткі рэжым правярае загалоўкі і анонсы. Рэжым поўнага тэксту дадаткова адкрывае матэрыял і шукае супадзенні ў тэксце навіны.",
-      featureLinksTitle: "Схаваныя спасылкі",
-      featureLinksText: "Для Telegram-допісаў бот можа ўлічваць URL, схаваныя пад словамі.",
-      featureCabinetTitle: "Кабінет і справаздачы",
-      featureCabinetText: "Кабінет паказвае апошнія згадкі, фільтры, крыніцы, налады, ручную праверку і CSV-справаздачу для хуткага экспарту.",
-      workflowTitle: "Наладжванне займае некалькі хвілін",
-      stepOneTitle: "Выберыце мову і рэгіён",
-      stepOneText: "Інтэрфейс гаворыць мовай карыстальніка, а краіна вызначае базу крыніц для маніторынгу.",
-      stepTwoTitle: "Дадайце ключавыя словы",
-      stepTwoText: "Кожны ключ захоўваецца з рэгіёнам, які быў актыўны ў момант дадання.",
-      stepThreeTitle: "Атрымлівайце згадкі",
-      stepThreeText: "Запускайце праверку ўручную або ўключайце аўтаматычны маніторынг паводле тарыфу.",
-      reportTitle: "Прыклад выніку",
-      reportKeyword: "Ключ",
-      reportKeywordValue: "энергетыка",
-      reportRegion: "Рэгіён",
-      reportFound: "Знойдзена",
-      reportFoundValue: "загаловак, анонс або поўны тэкст",
-      reportExport: "Справаздача",
-      plansTitle: "Тарыфы для рознай інтэнсіўнасці маніторынгу",
-      plansLead: "Фінальныя цэны і ліміты кіруюцца ў боце. Лэндынг паказвае логіку пакетаў без часовых акцый.",
-      freeTag: "Старт",
-      freeText: "Для праверкі ідэі, аднаго ключавога слова і абмежаванай колькасці вынікаў.",
-      freeOne: "базавыя RSS-крыніцы",
-      freeTwo: "ручная праверка",
-      freeThree: "абмежаваны дзённы ліміт",
-      proTag: "Штодзённая праца",
-      proText: "Для рэгулярнага маніторынгу, большай колькасці ключоў, Telegram-крыніц і поўнага тэксту.",
-      proOne: "аўтаматычны маніторынг",
-      proTwo: "база TG-каналаў",
-      proThree: "CSV-справаздачы",
-      businessTag: "Каманды",
-      businessText: "Для частых праверак, пастаяннага маніторынгу і вялікай базы крыніц.",
-      businessOne: "частыя праверкі",
-      businessTwo: "пашыраныя ліміты",
-      businessThree: "прыярытэт для маштабавання",
-      finalTitle: "Запусціце Monitorio у Telegram",
-      finalText: "Дадайце першы ключ, выберыце краіну маніторынгу і праверце, як бот знаходзіць згадкі ў вашых крыніцах.",
-      startNow: "Пачаць зараз",
-      mockSources: "Крыніцы",
-      mockSourceTg: "Telegram-каналы",
-      mockSourceCustom: "Уласныя RSS і TG",
-      mockPlan: "Тарыф",
-      mockToday: "Сёння",
-      tabNews: "Навіны",
-      tabFilters: "Фільтры",
-      tabRegion: "Рэгіён",
-      tabReports: "Справаздачы",
-      mockKeywordEnergy: "ключ: энергетыка",
-      mockAlertOne: "Новая згадка ў суседняй краіне: медыя пішуць пра рашэнне ўрада",
-      mockAlertHint: "Загаловак, анонс, поўны тэкст або схаваная спасылка.",
-      mockKeywordBrand: "ключ: брэнд",
-      mockAlertTwo: "Знойдзена згадка ў схаванай спасылцы пад словам у допісе",
-      mockAlertTwoHint: "Бот правярае тэкст допісу і URL.",
-      mockFilters: "Фільтры",
-      mockKeywords: "Ключавыя словы",
-      mockStopWords: "Стоп-словы",
-      mockRegions: "Рэгіёны"
-    });
-
-    Object.assign(translations.uk, {
-      featureRssTitle: "RSS за посиланням на сайт",
-      featureRssText: "Вставте звичайний URL сайту, а Monitorio сам знайде RSS або Atom-стрічку і додасть її як джерело."
-    });
-
-    Object.assign(translations.en, {
-      featureRssTitle: "RSS from a website link",
-      featureRssText: "Paste a regular website URL and Monitorio will find its RSS or Atom feed and add it as a source."
-    });
-
-    Object.assign(translations.pl, {
-      featureRssTitle: "RSS z linku do strony",
-      featureRssText: "Wklej zwykły adres strony, a Monitorio sam znajdzie kanał RSS lub Atom i doda go jako źródło."
-    });
-
-    Object.assign(translations.de, {
-      featureRssTitle: "RSS aus einem Website-Link",
-      featureRssText: "Fügen Sie eine normale Website-URL ein, und Monitorio findet den RSS- oder Atom-Feed und fügt ihn als Quelle hinzu."
-    });
-
-    Object.assign(translations.es, {
-      featureRssTitle: "RSS desde un enlace de sitio",
-      featureRssText: "Pega una URL normal del sitio y Monitorio encontrará su feed RSS o Atom y lo añadirá como fuente."
-    });
-
-    Object.assign(translations.it, {
-      featureRssTitle: "RSS da un link del sito",
-      featureRssText: "Incolla un normale URL del sito e Monitorio troverà il feed RSS o Atom e lo aggiungerà come fonte."
-    });
-
-    Object.assign(translations.be, {
-      featureRssTitle: "RSS па спасылцы на сайт",
-      featureRssText: "Устаўце звычайны URL сайта, і Monitorio сам знойдзе RSS або Atom-стужку і дадасць яе як крыніцу."
-    });
-
-    Object.assign(translations.ru, {
-      featureRssTitle: "RSS по ссылке на сайт",
-      featureRssText: "Вставьте обычный URL сайта, а Monitorio сам найдет RSS или Atom-ленту и добавит ее как источник."
-    });
-
-    const languageNames = {
-      en: "English",
-      uk: "Українська",
-      pl: "Polski",
-      de: "Deutsch",
-      es: "Español",
-      it: "Italiano",
-      be: "Беларуская",
-      ru: "Русский"
-    };
 
     function applyLanguage(language) {
-      const selected = translations[language] ? language : "en";
-      const dictionary = translations[selected];
+      const selected = copy[language] ? language : "en";
+      const dict = { ...fallback, ...copy[selected] };
       document.documentElement.lang = selected;
-      document.title = dictionary.title;
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute("content", dictionary.description);
-      }
+      document.title = dict.title || fallback.title;
       document.querySelectorAll("[data-i18n]").forEach((node) => {
-        const key = node.getAttribute("data-i18n");
-        if (key && dictionary[key]) {
-          node.textContent = dictionary[key];
+        const value = dict[node.dataset.i18n];
+        if (value) node.textContent = value;
+      });
+      document.querySelector(".language-select").value = selected;
+      localStorage.setItem("monitorioLandingLanguageBento", selected);
+    }
+
+    document.querySelector(".language-select").addEventListener("change", (event) => {
+      applyLanguage(event.target.value);
+    });
+
+    applyLanguage(localStorage.getItem("monitorioLandingLanguageBento") || "en");
+
+    document.documentElement.classList.add("js-ready");
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
         }
       });
-      document.querySelectorAll(".language-select").forEach((select) => {
-        select.value = selected;
-      });
-      localStorage.setItem(storageKey, selected);
-    }
+    }, { threshold: 0.12 });
 
-    const storageKey = "monitorioLandingLanguageV2";
-    const initialLanguage = localStorage.getItem(storageKey) || "en";
-    document.querySelectorAll(".language-select").forEach((select) => {
-      select.addEventListener("change", (event) => applyLanguage(event.target.value));
-      [...select.options].forEach((option) => {
-        option.textContent = languageNames[option.value] || option.textContent;
-      });
-    });
-    applyLanguage(initialLanguage);
-
-    document.querySelectorAll(".feature, .step, .report, .price, .final .container").forEach((node) => {
-      node.classList.add("reveal-on-scroll");
-    });
-
-    if ("IntersectionObserver" in window) {
-      const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            revealObserver.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.16, rootMargin: "0px 0px -8% 0px" });
-
-      document.querySelectorAll(".reveal-on-scroll").forEach((node) => {
-        revealObserver.observe(node);
-      });
-    } else {
-      document.querySelectorAll(".reveal-on-scroll").forEach((node) => {
+    document.querySelectorAll(".reveal").forEach((node) => {
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
         node.classList.add("is-visible");
-      });
-    }
+      }
+      observer.observe(node);
+    });
   </script>
 </body>
 </html>

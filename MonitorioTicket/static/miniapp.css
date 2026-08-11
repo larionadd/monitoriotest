@@ -1,0 +1,467 @@
+:root {
+    --bg: #f6fbff;
+    --surface: #ffffff;
+    --surface-muted: #eef7fc;
+    --text: #0c2436;
+    --muted: #667987;
+    --border: #c8e7f5;
+    --primary: #0284c7;
+    --primary-dark: #075985;
+    --accent: #ea580c;
+    --ok: #15803d;
+    --danger: #dc2626;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--tg-theme-bg-color, var(--bg));
+    color: var(--tg-theme-text-color, var(--text));
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.4;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.app-shell {
+    width: min(100%, 720px);
+    margin: 0 auto;
+    padding: 16px 14px 28px;
+}
+
+.app-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.caption {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+    margin: 0;
+}
+
+h1 {
+    font-size: 25px;
+    line-height: 1.1;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+.tabs {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 0 -2px 12px;
+    padding: 6px 2px;
+    background: var(--tg-theme-bg-color, var(--bg));
+}
+
+.tabs button,
+.ghost-button,
+.primary-button,
+.secondary-button {
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.tabs button {
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.tabs button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+.ghost-button {
+    padding: 8px 12px;
+    background: var(--surface);
+    color: var(--primary-dark);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.primary-button {
+    width: 100%;
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+    font-weight: 900;
+}
+
+.secondary-button {
+    min-height: 38px;
+    padding: 7px 10px;
+    background: var(--surface-muted);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.secondary-button.accent {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #9a3412;
+}
+
+.secondary-button.ok {
+    background: #dcfce7;
+    border-color: #bbf7d0;
+    color: var(--ok);
+}
+
+.secondary-button.danger {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: var(--danger);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.search-card,
+.ticket-card,
+.ad-card,
+.history-card,
+.rail-watch-card,
+.modal-card {
+    background: var(--tg-theme-secondary-bg-color, var(--surface));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.transport-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.transport-toggle button {
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 900;
+}
+
+.transport-toggle button.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+.search-card {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+}
+
+.mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.mode-toggle label {
+    display: block;
+}
+
+.mode-toggle input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mode-toggle span {
+    display: grid;
+    min-height: 44px;
+    place-items: center;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-muted);
+    font-weight: 800;
+}
+
+.mode-toggle input:checked + span {
+    background: #dff4ff;
+    border-color: var(--primary);
+    color: var(--primary-dark);
+}
+
+.field-grid,
+.filter-grid {
+    display: grid;
+    gap: 10px;
+}
+
+.field {
+    position: relative;
+    display: grid;
+    gap: 5px;
+}
+
+.field span,
+.check-row,
+.status-line,
+.meta,
+.section-head span,
+.help-text,
+.empty {
+    color: var(--tg-theme-hint-color, var(--muted));
+    font-size: 13px;
+}
+
+.field input,
+.field select {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #ffffff;
+    color: var(--text);
+}
+
+.suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    z-index: 20;
+    display: none;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 10px 25px rgba(12, 36, 54, 0.12);
+}
+
+.suggestions.open {
+    display: block;
+}
+
+.suggestions button {
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    padding: 9px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: #ffffff;
+    color: var(--text);
+    text-align: left;
+}
+
+.suggestions button:last-child {
+    border-bottom: 0;
+}
+
+.filters summary {
+    min-height: 42px;
+    padding: 10px 0;
+    color: var(--primary-dark);
+    font-weight: 800;
+}
+
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 42px;
+}
+
+.check-row input {
+    width: 18px;
+    height: 18px;
+}
+
+.section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 12px 0 8px;
+}
+
+.section-head.compact {
+    margin: 0;
+}
+
+.list {
+    display: grid;
+    gap: 9px;
+}
+
+.ticket-card,
+.history-card,
+.rail-watch-card,
+.ad-card {
+    display: grid;
+    gap: 9px;
+    padding: 12px;
+}
+
+.ticket-top,
+.ticket-middle,
+.ticket-actions,
+.rail-watch-top,
+.history-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.route {
+    font-weight: 900;
+}
+
+.price {
+    color: var(--primary-dark);
+    font-size: 22px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.tag {
+    display: inline-flex;
+    min-height: 24px;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.ticket-actions {
+    flex-wrap: wrap;
+}
+
+.ticket-actions a {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.ad-card {
+    background: #fff7ed;
+    border-color: #fed7aa;
+}
+
+.ad-card strong {
+    color: #9a3412;
+}
+
+.rail-status {
+    display: inline-flex;
+    min-height: 24px;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.rail-status.available {
+    background: #dcfce7;
+    color: var(--ok);
+}
+
+.rail-status.paused {
+    background: #f1f5f9;
+    color: var(--muted);
+}
+
+.rail-watch-card .ticket-actions {
+    justify-content: flex-start;
+}
+
+dialog {
+    width: min(calc(100% - 28px), 520px);
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+}
+
+dialog::backdrop {
+    background: rgba(12, 36, 54, 0.35);
+}
+
+.modal-card {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+}
+
+@media (min-width: 640px) {
+    .field-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 380px) {
+    .tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

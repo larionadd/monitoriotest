@@ -3,6 +3,14 @@ __pycache__/
 *.pyc
 config.json
 config.international.json
+*.env
+*.key
+*.pem
+*.p12
+*.pfx
+*.sqlite
+*.sqlite3
+*.db
 data/*.sqlite3
 data/*.sqlite3-shm
 data/*.sqlite3-wal
@@ -10,3 +18,19 @@ reports/
 logs/
 backup/
 dist/
+
+# Local workspace and generated exports
+_export/
+_remote_monitor.py
+**/.env
+**/*.log
+**/*.sqlite
+**/*.sqlite3
+**/__pycache__/
+**/.venv/
+
+# Private outreach history and contact lists
+promo_email/*contacts*
+promo_email/outreach_*
+promo_email/sent_*
+promo_email/ukraine_law_firms_*

@@ -40,6 +40,18 @@ class Config:
     mini_app_menu_button_text: str = "Cabinet"
     poll_interval_seconds: int = 7200
     source_timeout_seconds: int = 15
+    source_fetch_workers: int = 16
+    source_fetch_shard_workers: int = 4
+    source_fetch_workers_per_shard: int = 16
+    source_fetch_shard_bucket_size: int = 80
+    full_text_fetch_workers: int = 12
+    full_text_prefetch_limit: int = 180
+    source_error_threshold: int = 3
+    source_error_soft_cooldown_seconds: int = 60
+    source_error_cooldown_seconds: int = 1800
+    source_error_max_cooldown_seconds: int = 7200
+    source_slow_threshold_seconds: int = 20
+    source_slow_cooldown_seconds: int = 1800
     user_daily_limit: int = 100
     admin_chat_ids: tuple[int, ...] = ()
     require_onboarding: bool = False
@@ -53,12 +65,41 @@ class Config:
     crypto_plan_prices_usd: dict[str, Decimal] | None = None
     crypto_success_url: str = ""
     crypto_cancel_url: str = ""
+    threads_search_enabled: bool = False
+    threads_access_token: str = ""
+    threads_api_base: str = "https://graph.threads.net/v1.0"
+    threads_search_type: str = "RECENT"
+    threads_search_mode: str = "KEYWORD"
+    threads_search_limit: int = 15
+    threads_search_recent_hours: int = 24
+    threads_plan_ids: tuple[str, ...] = ("business",)
+    reddit_search_enabled: bool = False
+    reddit_client_id: str = ""
+    reddit_client_secret: str = ""
+    reddit_user_agent: str = ""
+    reddit_api_base: str = "https://oauth.reddit.com"
+    reddit_token_url: str = "https://www.reddit.com/api/v1/access_token"
+    reddit_search_sort: str = "new"
+    reddit_search_time: str = "day"
+    reddit_search_limit: int = 25
+    reddit_search_recent_hours: int = 24
+    reddit_subreddits: tuple[str, ...] = ()
+    reddit_plan_ids: tuple[str, ...] = ("business",)
+    ai_digest_enabled: bool = False
+    ai_digest_provider: str = "deepseek"
+    deepseek_api_key: str = ""
+    deepseek_api_base: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-chat"
+    ai_digest_plan_ids: tuple[str, ...] = ("pro", "business")
+    ai_digest_max_mentions: int = 80
+    ai_digest_timeout_seconds: int = 45
     alert_template: str = (
         "\U0001f4f0 \u041d\u043e\u0432\u0430 \u0437\u0433\u0430\u0434\u043a\u0430\n\n"
         "\u041a\u043b\u044e\u0447: {keyword}\n"
         "\u0414\u0436\u0435\u0440\u0435\u043b\u043e: {source}\n"
         "\u0417\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a: {title}\n"
-        "\u0414\u0430\u0442\u0430: {published_at}\n\n"
+        "\U0001f4c5 \u0414\u0430\u0442\u0430: {published_date}\n"
+        "\U0001f552 \u0427\u0430\u0441: {published_time}\n\n"
         "{url}"
     )
 
@@ -101,6 +142,54 @@ def load_config(path: str | Path) -> Config:
         mini_app_menu_button_text=str(os.getenv("MINI_APP_MENU_BUTTON_TEXT") or raw.get("mini_app_menu_button_text", "Cabinet")).strip(),
         poll_interval_seconds=int(os.getenv("POLL_INTERVAL_SECONDS") or raw.get("poll_interval_seconds", 7200)),
         source_timeout_seconds=int(os.getenv("SOURCE_TIMEOUT_SECONDS") or raw.get("source_timeout_seconds", 15)),
+        source_fetch_workers=max(
+            1,
+            min(64, int(os.getenv("SOURCE_FETCH_WORKERS") or raw.get("source_fetch_workers", 16))),
+        ),
+        source_fetch_shard_workers=max(
+            1,
+            min(16, int(os.getenv("SOURCE_FETCH_SHARD_WORKERS") or raw.get("source_fetch_shard_workers", 4))),
+        ),
+        source_fetch_workers_per_shard=max(
+            1,
+            min(32, int(os.getenv("SOURCE_FETCH_WORKERS_PER_SHARD") or raw.get("source_fetch_workers_per_shard", 16))),
+        ),
+        source_fetch_shard_bucket_size=max(
+            20,
+            min(300, int(os.getenv("SOURCE_FETCH_SHARD_BUCKET_SIZE") or raw.get("source_fetch_shard_bucket_size", 80))),
+        ),
+        full_text_fetch_workers=max(
+            1,
+            min(32, int(os.getenv("FULL_TEXT_FETCH_WORKERS") or raw.get("full_text_fetch_workers", 12))),
+        ),
+        full_text_prefetch_limit=max(
+            0,
+            min(1000, int(os.getenv("FULL_TEXT_PREFETCH_LIMIT") or raw.get("full_text_prefetch_limit", 180))),
+        ),
+        source_error_threshold=max(
+            1,
+            int(os.getenv("SOURCE_ERROR_THRESHOLD") or raw.get("source_error_threshold", 3)),
+        ),
+        source_error_soft_cooldown_seconds=max(
+            0,
+            int(os.getenv("SOURCE_ERROR_SOFT_COOLDOWN_SECONDS") or raw.get("source_error_soft_cooldown_seconds", 60)),
+        ),
+        source_error_cooldown_seconds=max(
+            0,
+            int(os.getenv("SOURCE_ERROR_COOLDOWN_SECONDS") or raw.get("source_error_cooldown_seconds", 1800)),
+        ),
+        source_error_max_cooldown_seconds=max(
+            0,
+            int(os.getenv("SOURCE_ERROR_MAX_COOLDOWN_SECONDS") or raw.get("source_error_max_cooldown_seconds", 7200)),
+        ),
+        source_slow_threshold_seconds=max(
+            0,
+            int(os.getenv("SOURCE_SLOW_THRESHOLD_SECONDS") or raw.get("source_slow_threshold_seconds", 20)),
+        ),
+        source_slow_cooldown_seconds=max(
+            0,
+            int(os.getenv("SOURCE_SLOW_COOLDOWN_SECONDS") or raw.get("source_slow_cooldown_seconds", 1800)),
+        ),
         user_daily_limit=int(os.getenv("USER_DAILY_LIMIT") or raw.get("user_daily_limit", 100)),
         admin_chat_ids=tuple(int(x) for x in admin_chat_ids),
         require_onboarding=_bool(os.getenv("REQUIRE_ONBOARDING") or raw.get("require_onboarding", False)),
@@ -118,6 +207,72 @@ def load_config(path: str | Path) -> Config:
         crypto_plan_prices_usd=_crypto_prices(raw.get("crypto_plan_prices_usd")),
         crypto_success_url=str(os.getenv("CRYPTO_SUCCESS_URL") or raw.get("crypto_success_url", "")).strip(),
         crypto_cancel_url=str(os.getenv("CRYPTO_CANCEL_URL") or raw.get("crypto_cancel_url", "")).strip(),
+        threads_search_enabled=_bool(os.getenv("THREADS_SEARCH_ENABLED") or raw.get("threads_search_enabled", False)),
+        threads_access_token=str(os.getenv("THREADS_ACCESS_TOKEN") or raw.get("threads_access_token", "")).strip(),
+        threads_api_base=str(
+            os.getenv("THREADS_API_BASE") or raw.get("threads_api_base", "https://graph.threads.net/v1.0")
+        ).strip().rstrip("/"),
+        threads_search_type=str(
+            os.getenv("THREADS_SEARCH_TYPE") or raw.get("threads_search_type", "RECENT")
+        ).strip().upper(),
+        threads_search_mode=str(
+            os.getenv("THREADS_SEARCH_MODE") or raw.get("threads_search_mode", "KEYWORD")
+        ).strip().upper(),
+        threads_search_limit=max(
+            1,
+            min(100, int(os.getenv("THREADS_SEARCH_LIMIT") or raw.get("threads_search_limit", 15))),
+        ),
+        threads_search_recent_hours=max(
+            1,
+            int(os.getenv("THREADS_SEARCH_RECENT_HOURS") or raw.get("threads_search_recent_hours", 24)),
+        ),
+        threads_plan_ids=_csv_tuple(os.getenv("THREADS_PLAN_IDS") or raw.get("threads_plan_ids", ["business"])),
+        reddit_search_enabled=_bool(os.getenv("REDDIT_SEARCH_ENABLED") or raw.get("reddit_search_enabled", False)),
+        reddit_client_id=str(os.getenv("REDDIT_CLIENT_ID") or raw.get("reddit_client_id", "")).strip(),
+        reddit_client_secret=str(os.getenv("REDDIT_CLIENT_SECRET") or raw.get("reddit_client_secret", "")).strip(),
+        reddit_user_agent=str(os.getenv("REDDIT_USER_AGENT") or raw.get("reddit_user_agent", "")).strip(),
+        reddit_api_base=str(
+            os.getenv("REDDIT_API_BASE") or raw.get("reddit_api_base", "https://oauth.reddit.com")
+        ).strip().rstrip("/"),
+        reddit_token_url=str(
+            os.getenv("REDDIT_TOKEN_URL") or raw.get("reddit_token_url", "https://www.reddit.com/api/v1/access_token")
+        ).strip(),
+        reddit_search_sort=_choice(
+            os.getenv("REDDIT_SEARCH_SORT") or raw.get("reddit_search_sort", "new"),
+            {"relevance", "hot", "top", "new", "comments"},
+            "new",
+        ),
+        reddit_search_time=_choice(
+            os.getenv("REDDIT_SEARCH_TIME") or raw.get("reddit_search_time", "day"),
+            {"hour", "day", "week", "month", "year", "all"},
+            "day",
+        ),
+        reddit_search_limit=max(
+            1,
+            min(100, int(os.getenv("REDDIT_SEARCH_LIMIT") or raw.get("reddit_search_limit", 25))),
+        ),
+        reddit_search_recent_hours=max(
+            1,
+            int(os.getenv("REDDIT_SEARCH_RECENT_HOURS") or raw.get("reddit_search_recent_hours", 24)),
+        ),
+        reddit_subreddits=_csv_tuple(os.getenv("REDDIT_SUBREDDITS") or raw.get("reddit_subreddits", [])),
+        reddit_plan_ids=_csv_tuple(os.getenv("REDDIT_PLAN_IDS") or raw.get("reddit_plan_ids", ["business"])),
+        ai_digest_enabled=_bool(os.getenv("AI_DIGEST_ENABLED") or raw.get("ai_digest_enabled", False)),
+        ai_digest_provider=str(os.getenv("AI_DIGEST_PROVIDER") or raw.get("ai_digest_provider", "deepseek")).strip().lower(),
+        deepseek_api_key=str(os.getenv("DEEPSEEK_API_KEY") or raw.get("deepseek_api_key", "")).strip(),
+        deepseek_api_base=str(
+            os.getenv("DEEPSEEK_API_BASE") or raw.get("deepseek_api_base", "https://api.deepseek.com")
+        ).strip().rstrip("/"),
+        deepseek_model=str(os.getenv("DEEPSEEK_MODEL") or raw.get("deepseek_model", "deepseek-chat")).strip(),
+        ai_digest_plan_ids=_csv_tuple(os.getenv("AI_DIGEST_PLAN_IDS") or raw.get("ai_digest_plan_ids", ["pro", "business"])),
+        ai_digest_max_mentions=max(
+            5,
+            min(200, int(os.getenv("AI_DIGEST_MAX_MENTIONS") or raw.get("ai_digest_max_mentions", 80))),
+        ),
+        ai_digest_timeout_seconds=max(
+            10,
+            min(120, int(os.getenv("AI_DIGEST_TIMEOUT_SECONDS") or raw.get("ai_digest_timeout_seconds", 45))),
+        ),
         alert_template=alert_template,
     )
 
@@ -159,6 +314,23 @@ def _set_crypto_price(prices: dict[str, Decimal], plan_id: str, value: object) -
         return
     if amount > 0:
         prices[key] = amount.quantize(Decimal("0.01"))
+
+
+def _csv_tuple(value: object) -> tuple[str, ...]:
+    if isinstance(value, (list, tuple)):
+        items = value
+    else:
+        items = str(value or "").split(",")
+    return tuple(
+        item.strip().lower()
+        for item in items
+        if str(item or "").strip()
+    )
+
+
+def _choice(value: object, allowed: set[str], fallback: str) -> str:
+    normalized = str(value or "").strip().lower()
+    return normalized if normalized in allowed else fallback
 
 
 def _bool(value: object) -> bool:
