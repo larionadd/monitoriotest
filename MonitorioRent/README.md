@@ -1,16 +1,19 @@
 # MonitorioRent
 
-MonitorioRent is reserved for the rental monitoring product.
+MonitorioRent — сервіс для пошуку квартир в оренду. На першому етапі
+пошук працюватиме тільки по Україні.
 
-Status: project scaffold only. The implementation and external listing sources
-have not yet been validated or added.
+Статус: наразі створено лише каркас проєкту. Реалізацію та зовнішні джерела
+оголошень ще не перевірено й не додано.
 
-Planned first version:
+Заплановано для першої версії:
 
-- Telegram bot and Mini App interface;
-- filters by city, district or metro, budget, rooms, pets, and commission;
-- normalized listings with deduplication and source links;
-- alerts for new matching listings;
-- reusable infrastructure from Monitorio where practical.
+- Telegram-бот та інтерфейс Mini App;
+- пошук квартир в оренду по Україні;
+- фільтри за містом, районом або метро, бюджетом, кількістю кімнат,
+  можливістю проживання з тваринами та наявністю комісії;
+- уніфіковані оголошення, усунення дублікатів і посилання на джерело;
+- сповіщення про нові відповідні оголошення;
+- повторне використання інфраструктури Monitorio, де це доцільно.
 
-Do not commit bot tokens, API keys, `.env` files, databases, or logs.
+Не додавайте в Git токени ботів, API-ключі, файли `.env`, бази даних або логи.
