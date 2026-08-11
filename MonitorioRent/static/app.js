@@ -178,8 +178,24 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      searchForm.reset();
       await refreshState();
+      const query = new URLSearchParams({
+        city: payload.city,
+        district: payload.district,
+        price_min: String(payload.price_min),
+        price_max: String(payload.price_max),
+        rooms_min: String(payload.rooms_min),
+        rooms_max: String(payload.rooms_max),
+        pets_allowed: String(payload.pets_allowed),
+        no_commission: String(payload.no_commission),
+        owner_only: String(payload.owner_only),
+        limit: "100"
+      });
+      const matches = await api(`/api/listings?${query.toString()}`);
+      state.feed = matches.listings || [];
+      renderFeed();
+      searchForm.reset();
+      openPanel("home");
       setMessage("searchMessage", "Пошук збережено. Сповіщення будуть надходити для нових збігів.", "success");
       toast("Пошук збережено");
     } catch (error) {
@@ -361,16 +377,30 @@
     const body = document.createElement("div");
     body.className = "listing-body";
     const title = document.createElement("h3");
-    title.textContent = `${listing.rooms}-кімнатна · ${listing.area_sqm} м²`;
+    const details = [];
+    if (Number(listing.rooms) > 0) details.push(`${listing.rooms}-кімнатна`);
+    if (Number(listing.area_sqm) > 0) details.push(`${listing.area_sqm} м²`);
+    title.textContent = details.join(" · ") || "Квартира в оренду";
     const location = document.createElement("p");
     location.textContent = [listing.city, listing.district].filter(Boolean).join(", ");
     const price = document.createElement("p");
     price.className = "price";
-    price.textContent = `${formatNumber(listing.price_uah)} грн/місяць`;
+    price.textContent = Number(listing.price_uah) > 0
+      ? `${formatNumber(listing.price_uah)} грн/місяць`
+      : (listing.price_original || "Ціну дивіться в оголошенні");
     const badge = document.createElement("span");
     badge.className = `status-badge ${listing.status === "active" ? "active" : ""}`;
     badge.textContent = statusLabel(listing.status);
     body.append(title, location, price, badge);
+    if (listing.source_url) {
+      const source = document.createElement("a");
+      source.className = "source-link";
+      source.href = listing.source_url;
+      source.target = "_blank";
+      source.rel = "noopener noreferrer";
+      source.textContent = `Telegram · ${listing.source_title || "джерело"}`;
+      body.appendChild(source);
+    }
     card.appendChild(body);
     return card;
   }
@@ -387,16 +417,45 @@
       const meta = document.createElement("small");
       meta.textContent = `до ${formatNumber(search.price_max)} грн · ${roomRange(search.rooms_min, search.rooms_max)}`;
       text.append(title, meta);
+      const show = document.createElement("button");
+      show.type = "button";
+      show.className = "text-button";
+      show.textContent = "Показати";
+      show.addEventListener("click", () => showSearchResults(search));
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "remove-button";
       remove.textContent = "Видалити";
       remove.setAttribute("aria-label", `Видалити пошук ${title.textContent}`);
       remove.addEventListener("click", () => removeSearch(search.id));
-      item.append(text, remove);
+      item.append(text, show, remove);
       container.appendChild(item);
     });
     $("#searchesEmpty").hidden = state.searches.length > 0;
+  }
+
+  async function showSearchResults(search) {
+    const query = new URLSearchParams({
+      city: search.city,
+      district: search.district || "",
+      price_min: String(search.price_min || 0),
+      price_max: String(search.price_max),
+      rooms_min: String(search.rooms_min),
+      rooms_max: String(search.rooms_max),
+      pets_allowed: String(Boolean(search.pets_allowed)),
+      no_commission: String(Boolean(search.no_commission)),
+      owner_only: String(Boolean(search.owner_only)),
+      limit: "100"
+    });
+    try {
+      const matches = await api(`/api/listings?${query.toString()}`);
+      state.feed = matches.listings || [];
+      renderFeed();
+      openPanel("home");
+      toast(`Знайдено оголошень: ${state.feed.length}`);
+    } catch (error) {
+      toast(error.message || "Не вдалося завантажити результати");
+    }
   }
 
   async function removeSearch(id) {

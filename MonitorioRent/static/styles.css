@@ -211,6 +211,8 @@ input:user-invalid, select:user-invalid, textarea:user-invalid { border-color: v
 .listing-body h3 { margin: 0; font-size: 17px; }
 .listing-body p { margin: 5px 0; color: var(--muted); font-size: 13px; }
 .listing-body .price { color: var(--text); font-size: 18px; font-weight: 850; }
+.source-link { display: inline-flex; margin-top: 10px; color: var(--primary); font-size: 13px; font-weight: 750; text-decoration: none; }
+.source-link:hover { text-decoration: underline; }
 .status-badge { display: inline-flex; align-items: center; min-height: 28px; margin-top: 7px; padding: 4px 9px; border-radius: 999px; color: #8a5b00; background: #fff4cc; font-size: 12px; font-weight: 750; }
 .status-badge.active { color: var(--green); background: color-mix(in srgb, var(--green) 12%, var(--surface)); }
 .empty-state { padding: 28px 18px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); color: var(--muted); }

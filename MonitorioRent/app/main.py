@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import os
 import re
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 from uuid import uuid4
@@ -12,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, model_validator
 
 from .db import Database
+from .telegram_sources import TelegramSourceSync
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,8 +32,33 @@ PHOTO_TYPES = {
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 database = Database(DATABASE_PATH)
+telegram_source_sync = TelegramSourceSync(database)
+SOURCE_SYNC_ENABLED = os.getenv("MONITORIO_RENT_TELEGRAM_SYNC", "1").lower() not in {"0", "false", "no"}
+SOURCE_SYNC_INTERVAL_SECONDS = max(300, int(os.getenv("MONITORIO_RENT_SYNC_INTERVAL", "7200")))
 
-app = FastAPI(title="MonitorioRent", version="0.1.0")
+
+def run_source_sync() -> dict:
+    telegram_source_sync.database = database
+    return telegram_source_sync.sync_all()
+
+
+async def source_sync_loop() -> None:
+    await asyncio.sleep(3)
+    while True:
+        await asyncio.to_thread(run_source_sync)
+        await asyncio.sleep(SOURCE_SYNC_INTERVAL_SECONDS)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    task = asyncio.create_task(source_sync_loop()) if SOURCE_SYNC_ENABLED else None
+    try:
+        yield
+    finally:
+        if task:
+            task.cancel()
+
+app = FastAPI(title="MonitorioRent", version="0.2.0", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
@@ -75,6 +103,15 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/api/sources")
+def sources() -> dict:
+    return {
+        "sync_enabled": SOURCE_SYNC_ENABLED,
+        "interval_seconds": SOURCE_SYNC_INTERVAL_SECONDS,
+        "sources": telegram_source_sync.source_status(),
+    }
+
+
 @app.get("/api/state")
 def state(user_id: str = Query(min_length=1, max_length=128)) -> dict:
     return {
@@ -112,15 +149,29 @@ def delete_search(
 @app.get("/api/listings")
 def listings(
     city: str = Query(default="", max_length=80),
+    district: str = Query(default="", max_length=120),
+    price_min: int | None = Query(default=None, ge=0, le=1_000_000),
     price_max: int | None = Query(default=None, ge=1, le=1_000_000),
     rooms: int | None = Query(default=None, ge=1, le=10),
+    rooms_min: int | None = Query(default=None, ge=1, le=10),
+    rooms_max: int | None = Query(default=None, ge=1, le=10),
+    pets_allowed: bool = Query(default=False),
+    no_commission: bool = Query(default=False),
+    owner_only: bool = Query(default=False),
     limit: int = Query(default=30, ge=1, le=100),
 ) -> dict:
     return {
         "listings": database.list_feed(
             city=city.strip(),
+            district=district.strip(),
+            price_min=price_min,
             price_max=price_max,
             rooms=rooms,
+            rooms_min=rooms_min,
+            rooms_max=rooms_max,
+            pets_allowed=pets_allowed,
+            no_commission=no_commission,
+            owner_only=owner_only,
             limit=limit,
         )
     }
@@ -154,6 +205,12 @@ def admin_listing_status(
     if not listing:
         raise HTTPException(status_code=404, detail="Оголошення не знайдено")
     return {"listing": listing}
+
+
+@app.post("/api/admin/sources/sync")
+async def admin_sync_sources(x_admin_token: str | None = Header(default=None)) -> dict:
+    require_admin(x_admin_token)
+    return await asyncio.to_thread(run_source_sync)
 
 
 @app.post("/api/listings", status_code=201)

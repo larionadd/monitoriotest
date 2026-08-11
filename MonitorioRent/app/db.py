@@ -102,6 +102,34 @@ class Database:
                 );
                 """
             )
+            self._ensure_listing_columns(connection)
+            connection.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_listings_external
+                    ON listings (source, external_id)
+                    WHERE external_id IS NOT NULL AND external_id != ''
+                """
+            )
+            connection.execute("UPDATE listings SET owner_only = 1 WHERE source = 'owner'")
+
+    @staticmethod
+    def _ensure_listing_columns(connection: sqlite3.Connection) -> None:
+        existing = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(listings)").fetchall()
+        }
+        additions = {
+            "external_id": "TEXT",
+            "source_url": "TEXT NOT NULL DEFAULT ''",
+            "source_title": "TEXT NOT NULL DEFAULT ''",
+            "price_original": "TEXT NOT NULL DEFAULT ''",
+            "currency": "TEXT NOT NULL DEFAULT 'UAH'",
+            "published_at": "TEXT",
+            "owner_only": "INTEGER NOT NULL DEFAULT 0",
+        }
+        for name, definition in additions.items():
+            if name not in existing:
+                connection.execute(f"ALTER TABLE listings ADD COLUMN {name} {definition}")
 
     def set_role(self, user_id: str, role: str) -> dict[str, Any]:
         now = utc_now()
@@ -194,8 +222,8 @@ class Database:
                     id, user_id, status, city, district, address, price_uah,
                     rooms, area_sqm, floor, total_floors, pets_allowed,
                     commission_pct, description, contact_name, contact_phone,
-                    source, created_at, updated_at
-                ) VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'owner', ?, ?)
+                    source, owner_only, created_at, updated_at
+                ) VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'owner', 1, ?, ?)
                 """,
                 (
                     listing_id,
@@ -240,6 +268,84 @@ class Database:
             ).fetchall()
         return self._listing_row(row, [photo["url"] for photo in photos])
 
+    def upsert_external_listing(
+        self,
+        payload: dict[str, Any],
+        photo_urls: list[str],
+    ) -> tuple[dict[str, Any], bool]:
+        now = utc_now()
+        listing_id = str(uuid4())
+        source = payload["source"]
+        external_id = payload["external_id"]
+        with self.connection() as connection:
+            existing = connection.execute(
+                "SELECT id FROM listings WHERE source = ? AND external_id = ?",
+                (source, external_id),
+            ).fetchone()
+            if existing:
+                listing_id = existing["id"]
+                connection.execute(
+                    """
+                    UPDATE listings SET
+                        status = 'active', city = ?, district = ?, address = ?,
+                        price_uah = ?, rooms = ?, area_sqm = ?, floor = ?,
+                        total_floors = ?, pets_allowed = ?, commission_pct = ?,
+                        description = ?, contact_name = ?, contact_phone = ?,
+                        source_url = ?, source_title = ?, price_original = ?,
+                        currency = ?, published_at = ?, owner_only = ?, updated_at = ?
+                    WHERE id = ?
+                    """,
+                    (
+                        payload["city"], payload.get("district", ""),
+                        payload.get("address", "Адреса в оголошенні"),
+                        payload.get("price_uah", 0), payload.get("rooms", 0),
+                        payload.get("area_sqm", 0), payload.get("floor"),
+                        payload.get("total_floors"), int(payload.get("pets_allowed", False)),
+                        payload.get("commission_pct", 0), payload["description"],
+                        payload.get("contact_name", payload.get("source_title", "Telegram")),
+                        payload.get("contact_phone", ""), payload.get("source_url", ""),
+                        payload.get("source_title", ""), payload.get("price_original", ""),
+                        payload.get("currency", "UAH"), payload.get("published_at"),
+                        int(payload.get("owner_only", False)), now,
+                        listing_id,
+                    ),
+                )
+                created = False
+            else:
+                connection.execute(
+                    """
+                    INSERT INTO listings (
+                        id, user_id, status, city, district, address, price_uah,
+                        rooms, area_sqm, floor, total_floors, pets_allowed,
+                        commission_pct, description, contact_name, contact_phone,
+                        source, external_id, source_url, source_title,
+                        price_original, currency, published_at, owner_only, created_at, updated_at
+                    ) VALUES (?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        listing_id, f"telegram:{payload['channel']}", payload["city"],
+                        payload.get("district", ""), payload.get("address", "Адреса в оголошенні"),
+                        payload.get("price_uah", 0), payload.get("rooms", 0),
+                        payload.get("area_sqm", 0), payload.get("floor"),
+                        payload.get("total_floors"), int(payload.get("pets_allowed", False)),
+                        payload.get("commission_pct", 0), payload["description"],
+                        payload.get("contact_name", payload.get("source_title", "Telegram")),
+                        payload.get("contact_phone", ""), source, external_id,
+                        payload.get("source_url", ""), payload.get("source_title", ""),
+                        payload.get("price_original", ""), payload.get("currency", "UAH"),
+                        payload.get("published_at"), int(payload.get("owner_only", False)),
+                        payload.get("published_at") or now, now,
+                    ),
+                )
+                created = True
+
+            connection.execute("DELETE FROM listing_photos WHERE listing_id = ?", (listing_id,))
+            connection.executemany(
+                "INSERT INTO listing_photos (id, listing_id, url, position) VALUES (?, ?, ?, ?)",
+                [(str(uuid4()), listing_id, url, position) for position, url in enumerate(photo_urls[:8])],
+            )
+        return self.get_listing(listing_id) or {}, created
+
     def list_user_listings(self, user_id: str) -> list[dict[str, Any]]:
         with self.connection() as connection:
             rows = connection.execute(
@@ -270,8 +376,15 @@ class Database:
         self,
         *,
         city: str = "",
+        district: str = "",
+        price_min: int | None = None,
         price_max: int | None = None,
         rooms: int | None = None,
+        rooms_min: int | None = None,
+        rooms_max: int | None = None,
+        pets_allowed: bool = False,
+        no_commission: bool = False,
+        owner_only: bool = False,
         limit: int = 30,
         include_pending_for_user: str = "",
     ) -> list[dict[str, Any]]:
@@ -284,12 +397,30 @@ class Database:
         if city:
             clauses.append("LOWER(city) = LOWER(?)")
             params.append(city)
+        if district:
+            clauses.append("LOWER(district || ' ' || address || ' ' || description) LIKE LOWER(?)")
+            params.append(f"%{district}%")
+        if price_min is not None:
+            clauses.append("price_uah >= ?")
+            params.append(price_min)
         if price_max is not None:
-            clauses.append("price_uah <= ?")
+            clauses.append("price_uah > 0 AND price_uah <= ?")
             params.append(price_max)
         if rooms is not None:
             clauses.append("rooms = ?")
             params.append(rooms)
+        if rooms_min is not None:
+            clauses.append("rooms >= ?")
+            params.append(rooms_min)
+        if rooms_max is not None:
+            clauses.append("rooms <= ?")
+            params.append(rooms_max)
+        if pets_allowed:
+            clauses.append("pets_allowed = 1")
+        if no_commission:
+            clauses.append("commission_pct = 0")
+        if owner_only:
+            clauses.append("owner_only = 1")
         params.append(max(1, min(limit, 100)))
         query = f"SELECT id FROM listings WHERE {' AND '.join(clauses)} ORDER BY created_at DESC LIMIT ?"
         with self.connection() as connection:
@@ -307,5 +438,6 @@ class Database:
     def _listing_row(row: sqlite3.Row, photos: list[str]) -> dict[str, Any]:
         item = dict(row)
         item["pets_allowed"] = bool(item["pets_allowed"])
+        item["owner_only"] = bool(item.get("owner_only", 0))
         item["photos"] = photos
         return item
