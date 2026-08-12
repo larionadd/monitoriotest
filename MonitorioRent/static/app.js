@@ -167,13 +167,14 @@
       rooms_max: Number(values.rooms_max || 1),
       pets_allowed: Boolean(values.pets_allowed),
       no_commission: Boolean(values.no_commission),
-      owner_only: Boolean(values.owner_only)
+      owner_only: Boolean(values.owner_only),
+      lookback_days: Number(values.lookback_days || 3)
     };
     const submitButton = $("button[type='submit']", searchForm);
     submitButton.disabled = true;
     submitButton.textContent = "Зберігаємо…";
     try {
-      await api("/api/searches", {
+      const createdSearch = await api("/api/searches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -189,6 +190,7 @@
         pets_allowed: String(payload.pets_allowed),
         no_commission: String(payload.no_commission),
         owner_only: String(payload.owner_only),
+        lookback_days: String(payload.lookback_days),
         limit: "100"
       });
       const matches = await api(`/api/listings?${query.toString()}`);
@@ -196,8 +198,8 @@
       renderFeed();
       searchForm.reset();
       openPanel("home");
-      setMessage("searchMessage", "Пошук збережено. Сповіщення будуть надходити для нових збігів.", "success");
-      toast("Пошук збережено");
+      setMessage("searchMessage", createdSearch.message, "success");
+      toast(createdSearch.match_count > 0 ? `Знайдено: ${createdSearch.match_count}` : "Збігів поки немає — моніторинг працює");
     } catch (error) {
       setMessage("searchMessage", error.message || "Не вдалося зберегти пошук", "error");
     } finally {
@@ -445,6 +447,7 @@
       pets_allowed: String(Boolean(search.pets_allowed)),
       no_commission: String(Boolean(search.no_commission)),
       owner_only: String(Boolean(search.owner_only)),
+      lookback_days: String(search.lookback_days || 3),
       limit: "100"
     });
     try {

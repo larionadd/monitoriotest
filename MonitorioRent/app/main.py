@@ -34,7 +34,7 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 database = Database(DATABASE_PATH)
 telegram_source_sync = TelegramSourceSync(database)
 SOURCE_SYNC_ENABLED = os.getenv("MONITORIO_RENT_TELEGRAM_SYNC", "1").lower() not in {"0", "false", "no"}
-SOURCE_SYNC_INTERVAL_SECONDS = max(300, int(os.getenv("MONITORIO_RENT_SYNC_INTERVAL", "7200")))
+SOURCE_SYNC_INTERVAL_SECONDS = max(1800, int(os.getenv("MONITORIO_RENT_SYNC_INTERVAL", "1800")))
 
 
 def run_source_sync() -> dict:
@@ -79,6 +79,7 @@ class SearchInput(BaseModel):
     pets_allowed: bool = False
     no_commission: bool = False
     owner_only: bool = False
+    lookback_days: int = Field(default=3, ge=1, le=7)
 
     @model_validator(mode="after")
     def validate_ranges(self) -> "SearchInput":
@@ -133,7 +134,18 @@ def create_search(payload: SearchInput) -> dict:
     user_id = data.pop("user_id").strip()
     data["city"] = data["city"].strip()
     data["district"] = data["district"].strip()
-    return {"search": database.create_search(user_id, data)}
+    search = database.create_search(user_id, data)
+    matches = database.matches_for_search(search, limit=100)
+    return {
+        "search": search,
+        "matches": matches,
+        "match_count": len(matches),
+        "message": (
+            f"Знайдено оголошень: {len(matches)}. Моніторинг увімкнено."
+            if matches
+            else "За вашими критеріями свіжих оголошень немає. Моніторинг увімкнено — бот повідомить про нові."
+        ),
+    }
 
 
 @app.delete("/api/searches/{search_id}")
@@ -158,6 +170,7 @@ def listings(
     pets_allowed: bool = Query(default=False),
     no_commission: bool = Query(default=False),
     owner_only: bool = Query(default=False),
+    lookback_days: int = Query(default=3, ge=1, le=7),
     limit: int = Query(default=30, ge=1, le=100),
 ) -> dict:
     return {
@@ -172,6 +185,7 @@ def listings(
             pets_allowed=pets_allowed,
             no_commission=no_commission,
             owner_only=owner_only,
+            lookback_days=lookback_days,
             limit=limit,
         )
     }

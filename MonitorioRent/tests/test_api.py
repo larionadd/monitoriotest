@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from app import main
-from app.db import Database
+from app.db import Database, utc_now
 
 
 class MonitorioRentApiTests(unittest.TestCase):
@@ -67,6 +67,40 @@ class MonitorioRentApiTests(unittest.TestCase):
         )
         self.assertEqual(deleted.status_code, 200)
         self.assertTrue(deleted.json()["deleted"])
+
+    def test_search_returns_only_recent_matches_and_zero_message(self) -> None:
+        base = {
+            "channel": "test", "source": "telegram:test", "city": "Київ",
+            "district": "Оболонь", "address": "вул. Озерна, 1", "price_uah": 18000,
+            "rooms": 1, "area_sqm": 40, "description": "Здається квартира",
+            "source_title": "Test", "source_url": "https://t.me/test/1",
+            "price_original": "18000 грн", "currency": "UAH",
+        }
+        main.database.upsert_external_listing(
+            {**base, "external_id": "test/1", "published_at": utc_now()}, []
+        )
+        main.database.upsert_external_listing(
+            {**base, "external_id": "test/old", "source_url": "https://t.me/test/old", "published_at": "2020-01-01T08:00:00+00:00"}, []
+        )
+        response = self.client.post(
+            "/api/searches",
+            json={
+                "user_id": self.user_id, "city": "Київ", "price_max": 20000,
+                "rooms_min": 1, "rooms_max": 1, "lookback_days": 3,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json()["match_count"], 1)
+
+        empty = self.client.post(
+            "/api/searches",
+            json={
+                "user_id": self.user_id, "city": "Одеса", "price_max": 5000,
+                "rooms_min": 1, "rooms_max": 1, "lookback_days": 3,
+            },
+        )
+        self.assertEqual(empty.json()["match_count"], 0)
+        self.assertIn("немає", empty.json()["message"])
 
     def test_owner_can_submit_listing_for_moderation(self) -> None:
         response = self.client.post(

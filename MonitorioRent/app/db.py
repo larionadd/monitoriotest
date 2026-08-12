@@ -100,6 +100,20 @@ class Database:
                     url TEXT NOT NULL,
                     position INTEGER NOT NULL DEFAULT 0
                 );
+
+                CREATE TABLE IF NOT EXISTS listing_notifications (
+                    search_id TEXT NOT NULL REFERENCES saved_searches(id) ON DELETE CASCADE,
+                    listing_id TEXT NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+                    sent_at TEXT NOT NULL,
+                    PRIMARY KEY (search_id, listing_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS search_monitor_state (
+                    search_id TEXT PRIMARY KEY REFERENCES saved_searches(id) ON DELETE CASCADE,
+                    initial_report_sent INTEGER NOT NULL DEFAULT 0,
+                    last_checked_at TEXT,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
             self._ensure_listing_columns(connection)
@@ -130,6 +144,12 @@ class Database:
         for name, definition in additions.items():
             if name not in existing:
                 connection.execute(f"ALTER TABLE listings ADD COLUMN {name} {definition}")
+        search_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(saved_searches)").fetchall()
+        }
+        if "lookback_days" not in search_columns:
+            connection.execute("ALTER TABLE saved_searches ADD COLUMN lookback_days INTEGER NOT NULL DEFAULT 3")
 
     def set_role(self, user_id: str, role: str) -> dict[str, Any]:
         now = utc_now()
@@ -164,7 +184,8 @@ class Database:
                     id, user_id, city, district, price_min, price_max,
                     rooms_min, rooms_max, pets_allowed, no_commission,
                     owner_only, active, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)
+                    , lookback_days
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
                 """,
                 (
                     search_id,
@@ -179,6 +200,7 @@ class Database:
                     int(payload.get("no_commission", False)),
                     int(payload.get("owner_only", False)),
                     created_at,
+                    payload.get("lookback_days", 3),
                 ),
             )
         return self.get_search(search_id, user_id) or {}
@@ -206,6 +228,64 @@ class Database:
                 (search_id, user_id),
             )
         return cursor.rowcount > 0
+
+    def list_active_searches(self) -> list[dict[str, Any]]:
+        with self.connection() as connection:
+            rows = connection.execute(
+                "SELECT * FROM saved_searches WHERE active = 1 ORDER BY created_at"
+            ).fetchall()
+        return [self._search_row(row) for row in rows]
+
+    def search_monitor_state(self, search_id: str) -> dict[str, Any]:
+        with self.connection() as connection:
+            row = connection.execute(
+                "SELECT * FROM search_monitor_state WHERE search_id = ?", (search_id,)
+            ).fetchone()
+        return dict(row) if row else {"search_id": search_id, "initial_report_sent": 0, "last_checked_at": None}
+
+    def mark_search_checked(self, search_id: str, *, initial_report_sent: bool = True) -> None:
+        now = utc_now()
+        with self.connection() as connection:
+            connection.execute(
+                """
+                INSERT INTO search_monitor_state (search_id, initial_report_sent, last_checked_at, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(search_id) DO UPDATE SET
+                    initial_report_sent = MAX(search_monitor_state.initial_report_sent, excluded.initial_report_sent),
+                    last_checked_at = excluded.last_checked_at,
+                    updated_at = excluded.updated_at
+                """,
+                (search_id, int(initial_report_sent), now, now),
+            )
+
+    def notification_sent(self, search_id: str, listing_id: str) -> bool:
+        with self.connection() as connection:
+            row = connection.execute(
+                "SELECT 1 FROM listing_notifications WHERE search_id = ? AND listing_id = ?",
+                (search_id, listing_id),
+            ).fetchone()
+        return bool(row)
+
+    def mark_notification_sent(self, search_id: str, listing_id: str) -> None:
+        with self.connection() as connection:
+            connection.execute(
+                "INSERT OR IGNORE INTO listing_notifications (search_id, listing_id, sent_at) VALUES (?, ?, ?)",
+                (search_id, listing_id, utc_now()),
+            )
+
+    def matches_for_search(self, search: dict[str, Any], *, only_unsent: bool = False, limit: int = 100) -> list[dict[str, Any]]:
+        listings = self.list_feed(
+            city=search["city"], district=search.get("district", ""),
+            price_min=search.get("price_min"), price_max=search.get("price_max"),
+            rooms_min=search.get("rooms_min"), rooms_max=search.get("rooms_max"),
+            pets_allowed=bool(search.get("pets_allowed")),
+            no_commission=bool(search.get("no_commission")),
+            owner_only=bool(search.get("owner_only")),
+            lookback_days=int(search.get("lookback_days", 3)), limit=limit,
+        )
+        if only_unsent:
+            return [item for item in listings if not self.notification_sent(search["id"], item["id"])]
+        return listings
 
     def create_listing(
         self,
@@ -385,6 +465,7 @@ class Database:
         pets_allowed: bool = False,
         no_commission: bool = False,
         owner_only: bool = False,
+        lookback_days: int | None = None,
         limit: int = 30,
         include_pending_for_user: str = "",
     ) -> list[dict[str, Any]]:
@@ -421,6 +502,9 @@ class Database:
             clauses.append("commission_pct = 0")
         if owner_only:
             clauses.append("owner_only = 1")
+        if lookback_days is not None:
+            clauses.append("datetime(COALESCE(published_at, created_at)) >= datetime('now', ?)")
+            params.append(f"-{max(1, min(lookback_days, 30))} days")
         params.append(max(1, min(limit, 100)))
         query = f"SELECT id FROM listings WHERE {' AND '.join(clauses)} ORDER BY created_at DESC LIMIT ?"
         with self.connection() as connection:

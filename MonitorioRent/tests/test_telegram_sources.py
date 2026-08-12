@@ -45,7 +45,7 @@ class TelegramSourceTests(unittest.TestCase):
         <div class="tgme_widget_message" data-post="rent_test/123">
           <div class="tgme_widget_message_text">Здається 1к квартира\n💵 15000 грн\n✏️ 40м²\n📍 Оболонь, вул. Озерна 2</div>
           <a class="tgme_widget_message_date" href="https://t.me/rent_test/123"><time datetime="2026-08-12T08:00:00+00:00"></time></a>
-          <a class="tgme_widget_message_photo" style="background-image:url('https://example.com/a.jpg')"></a>
+          <a class="tgme_widget_message_photo_wrap" style="background-image:url('https://example.com/a.jpg')"></a>
         </div>
         """
         items = parse_channel_page(html, self.source)

@@ -163,7 +163,7 @@ def parse_channel_page(html: str, source: TelegramSource) -> list[dict[str, Any]
         time_node = message.select_one("time[datetime]")
         published_at = time_node.get("datetime") if time_node else None
         photos: list[str] = []
-        for photo in message.select("a.tgme_widget_message_photo"):
+        for photo in message.select("a.tgme_widget_message_photo_wrap"):
             style = photo.get("style", "")
             image_match = re.search(r"url\(['\"]?([^'\")]+)", style)
             if image_match:
