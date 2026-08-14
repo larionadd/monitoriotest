@@ -41,6 +41,25 @@ class DimRiaSourceTests(unittest.TestCase):
         self.assertTrue(payload["pets_allowed"])
         self.assertEqual(photos, ["https://cdn.riastatic.com/photos/dom/photo/example.jpg"])
 
+    def test_normalizes_live_response_field_names(self) -> None:
+        payload, _ = normalize_advertisement({
+            "web_id": "abc123",
+            "city_name_uk": "Дніпро",
+            "district_name_uk": "Тополя-1",
+            "street_name_uk": "Запорізьке шосе",
+            "price": 13000,
+            "currency_type": "грн",
+            "rooms_count": 3,
+            "floor_info": "9 поверх з 16",
+            "withAnimal": True,
+            "beautiful_url": "realty-test-34661978.html",
+        })
+        self.assertEqual(payload["city"], "Дніпро")
+        self.assertEqual(payload["floor"], 9)
+        self.assertEqual(payload["total_floors"], 16)
+        self.assertTrue(payload["pets_allowed"])
+        self.assertEqual(payload["source_url"], "https://dom.ria.com/uk/realty-test-34661978.html")
+
     def test_disabled_without_key_makes_no_request(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             sync = DimRiaSourceSync(Database(Path(folder) / "test.sqlite3"), api_key="")

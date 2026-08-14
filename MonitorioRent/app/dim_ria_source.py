@@ -48,17 +48,17 @@ def _photo_urls(value: Any) -> list[str]:
 
 
 def normalize_advertisement(item: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
-    advert_id = str(item.get("advert_id") or item.get("id") or "").strip()
+    advert_id = str(item.get("advert_id") or item.get("id") or item.get("web_id") or "").strip()
     if not advert_id:
         raise ValueError("DIM.RIA advertisement has no id")
 
-    city = item.get("city_name") or item.get("city") or ""
+    city = item.get("city_name_uk") or item.get("city_name") or item.get("city") or ""
     if isinstance(city, dict):
         city = city.get("name") or city.get("value") or ""
-    district = item.get("district_name") or item.get("district") or ""
+    district = item.get("district_name_uk") or item.get("district_name") or item.get("district") or ""
     if isinstance(district, dict):
         district = district.get("name") or district.get("value") or ""
-    street = item.get("street_name") or item.get("street") or ""
+    street = item.get("street_name_uk") or item.get("street_name") or item.get("street") or ""
     building = item.get("building_number_str") or item.get("building_number") or ""
     address = item.get("address") or " ".join(filter(None, (str(street), str(building))))
     address = str(address).strip() or "Адреса в оголошенні"
@@ -73,14 +73,22 @@ def normalize_advertisement(item: dict[str, Any]) -> tuple[dict[str, Any], list[
     owner_only = bool(item.get("is_owner")) or any(word in offer for word in ("власник", "собственник"))
     no_commission = owner_only or any(word in offer for word in ("без коміс", "без комис"))
     description = str(item.get("description_uk") or item.get("description") or "Оголошення DIM.RIA")[:5000]
-    pets_allowed = bool(re.search(r"можна\s+з\s+(?:твар|кот|соб)|домашн\w*\s+твар", description, re.I))
-    beautiful_url = str(item.get("beautiful_url") or "").strip("/")
-    source_url = (
-        f"https://dom.ria.com/uk/realty-{beautiful_url}.html"
-        if beautiful_url and not beautiful_url.startswith("http")
-        else beautiful_url or f"https://dom.ria.com/uk/realty-{advert_id}.html"
+    pets_allowed = bool(item.get("withAnimal")) or bool(
+        re.search(r"можна\s+з\s+(?:твар|кот|соб)|домашн\w*\s+твар", description, re.I)
     )
+    beautiful_url = str(item.get("beautiful_url") or "").strip("/")
+    if beautiful_url.startswith("http"):
+        source_url = beautiful_url
+    elif beautiful_url:
+        source_url = f"https://dom.ria.com/uk/{beautiful_url}"
+    else:
+        source_url = f"https://dom.ria.com/uk/realty-{advert_id}.html"
     published_at = item.get("publishing_date") or item.get("created_at") or item.get("date_created")
+    floor_match = re.search(r"(\d+)\D+(\d+)", str(item.get("floor_info") or ""))
+    floor = int(_number(item.get("floor"))) or (int(floor_match.group(1)) if floor_match else None)
+    total_floors = int(_number(item.get("floors_count") or item.get("total_floors"))) or (
+        int(floor_match.group(2)) if floor_match else None
+    )
 
     payload = {
         "channel": "dimria",
@@ -96,8 +104,8 @@ def normalize_advertisement(item: dict[str, Any]) -> tuple[dict[str, Any], list[
         "currency": currency,
         "rooms": rooms,
         "area_sqm": area,
-        "floor": int(_number(item.get("floor"))) or None,
-        "total_floors": int(_number(item.get("floors_count") or item.get("total_floors"))) or None,
+        "floor": floor,
+        "total_floors": total_floors,
         "pets_allowed": pets_allowed,
         "owner_only": owner_only,
         "commission_pct": 0 if no_commission else int(_number(item.get("commission"))),
@@ -163,7 +171,9 @@ class DimRiaSourceSync:
                     break
                 response = client.get(f"{API_ROOT}/info/{advert_id}", params={"api_key": self.api_key})
                 response.raise_for_status()
-                payload, photos = normalize_advertisement(response.json())
+                detail = response.json()
+                detail.setdefault("advert_id", advert_id)
+                payload, photos = normalize_advertisement(detail)
                 _, was_created = self.database.upsert_external_listing(payload, photos)
                 created += int(was_created)
                 updated += int(not was_created)
