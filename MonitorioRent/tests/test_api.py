@@ -102,6 +102,28 @@ class MonitorioRentApiTests(unittest.TestCase):
         self.assertEqual(empty.json()["match_count"], 0)
         self.assertIn("немає", empty.json()["message"])
 
+    def test_similar_matches_relax_only_district(self) -> None:
+        main.database.upsert_external_listing(
+            {
+                "channel": "test", "source": "telegram:test", "external_id": "similar/1",
+                "city": "Київ", "district": "Оболонь", "address": "вул. Озерна, 1",
+                "price_uah": 18000, "rooms": 2, "area_sqm": 50,
+                "description": "Свіжа двокімнатна квартира", "source_title": "Test",
+                "source_url": "https://t.me/test/1", "published_at": utc_now(),
+            },
+            [],
+        )
+        search = {
+            "city": "Київ", "district": "Теремки", "price_min": 0,
+            "price_max": 20000, "rooms_min": 2, "rooms_max": 2,
+            "pets_allowed": False, "no_commission": False, "owner_only": False,
+            "lookback_days": 3,
+        }
+        self.assertEqual(main.database.matches_for_search(search), [])
+        alternatives = main.database.similar_matches_for_search(search)
+        self.assertEqual(len(alternatives), 1)
+        self.assertEqual(alternatives[0]["district"], "Оболонь")
+
     def test_owner_can_submit_listing_for_moderation(self) -> None:
         response = self.client.post(
             "/api/listings",

@@ -287,6 +287,18 @@ class Database:
             return [item for item in listings if not self.notification_sent(search["id"], item["id"])]
         return listings
 
+    def similar_matches_for_search(self, search: dict[str, Any], *, limit: int = 5) -> list[dict[str, Any]]:
+        """Return city-wide alternatives while preserving non-location filters."""
+        return self.list_feed(
+            city=search["city"], district="",
+            price_min=search.get("price_min"), price_max=search.get("price_max"),
+            rooms_min=search.get("rooms_min"), rooms_max=search.get("rooms_max"),
+            pets_allowed=bool(search.get("pets_allowed")),
+            no_commission=bool(search.get("no_commission")),
+            owner_only=bool(search.get("owner_only")),
+            lookback_days=int(search.get("lookback_days", 3)), limit=limit,
+        )
+
     def create_listing(
         self,
         user_id: str,

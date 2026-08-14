@@ -114,14 +114,32 @@ async def process_searches(context: ContextTypes.DEFAULT_TYPE, *, initial_only: 
                 for listing in matches:
                     database.mark_notification_sent(search["id"], listing["id"])
             else:
-                await context.application.bot.send_message(
-                    chat_id=chat_id,
-                    text=(
-                        "За вашими критеріями свіжих оголошень поки немає. "
-                        "Моніторинг активний — повідомлю, щойно з’явиться відповідний варіант."
-                    ),
-                    reply_markup=cabinet_keyboard(),
+                alternatives = (
+                    database.similar_matches_for_search(search, limit=5)
+                    if search.get("district")
+                    else []
                 )
+                if alternatives:
+                    await context.application.bot.send_message(
+                        chat_id=chat_id,
+                        text=(
+                            f"У районі «{search['district']}» точних збігів поки немає. "
+                            f"Показую {len(alternatives)} схожих варіантів у місті {search['city']} "
+                            "за вашим бюджетом і кількістю кімнат. Точний район продовжую моніторити."
+                        ),
+                        reply_markup=cabinet_keyboard(),
+                    )
+                    for listing in alternatives:
+                        await send_listing(context.application, chat_id, listing)
+                else:
+                    await context.application.bot.send_message(
+                        chat_id=chat_id,
+                        text=(
+                            "За вашими критеріями свіжих оголошень поки немає. "
+                            "Моніторинг активний — повідомлю, щойно з’явиться відповідний варіант."
+                        ),
+                        reply_markup=cabinet_keyboard(),
+                    )
             database.mark_search_checked(search["id"])
             continue
 
