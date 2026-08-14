@@ -124,6 +124,38 @@ class MonitorioRentApiTests(unittest.TestCase):
         self.assertEqual(len(alternatives), 1)
         self.assertEqual(alternatives[0]["district"], "Оболонь")
 
+    def test_similar_matches_reserve_dim_ria_slot(self) -> None:
+        base = {
+            "city": "Київ", "district": "Оболонь", "address": "вул. Озерна, 1",
+            "price_uah": 18000, "rooms": 1, "area_sqm": 40,
+            "description": "Свіжа квартира", "published_at": utc_now(),
+        }
+        for number in range(6):
+            main.database.upsert_external_listing(
+                {
+                    **base, "channel": "test", "source": "telegram:test",
+                    "external_id": f"telegram/{number}", "source_title": "Telegram",
+                    "source_url": f"https://t.me/test/{number}",
+                },
+                [],
+            )
+        main.database.upsert_external_listing(
+            {
+                **base, "channel": "dimria", "source": "dimria",
+                "external_id": "dimria/1", "source_title": "DIM.RIA",
+                "source_url": "https://dom.ria.com/uk/realty-test.html",
+            },
+            ["https://example.com/photo.jpg"],
+        )
+        search = {
+            "city": "Київ", "district": "Нивки", "price_min": 0,
+            "price_max": 20000, "rooms_min": 1, "rooms_max": 1,
+            "lookback_days": 3,
+        }
+        alternatives = main.database.similar_matches_for_search(search, limit=5)
+        self.assertEqual(len(alternatives), 5)
+        self.assertEqual(alternatives[0]["source"], "dimria")
+
     def test_owner_can_submit_listing_for_moderation(self) -> None:
         response = self.client.post(
             "/api/listings",

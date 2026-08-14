@@ -288,16 +288,22 @@ class Database:
         return listings
 
     def similar_matches_for_search(self, search: dict[str, Any], *, limit: int = 5) -> list[dict[str, Any]]:
-        """Return city-wide alternatives while preserving non-location filters."""
-        return self.list_feed(
+        """Return city-wide alternatives and reserve a slot for DIM.RIA when available."""
+        candidates = self.list_feed(
             city=search["city"], district="",
             price_min=search.get("price_min"), price_max=search.get("price_max"),
             rooms_min=search.get("rooms_min"), rooms_max=search.get("rooms_max"),
             pets_allowed=bool(search.get("pets_allowed")),
             no_commission=bool(search.get("no_commission")),
             owner_only=bool(search.get("owner_only")),
-            lookback_days=int(search.get("lookback_days", 3)), limit=limit,
+            lookback_days=int(search.get("lookback_days", 3)), limit=100,
         )
+        if not candidates:
+            return []
+        dim_ria = next((item for item in candidates if item.get("source") == "dimria"), None)
+        if not dim_ria:
+            return candidates[:limit]
+        return [dim_ria, *(item for item in candidates if item["id"] != dim_ria["id"])][:limit]
 
     def create_listing(
         self,
