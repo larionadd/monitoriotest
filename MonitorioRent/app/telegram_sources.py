@@ -36,6 +36,11 @@ TELEGRAM_SOURCES = (
     TelegramSource("orenda_kvartir_kyiv", "Оренда квартир Київ", "Київ", 40),
     TelegramSource("OrendakvartyrKyiv_UK", "Оренда квартир Київ · власники", "Київ"),
     TelegramSource("x_orenda_odesa", "Оренда квартир Одеса · X-Estate", "Одеса", 50),
+    TelegramSource("kyiv_rent_1", "Оренда Київ · від власників", "Київ"),
+    TelegramSource("lviv_rent_1", "Оренда Львів · від власників", "Львів"),
+    TelegramSource("smartin_lviv", "Оренда квартир Львів · Merezha", "Львів", 50),
+    TelegramSource("m2arendadnepr", "Оренда квартир Дніпро · Щаслива Адреса", "Дніпро", 50),
+    TelegramSource("RENTIN_VINNITSA", "Оренда квартир Вінниця · Merezha", "Вінниця", 50),
 )
 
 
@@ -59,6 +64,14 @@ def parse_listing_text(text: str, source: TelegramSource) -> dict[str, Any] | No
         return None
     if re.search(r"\bшукаю\b|\bсниму\b|\bищу\b", lowered) and not re.search(
         r"\bзда(ю|ється|м)\b|\bсда(ю|ётся|м)\b", lowered
+    ):
+        return None
+    if re.search(r"\b(?:продам|продається|продается|продаж)\b", lowered) and not re.search(
+        r"\b(?:оренда|аренда|здається|сдается)\b", lowered
+    ):
+        return None
+    if re.search(r"подобов|посуточ|за\s+(?:добу|сутки)|грн\s*/\s*(?:добу|день)", lowered) and not re.search(
+        r"довгострок|долгосроч|помісяч|помесяч", lowered
     ):
         return None
 

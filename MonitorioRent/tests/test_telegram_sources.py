@@ -40,6 +40,20 @@ class TelegramSourceTests(unittest.TestCase):
         )
         self.assertIsNone(parsed)
 
+    def test_skips_daily_rental(self) -> None:
+        parsed = parse_listing_text(
+            "Подобова оренда квартири, 2 кімнати, ціна 1500 грн за добу",
+            self.source,
+        )
+        self.assertIsNone(parsed)
+
+    def test_skips_sale_without_rental_offer(self) -> None:
+        parsed = parse_listing_text(
+            "Продаж квартири, 2 кімнати, ціна 2500000 грн, Дарницький район",
+            self.source,
+        )
+        self.assertIsNone(parsed)
+
     def test_page_parse_and_database_deduplication(self) -> None:
         html = """
         <div class="tgme_widget_message" data-post="rent_test/123">
