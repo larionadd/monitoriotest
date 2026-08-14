@@ -14,7 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, model_validator
 
 from .db import Database
-from .telegram_sources import TelegramSourceSync
+from .sources import ListingSourceSync
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,14 +32,14 @@ PHOTO_TYPES = {
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 database = Database(DATABASE_PATH)
-telegram_source_sync = TelegramSourceSync(database)
+listing_source_sync = ListingSourceSync(database)
 SOURCE_SYNC_ENABLED = os.getenv("MONITORIO_RENT_TELEGRAM_SYNC", "1").lower() not in {"0", "false", "no"}
 SOURCE_SYNC_INTERVAL_SECONDS = max(1800, int(os.getenv("MONITORIO_RENT_SYNC_INTERVAL", "1800")))
 
 
 def run_source_sync() -> dict:
-    telegram_source_sync.database = database
-    return telegram_source_sync.sync_all()
+    listing_source_sync.database = database
+    return listing_source_sync.sync_all()
 
 
 async def source_sync_loop() -> None:
@@ -109,7 +109,7 @@ def sources() -> dict:
     return {
         "sync_enabled": SOURCE_SYNC_ENABLED,
         "interval_seconds": SOURCE_SYNC_INTERVAL_SECONDS,
-        "sources": telegram_source_sync.source_status(),
+        "sources": listing_source_sync.source_status(),
     }
 
 

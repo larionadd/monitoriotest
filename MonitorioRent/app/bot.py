@@ -8,7 +8,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppI
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from .db import Database
-from .telegram_sources import TelegramSourceSync
+from .sources import ListingSourceSync
 
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
@@ -18,7 +18,7 @@ DATABASE_PATH = Path(os.getenv("MONITORIO_RENT_DATABASE", ROOT / "data" / "monit
 MONITOR_INTERVAL_SECONDS = max(1800, int(os.getenv("MONITORIO_RENT_MONITOR_INTERVAL", "1800")))
 MAX_INITIAL_NOTIFICATIONS = 10
 database = Database(DATABASE_PATH)
-source_sync = TelegramSourceSync(database)
+source_sync = ListingSourceSync(database)
 
 
 def cabinet_keyboard() -> InlineKeyboardMarkup:

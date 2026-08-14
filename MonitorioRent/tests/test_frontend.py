@@ -65,6 +65,10 @@ class FrontendStructureTests(unittest.TestCase):
         self.assertIn("prefers-reduced-motion", self.css)
         self.assertIn("prefers-color-scheme: dark", self.css)
 
+    def test_dim_ria_attribution_is_visible(self) -> None:
+        self.assertIn('href="https://dom.ria.com/uk/"', self.html)
+        self.assertIn("DIM.RIA", self.html)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -16,6 +16,20 @@
   --nav-height: 72px;
 }
 
+.source-credit {
+  margin: 18px auto 96px;
+  max-width: 760px;
+  padding: 0 20px;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.source-credit a {
+  color: inherit;
+  font-weight: 700;
+}
+
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { width: 100%; min-height: 100%; min-height: 100svh; }

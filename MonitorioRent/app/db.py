@@ -403,7 +403,7 @@ class Database:
                     ) VALUES (?, ?, 'active', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        listing_id, f"telegram:{payload['channel']}", payload["city"],
+                        listing_id, payload.get("user_id", f"source:{source}"), payload["city"],
                         payload.get("district", ""), payload.get("address", "Адреса в оголошенні"),
                         payload.get("price_uah", 0), payload.get("rooms", 0),
                         payload.get("area_sqm", 0), payload.get("floor"),
@@ -425,6 +425,14 @@ class Database:
                 [(str(uuid4()), listing_id, url, position) for position, url in enumerate(photo_urls[:8])],
             )
         return self.get_listing(listing_id) or {}, created
+
+    def has_external_listing(self, source: str, external_id: str) -> bool:
+        with self.connection() as connection:
+            row = connection.execute(
+                "SELECT 1 FROM listings WHERE source = ? AND external_id = ? LIMIT 1",
+                (source, external_id),
+            ).fetchone()
+        return row is not None
 
     def list_user_listings(self, user_id: str) -> list[dict[str, Any]]:
         with self.connection() as connection:
