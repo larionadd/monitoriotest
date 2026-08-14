@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import contextmanager
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -114,6 +114,14 @@ class Database:
                     last_checked_at TEXT,
                     updated_at TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS source_sync_state (
+                    source TEXT PRIMARY KEY,
+                    last_started_at TEXT,
+                    month_key TEXT NOT NULL,
+                    request_count INTEGER NOT NULL DEFAULT 0,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
             self._ensure_listing_columns(connection)
@@ -165,6 +173,81 @@ class Database:
                 (user_id, role, now, now),
             )
         return self.get_profile(user_id) or {}
+
+    def claim_source_sync(self, source: str, min_interval_seconds: int) -> bool:
+        now = datetime.now(UTC)
+        month_key = now.strftime("%Y-%m")
+        with self.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT last_started_at, month_key, request_count FROM source_sync_state WHERE source = ?",
+                (source,),
+            ).fetchone()
+            if row and row["last_started_at"] and min_interval_seconds > 0:
+                last_started = datetime.fromisoformat(row["last_started_at"])
+                if now - last_started < timedelta(seconds=min_interval_seconds):
+                    return False
+            request_count = row["request_count"] if row and row["month_key"] == month_key else 0
+            connection.execute(
+                """
+                INSERT INTO source_sync_state (source, last_started_at, month_key, request_count, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(source) DO UPDATE SET
+                    last_started_at = excluded.last_started_at,
+                    month_key = excluded.month_key,
+                    request_count = excluded.request_count,
+                    updated_at = excluded.updated_at
+                """,
+                (source, now.isoformat(timespec="seconds"), month_key, request_count, now.isoformat(timespec="seconds")),
+            )
+        return True
+
+    def reserve_source_requests(self, source: str, monthly_limit: int, count: int = 1) -> bool:
+        now = datetime.now(UTC)
+        month_key = now.strftime("%Y-%m")
+        with self.connection() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT month_key, request_count, last_started_at FROM source_sync_state WHERE source = ?",
+                (source,),
+            ).fetchone()
+            used = row["request_count"] if row and row["month_key"] == month_key else 0
+            if used + count > monthly_limit:
+                return False
+            connection.execute(
+                """
+                INSERT INTO source_sync_state (source, last_started_at, month_key, request_count, updated_at)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(source) DO UPDATE SET
+                    month_key = excluded.month_key,
+                    request_count = excluded.request_count,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    source,
+                    row["last_started_at"] if row else None,
+                    month_key,
+                    used + count,
+                    now.isoformat(timespec="seconds"),
+                ),
+            )
+        return True
+
+    def source_budget_status(self, source: str, monthly_limit: int) -> dict[str, Any]:
+        month_key = datetime.now(UTC).strftime("%Y-%m")
+        with self.connection() as connection:
+            row = connection.execute(
+                "SELECT last_started_at, month_key, request_count FROM source_sync_state WHERE source = ?",
+                (source,),
+            ).fetchone()
+        used = row["request_count"] if row and row["month_key"] == month_key else 0
+        return {
+            "month": month_key,
+            "requests_used": used,
+            "requests_limit": monthly_limit,
+            "requests_remaining": max(0, monthly_limit - used),
+            "last_started_at": row["last_started_at"] if row else None,
+        }
 
     def get_profile(self, user_id: str) -> dict[str, Any] | None:
         with self.connection() as connection:

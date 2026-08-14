@@ -77,7 +77,12 @@ class DimRiaSourceTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as folder:
             database = Database(Path(folder) / "test.sqlite3")
-            sync = DimRiaSourceSync(database, api_key="test-key")
+            sync = DimRiaSourceSync(
+                database,
+                api_key="test-key",
+                min_interval_seconds=0,
+                monthly_budget=10,
+            )
             original_client = httpx.Client
 
             class MockClient(httpx.Client):
@@ -94,6 +99,18 @@ class DimRiaSourceTests(unittest.TestCase):
             self.assertEqual(first["created"], 1)
             self.assertEqual(second["details_fetched"], 0)
             self.assertEqual(requests.count("/dom/info/123456"), 1)
+
+    def test_persistent_interval_and_monthly_budget(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            database = Database(Path(folder) / "test.sqlite3")
+            self.assertTrue(database.claim_source_sync("dimria", 7200))
+            self.assertFalse(database.claim_source_sync("dimria", 7200))
+            self.assertTrue(database.reserve_source_requests("dimria", 2))
+            self.assertTrue(database.reserve_source_requests("dimria", 2))
+            self.assertFalse(database.reserve_source_requests("dimria", 2))
+            status = database.source_budget_status("dimria", 2)
+            self.assertEqual(status["requests_used"], 2)
+            self.assertEqual(status["requests_remaining"], 0)
 
 
 if __name__ == "__main__":

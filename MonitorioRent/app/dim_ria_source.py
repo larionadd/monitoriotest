@@ -118,10 +118,27 @@ def normalize_advertisement(item: dict[str, Any]) -> tuple[dict[str, Any], list[
 
 
 class DimRiaSourceSync:
-    def __init__(self, database: Database, api_key: str | None = None, max_details: int | None = None) -> None:
+    def __init__(
+        self,
+        database: Database,
+        api_key: str | None = None,
+        max_details: int | None = None,
+        min_interval_seconds: int | None = None,
+        monthly_budget: int | None = None,
+    ) -> None:
         self.database = database
         self.api_key = (api_key if api_key is not None else os.getenv("DIM_RIA_API_KEY", "")).strip()
-        self.max_details = max_details or int(os.getenv("DIM_RIA_MAX_DETAILS_PER_RUN", "10"))
+        self.max_details = max_details if max_details is not None else int(os.getenv("DIM_RIA_MAX_DETAILS_PER_RUN", "1"))
+        self.min_interval_seconds = (
+            min_interval_seconds
+            if min_interval_seconds is not None
+            else int(os.getenv("DIM_RIA_MIN_INTERVAL_SECONDS", "7200"))
+        )
+        self.monthly_budget = (
+            monthly_budget
+            if monthly_budget is not None
+            else int(os.getenv("DIM_RIA_MONTHLY_BUDGET", "900"))
+        )
         self.last_result: dict[str, Any] = {}
 
     @property
@@ -134,6 +151,8 @@ class DimRiaSourceSync:
             "title": "DIM.RIA",
             "enabled": self.enabled,
             "preview_url": "https://dom.ria.com/uk/",
+            "min_interval_seconds": self.min_interval_seconds,
+            **self.database.source_budget_status("dimria", self.monthly_budget),
             **self.last_result,
         }
 
@@ -141,6 +160,20 @@ class DimRiaSourceSync:
         started_at = datetime.now(UTC).isoformat(timespec="seconds")
         if not self.enabled:
             return {"started_at": started_at, "enabled": False, "fetched": 0, "created": 0, "updated": 0}
+        if not self.database.claim_source_sync("dimria", self.min_interval_seconds):
+            return {
+                "started_at": started_at,
+                "enabled": True,
+                "skipped": "min_interval",
+                **self.database.source_budget_status("dimria", self.monthly_budget),
+            }
+        if not self.database.reserve_source_requests("dimria", self.monthly_budget):
+            return {
+                "started_at": started_at,
+                "enabled": True,
+                "skipped": "monthly_budget",
+                **self.database.source_budget_status("dimria", self.monthly_budget),
+            }
 
         params: list[tuple[str, str | int]] = [
             ("api_key", self.api_key),
@@ -169,6 +202,8 @@ class DimRiaSourceSync:
                     continue
                 if detailed >= self.max_details:
                     break
+                if not self.database.reserve_source_requests("dimria", self.monthly_budget):
+                    break
                 response = client.get(f"{API_ROOT}/info/{advert_id}", params={"api_key": self.api_key})
                 response.raise_for_status()
                 detail = response.json()
@@ -187,4 +222,9 @@ class DimRiaSourceSync:
             "created": created,
             "updated": updated,
         }
-        return {"started_at": started_at, "enabled": True, **self.last_result}
+        return {
+            "started_at": started_at,
+            "enabled": True,
+            **self.last_result,
+            **self.database.source_budget_status("dimria", self.monthly_budget),
+        }

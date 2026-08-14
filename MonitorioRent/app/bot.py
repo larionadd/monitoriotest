@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import os
 from pathlib import Path
 
@@ -8,7 +7,6 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppI
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from .db import Database
-from .sources import ListingSourceSync
 
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
@@ -18,7 +16,6 @@ DATABASE_PATH = Path(os.getenv("MONITORIO_RENT_DATABASE", ROOT / "data" / "monit
 MONITOR_INTERVAL_SECONDS = max(1800, int(os.getenv("MONITORIO_RENT_MONITOR_INTERVAL", "1800")))
 MAX_INITIAL_NOTIFICATIONS = 10
 database = Database(DATABASE_PATH)
-source_sync = ListingSourceSync(database)
 
 
 def cabinet_keyboard() -> InlineKeyboardMarkup:
@@ -154,7 +151,6 @@ async def report_new_searches(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def monitor_searches(context: ContextTypes.DEFAULT_TYPE) -> None:
-    await asyncio.to_thread(source_sync.sync_all)
     await process_searches(context, initial_only=False)
 
 
