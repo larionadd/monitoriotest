@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 from app.db import Database
-from app.telegram_sources import TelegramSource, parse_channel_page, parse_listing_text
+from app.telegram_sources import TELEGRAM_SOURCES, TelegramSource, parse_channel_page, parse_listing_text
 
 
 class TelegramSourceTests(unittest.TestCase):
@@ -47,6 +47,18 @@ class TelegramSourceTests(unittest.TestCase):
         )
         self.assertIsNone(parsed)
 
+    def test_daily_rental_link_in_footer_does_not_hide_long_term_offer(self) -> None:
+        parsed = parse_listing_text(
+            """
+            Оренда 2к квартири на вул. Харківська
+            Ціна 8000 грн + платежі
+            Контакти: 099 111 22 33
+            Квартири подобово: +380991234567
+            """,
+            self.source,
+        )
+        self.assertIsNotNone(parsed)
+
     def test_skips_sale_without_rental_offer(self) -> None:
         parsed = parse_listing_text(
             "Продаж квартири, 2 кімнати, ціна 2500000 грн, Дарницький район",
@@ -60,12 +72,14 @@ class TelegramSourceTests(unittest.TestCase):
           <div class="tgme_widget_message_text">Здається 1к квартира\n💵 15000 грн\n✏️ 40м²\n📍 Оболонь, вул. Озерна 2</div>
           <a class="tgme_widget_message_date" href="https://t.me/rent_test/123"><time datetime="2026-08-12T08:00:00+00:00"></time></a>
           <a class="tgme_widget_message_photo_wrap" style="background-image:url('https://example.com/a.jpg')"></a>
+          <i class="link_preview_right_image" style="background-image:url('https://example.com/b.jpg')"></i>
         </div>
         """
         items = parse_channel_page(html, self.source)
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["external_id"], "rent_test/123")
         self.assertEqual(items[0]["district"], "Оболонь")
+        self.assertEqual(items[0]["photos"], ["https://example.com/a.jpg", "https://example.com/b.jpg"])
 
         with tempfile.TemporaryDirectory() as directory:
             database = Database(Path(directory) / "rent.sqlite3")
@@ -77,6 +91,11 @@ class TelegramSourceTests(unittest.TestCase):
             self.assertFalse(created_again)
             self.assertEqual(first["id"], second["id"])
             self.assertEqual(second["source_url"], "https://t.me/rent_test/123")
+
+    def test_public_source_catalog_is_large_and_unique(self) -> None:
+        channels = [source.channel.lower() for source in TELEGRAM_SOURCES]
+        self.assertGreaterEqual(len(channels), 40)
+        self.assertEqual(len(channels), len(set(channels)))
 
 
 if __name__ == "__main__":

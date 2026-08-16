@@ -41,6 +41,31 @@ TELEGRAM_SOURCES = (
     TelegramSource("smartin_lviv", "Оренда квартир Львів · Merezha", "Львів", 50),
     TelegramSource("m2arendadnepr", "Оренда квартир Дніпро · Щаслива Адреса", "Дніпро", 50),
     TelegramSource("RENTIN_VINNITSA", "Оренда квартир Вінниця · Merezha", "Вінниця", 50),
+    TelegramSource("vinnytsia_rent", "Оренда квартир Вінниця", "Вінниця", 50),
+    TelegramSource("orenda_lviw", "Власний Куточок · оренда Львів", "Львів"),
+    TelegramSource("lvivOG", "Оренда житла Львів", "Львів", 50),
+    TelegramSource("x_orenda_lviv", "Оренда квартир Львів · X-Estate", "Львів", 50),
+    TelegramSource("no_rieltors_rent_lviv", "Оренда Львів без рієлторів", "Львів"),
+    TelegramSource("KH_Rent", "Оренда Харків без комісії", "Харків"),
+    TelegramSource("arenda_uhome", "Оренда квартир Харків · UHOME", "Харків", 50),
+    TelegramSource("rent_frankivsk", "Оренда Івано-Франківськ", "Івано-Франківськ", 50),
+    TelegramSource("rentin_uzhhorod", "Оренда квартир Ужгород · Merezha", "Ужгород", 50),
+    TelegramSource("dreamservice_zp", "Оренда квартир Запоріжжя · Dream Service", "Запоріжжя", 50),
+    TelegramSource("RENTUA_ZAPORIZHZHIA", "Оренда квартир Запоріжжя · Merezha", "Запоріжжя", 50),
+    TelegramSource("arenda_odessaa", "Оренда квартир Одеса", "Одеса", 50),
+    TelegramSource("arenda_odessa_1k", "Оренда однокімнатних квартир Одеса", "Одеса"),
+    TelegramSource("arenda_kv_odessa", "Оренда квартир Одеса · власники", "Одеса"),
+    TelegramSource("orenda_ternopil_ua", "Оренда Тернопіль · від власників", "Тернопіль"),
+    TelegramSource("orenda_ternopill", "Оренда житла Тернопіль", "Тернопіль", 50),
+    TelegramSource("kozar_rieltor", "Оренда квартир Тернопіль · Меридіан", "Тернопіль", 50),
+    TelegramSource("RENTUA_RIVNE", "Оренда квартир Рівне · Merezha", "Рівне", 50),
+    TelegramSource("Poltava_Rieltor", "Оренда квартир Полтава", "Полтава", 50),
+    TelegramSource("arenda_che", "Оренда квартир Черкаси", "Черкаси", 50),
+    TelegramSource("orendakm", "Оренда квартир Хмельницький 24/7", "Хмельницький", 50),
+    TelegramSource("RENTIN_KHMELNYTSKYI", "Оренда квартир Хмельницький · Merezha", "Хмельницький", 50),
+    TelegramSource("premiersumy", "Оренда квартир Суми · Прем'єр", "Суми", 50),
+    TelegramSource("sumy_rent", "Оренда квартир Суми", "Суми", 50),
+    TelegramSource("RENTUA_KROPYVNYTSKYI", "Оренда квартир Кропивницький · Merezha", "Кропивницький", 50),
 )
 
 
@@ -70,7 +95,12 @@ def parse_listing_text(text: str, source: TelegramSource) -> dict[str, Any] | No
         r"\b(?:оренда|аренда|здається|сдается)\b", lowered
     ):
         return None
-    if re.search(r"подобов|посуточ|за\s+(?:добу|сутки)|грн\s*/\s*(?:добу|день)", lowered) and not re.search(
+    contact_position = min(
+        (position for marker in ("контакти:", "телефон:", "📞") if (position := lowered.find(marker)) >= 0),
+        default=len(lowered),
+    )
+    offer_text = lowered[:contact_position]
+    if re.search(r"подобов|посуточ|за\s+(?:добу|сутки)|грн\s*/\s*(?:добу|день)", offer_text) and not re.search(
         r"довгострок|долгосроч|помісяч|помесяч", lowered
     ):
         return None
@@ -180,6 +210,11 @@ def parse_channel_page(html: str, source: TelegramSource) -> list[dict[str, Any]
             style = photo.get("style", "")
             image_match = re.search(r"url\(['\"]?([^'\")]+)", style)
             if image_match:
+                photos.append(image_match.group(1))
+        for preview in message.select(".link_preview_image, .link_preview_right_image"):
+            style = preview.get("style", "")
+            image_match = re.search(r"url\(['\"]?([^'\")]+)", style)
+            if image_match and image_match.group(1) not in photos:
                 photos.append(image_match.group(1))
         parsed.update(
             {
